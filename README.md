@@ -1,172 +1,177 @@
 # CongNghePhanMem_Project
+
 # Multilingual Automatic Narration System
 
-## Component Diagram
-
-```mermaid
-flowchart LR
-    subgraph MOBILE["Mobile App (Tourist / Passenger)"]
-        LOC["Location Service<br/>(background GPS)"]
-        GEO["Geofence Engine"]
-        QR["QR Scanner"]
-        NAR["Narration Engine<br/>(cooldown, TTS / audio player)"]
-        LANG["Language Settings"]
-        CACHE[("Local Storage<br/>POIs + offline audio")]
-        SYNC["Sync Client"]
-        LOG["Anonymous Usage Logger"]
-    end
-
-    subgraph CMS["CMS Web App (Administrator)"]
-        AUTH_UI["Login"]
-        POI_UI["POI and Content Management"]
-        TOUR_UI["Tour Management"]
-        QRGEN["QR Code Generator"]
-        DASH["Analytics Dashboard"]
-    end
-
-    subgraph BACKEND["Backend API"]
-        AUTH["Auth Service"]
-        CONTENT["Content Service<br/>(POI, translation, tour)"]
-        SYNCSVC["Sync Service"]
-        ANALYTICS["Analytics Service"]
-    end
-
-    subgraph DATA["Data Layer"]
-        DB[("Relational Database")]
-        FILES[("Audio File Storage")]
-    end
-
-    LOC --> GEO
-    GEO -->|trigger event| NAR
-    QR -->|POI id| NAR
-    LANG --> NAR
-    NAR --> CACHE
-    NAR --> LOG
-    SYNC <--> CACHE
-    LOG --> SYNC
-
-    SYNC -->|download POIs, tours| SYNCSVC
-    SYNC -->|upload usage events| ANALYTICS
-
-    AUTH_UI --> AUTH
-    POI_UI --> CONTENT
-    TOUR_UI --> CONTENT
-    QRGEN --> CONTENT
-    DASH --> ANALYTICS
-
-    CONTENT --> DB
-    CONTENT --> FILES
-    SYNCSVC --> CONTENT
-    ANALYTICS --> DB
-    AUTH --> DB
-```
-
-## Deployment Diagram
+## 1. System overview (component diagram)
 
 ```mermaid
 flowchart TB
-    subgraph PHONE["Node: User Smartphone (Android / iOS)"]
-        APP["Mobile App<br/>Geofence + Narration + QR Scanner"]
-        LOCALDB[("Local Storage<br/>POI cache + offline audio")]
-        APP --- LOCALDB
-    end
+    QR["QR codes<br/>Bus stops"]
+    MOBILE["Mobile app<br/>Geofence, QR, playback"]
+    CMS["CMS web<br/>Admin content tools"]
+    BACKEND["Backend API<br/>Content, sync, analytics"]
+    EXT["External APIs<br/>Translate, TTS"]
+    DB[("Database<br/>POIs, users, logs")]
+    FS[("File storage<br/>Audio files")]
 
-    subgraph BROWSER["Node: Admin Workstation"]
-        WEB["Web Browser<br/>CMS Web App"]
-    end
-
-    subgraph PRINT["Physical Artifact"]
-        QRCODE["QR Codes at Bus Stops<br/>Khanh Hoi, Vinh Hoi, Xom Chieu"]
-    end
-
-    subgraph SERVER["Node: Application Server"]
-        API["Backend API<br/>Auth, Content, Sync, Analytics"]
-    end
-
-    subgraph DBSRV["Node: Database Server"]
-        DB[("Relational Database")]
-    end
-
-    subgraph STORAGE["Node: File Storage"]
-        AUDIO[("Audio Files")]
-    end
-
-    QRCODE -. scanned by camera .-> APP
-    APP -->|HTTPS: sync POIs and tours| API
-    APP -->|HTTPS: anonymous usage events| API
-    WEB -->|HTTPS: manage content, view reports| API
-    API -->|SQL| DB
-    API -->|read / write| AUDIO
+    QR -.-> MOBILE
+    MOBILE <--> BACKEND
+    CMS --> BACKEND
+    BACKEND --> EXT
+    BACKEND --> DB
+    BACKEND --> FS
 ```
 
-## ERD
+## 2. Inside the Mobile app
+
+```mermaid
+flowchart LR
+    subgraph MOBILE["Mobile app"]
+        LOC["Location service<br/>Background GPS"]
+        QR["QR scanner<br/>Camera"]
+        GEO["Geofence engine<br/>Radius, priority"]
+        NAR["Narration engine<br/>TTS, audio queue"]
+        UI["UI/UX<br/>Map and settings"]
+        CONTENT[("Content layer<br/>SQLite, offline")]
+    end
+    API["Backend API<br/>Sync POIs, audio"]
+
+    LOC --> GEO
+    GEO --> NAR
+    QR --> NAR
+    CONTENT --> GEO
+    CONTENT --> UI
+    CONTENT --> NAR
+    CONTENT <--> API
+```
+
+## 3. Inside the Backend (3-layer)
+
+```mermaid
+flowchart TB
+    MOBILE["Mobile app<br/>Geofence, QR, playback"]
+    CMS["CMS web<br/>Admin content tools"]
+
+    subgraph BACKEND["Backend (3-layer)"]
+        CTRL["Controller layer<br/>REST endpoints, validation"]
+        SVC["Service layer<br/>Business logic, geofence rules"]
+        REPO["Repository layer<br/>Data access, queries"]
+    end
+
+    TR["Translate API"]
+    TTS["TTS API"]
+    DB[("Database<br/>POIs, users, logs")]
+    FS[("File storage<br/>Audio files")]
+
+    MOBILE --> CTRL
+    CMS --> CTRL
+    CTRL --> SVC
+    SVC --> REPO
+    SVC --> TR
+    SVC --> TTS
+    REPO --> DB
+    REPO --> FS
+```
+
+## 4. Inside the CMS web
+
+```mermaid
+flowchart LR
+    subgraph CMS["CMS web"]
+        LOGIN["Login<br/>Admin authentication"]
+        POI["POI manager<br/>Coordinates, audio, translations"]
+        TOUR["Tour manager<br/>Ordered POI routes"]
+        QRGEN["QR generator<br/>Link QR to POI"]
+        DASH["Analytics dashboard<br/>Charts, heatmap, export"]
+    end
+    API["Backend API<br/>REST endpoints"]
+
+    LOGIN --> API
+    POI --> API
+    TOUR --> API
+    QRGEN --> API
+    DASH --> API
+```
+
+## 5. Deployment diagram
+
+```mermaid
+flowchart TB
+    subgraph PHONE["User smartphone"]
+        APP["Mobile app"]
+        SQLITE[("SQLite<br/>Offline content")]
+    end
+    subgraph ADMIN["Admin computer"]
+        BROWSER["Browser<br/>CMS web"]
+    end
+    STOP["QR codes<br/>Bus stops"]
+    subgraph SERVER["Application server"]
+        API["Backend API<br/>3-layer"]
+    end
+    DB[("Database server")]
+    FS[("File storage<br/>Audio files")]
+    EXT["External APIs<br/>Translate, TTS"]
+
+    STOP -.->|camera scan| APP
+    APP --- SQLITE
+    APP <-->|HTTPS| API
+    BROWSER -->|HTTPS| API
+    API --> DB
+    API --> FS
+    API --> EXT
+```
+
+## 6. ERD
 
 ```mermaid
 erDiagram
     ADMIN_USER {
-        int admin_id PK
+        int id PK
         string username
         string password_hash
-        string role
     }
-
-    LANGUAGE {
-        string language_code PK
-        string language_name
-        boolean is_default
-    }
-
     POI {
-        int poi_id PK
+        int id PK
         string name
         float latitude
         float longitude
-        int activation_radius_m
-        int priority_level
-        datetime updated_at
+        int radius_m
+        int priority
     }
-
     POI_TRANSLATION {
-        int translation_id PK
+        int id PK
         int poi_id FK
-        string language_code FK
+        string language_code
         text narration_text
-        string audio_file_url
+        string audio_url
     }
-
     QR_CODE {
-        int qr_id PK
+        int id PK
         int poi_id FK
-        string qr_payload
-        datetime created_at
+        string payload
     }
-
     TOUR {
-        int tour_id PK
+        int id PK
         string name
         text description
-        datetime updated_at
     }
-
     TOUR_POI {
         int tour_id PK, FK
         int poi_id PK, FK
         int visit_order
     }
-
-    PLAYBACK_EVENT {
-        int event_id PK
+    USAGE_LOG {
+        int id PK
         int poi_id FK
-        string language_code FK
-        string anonymous_session_id
+        string session_id
         string trigger_method
+        string language_code
         datetime played_at
-        int listen_duration_sec
+        int listen_seconds
     }
-
-    LOCATION_TRACE {
-        int trace_id PK
-        string anonymous_session_id
+    LOCATION_LOG {
+        int id PK
+        string session_id
         float latitude
         float longitude
         datetime recorded_at
@@ -175,10 +180,8 @@ erDiagram
     ADMIN_USER ||--o{ POI : manages
     ADMIN_USER ||--o{ TOUR : manages
     POI ||--o{ POI_TRANSLATION : has
-    LANGUAGE ||--o{ POI_TRANSLATION : used_in
     POI ||--o{ QR_CODE : linked_to
     TOUR ||--|{ TOUR_POI : contains
     POI ||--o{ TOUR_POI : included_in
-    POI ||--o{ PLAYBACK_EVENT : triggers
-    LANGUAGE ||--o{ PLAYBACK_EVENT : played_in
+    POI ||--o{ USAGE_LOG : triggers
 ```
