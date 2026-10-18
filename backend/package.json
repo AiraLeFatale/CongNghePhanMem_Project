@@ -1,0 +1,24 @@
+{
+  "name": "narration-backend",
+  "version": "1.0.0",
+  "description": "Backend API (3-layer) cho Multilingual Automatic Narration System",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/db/seed.js",
+    "seed:demo": "node src/db/seed.js --demo",
+    "test": "node --import ./tests/setup.js --test tests/"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2"
+  }
+}

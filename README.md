@@ -2,6 +2,44 @@
 
 # Multilingual Automatic Narration System
 
+Tourists and bus passengers in District 4, Ho Chi Minh City (Khanh Hoi, Vinh Hoi, Xom Chieu wards) hear narration about nearby points of interest automatically, in their own language. Narration starts when they walk into a point's GPS radius or scan a QR code at a bus stop. Administrators manage points, translations, audio, tours and QR codes in a web CMS, and view anonymous usage analytics.
+
+| Part | Folder | Stack |
+|---|---|---|
+| Backend API (3-layer) | [`backend/`](backend/) | Node.js ≥ 22.13, Express 5, SQLite (`node:sqlite`), JWT |
+| CMS web | [`cms/`](cms/) | Vite, React, TypeScript, Leaflet, Chart.js |
+| Mobile app | [`mobile/`](mobile/) | Expo SDK 58 (React Native, TypeScript), SQLite offline |
+| Report documents | [`docs/`](docs/) | SRS, design, test plan, installation, user guide, API |
+
+Use-case specification: [`FocusedUseCases.docx`](FocusedUseCases.docx) (UC1–UC5).
+
+## Quick start
+
+```bash
+# 1. Backend: http://localhost:4000/api
+cd backend && npm install && npm run seed:demo && npm run dev
+
+# 2. CMS: http://localhost:5173  (login admin / admin123, local demo only)
+cd cms && npm install && npm run dev
+
+# 3. Mobile app: scan the QR code shown by Expo with Expo Go
+cd mobile && npm install && npx expo start
+```
+
+On a real phone, set the server URL in the app's Settings screen (or `EXPO_PUBLIC_API_URL`) to the computer's LAN IP, e.g. `http://192.168.1.10:4000`. For a classroom demo without walking, turn on **Mô phỏng vị trí** (location simulation) and tap the map or auto-walk a tour. Details: [`docs/04-installation.md`](docs/04-installation.md).
+
+## Tests
+
+| Part | Command | Result (18/10/2026) |
+|---|---|---|
+| Backend | `cd backend && npm test` | 43/43 pass |
+| CMS | `cd cms && npm test` | 36/36 pass, plus end-to-end browser run against the live API |
+| Mobile | `cd mobile && npx jest` | 62/62 unit tests pass; not yet run on a physical device |
+
+---
+
+# Original design diagrams
+
 ## 1. System overview (component diagram)
 
 ```mermaid
