@@ -1,0 +1,13 @@
+node_modules/
+backend/data/
+backend/uploads/*
+!backend/uploads/.gitkeep
+cms/dist/
+mobile/.expo/
+mobile/ios/
+mobile/android/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
