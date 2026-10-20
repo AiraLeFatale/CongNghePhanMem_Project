@@ -1,77 +1,77 @@
-# Installation and Deployment Guide
+# Hướng dẫn cài đặt và triển khai
 
-**Project:** Multilingual Automatic Narration System
-**Document version:** 1.0 (18/10/2026)
+**Dự án:** Hệ thống thuyết minh tự động đa ngôn ngữ
+**Phiên bản tài liệu:** 1.0 (18/10/2026)
 
-Repository layout:
+Cấu trúc kho mã nguồn:
 
 ```text
 narration-system/
-├── backend/   Express 5 REST API + SQLite (complete)
-├── cms/       Admin web (Vite 8 + React 19 + TypeScript)
-├── mobile/    Tourist app (Expo SDK 58, React Native 0.88, TypeScript)
-└── docs/      Project documentation
+├── backend/   REST API Express 5 + SQLite (hoàn chỉnh)
+├── cms/       Web quản trị (Vite 8 + React 19 + TypeScript)
+├── mobile/    Ứng dụng cho khách du lịch (Expo SDK 58, React Native 0.88, TypeScript)
+└── docs/      Tài liệu dự án
 ```
 
 ---
 
 ## 1. Backend
 
-### 1.1 Requirements
-- Node.js **22.13 or newer** (the backend uses the built-in `node:sqlite` module; check with `node --version`).
-- npm (bundled with Node.js).
-- Internet access from the server only if machine translation and server-side TTS are used.
+### 1.1 Yêu cầu
+- Node.js **22.13 trở lên** (backend dùng module có sẵn `node:sqlite`; kiểm tra bằng `node --version`).
+- npm (đi kèm Node.js).
+- Máy chủ chỉ cần truy cập Internet nếu dùng dịch máy và chuyển văn bản thành giọng nói (TTS) phía máy chủ.
 
-No separate database server is needed: the database is a single SQLite file created on first start.
+Không cần máy chủ cơ sở dữ liệu riêng: cơ sở dữ liệu là một file SQLite duy nhất, được tạo ở lần khởi động đầu tiên.
 
-### 1.2 Install and run locally
+### 1.2 Cài đặt và chạy trên máy cục bộ
 
 ```bash
 cd backend
 npm install
-npm run seed        # sample content: admin account, 8 POIs in District 4, 2 tours, 5 bus-stop QR codes
-npm run dev         # start with auto-reload (or: npm start)
+npm run seed        # nội dung mẫu: tài khoản admin, 8 điểm tham quan (POI) ở Quận 4, 2 tour, 5 mã QR trạm xe buýt
+npm run dev         # chạy với chế độ tự nạp lại khi sửa mã (hoặc: npm start)
 ```
 
-The API is then available at `http://localhost:4000/api` (check: `curl http://localhost:4000/api/health`).
+Sau đó API có tại `http://localhost:4000/api` (kiểm tra: `curl http://localhost:4000/api/health`).
 
-Seed commands **delete all existing data** in the configured database before inserting:
+Các lệnh seed **xoá toàn bộ dữ liệu hiện có** trong cơ sở dữ liệu đang cấu hình trước khi chèn dữ liệu mới:
 
-| Command | Effect |
+| Lệnh | Tác dụng |
 |---|---|
-| `npm run seed` | Admin account `admin` (password `admin123`, or the value of `ADMIN_PASSWORD`), sample POIs with Vietnamese and English narration, tours and QR codes |
-| `npm run seed:demo` | Same as above plus 30 days of **simulated** usage and location logs, so the analytics dashboard can be demonstrated. Do not use on a production database |
+| `npm run seed` | Tài khoản quản trị `admin` (mật khẩu `admin123`, hoặc giá trị của `ADMIN_PASSWORD`), các điểm tham quan mẫu có thuyết minh tiếng Việt và tiếng Anh, tour và mã QR |
+| `npm run seed:demo` | Như trên, cộng thêm 30 ngày nhật ký sử dụng và nhật ký vị trí **mô phỏng** để trình diễn trang thống kê. Không dùng trên cơ sở dữ liệu thật |
 
-Sample POI coordinates are approximate; verify them on a map before real use.
+Toạ độ các điểm tham quan mẫu chỉ là gần đúng; hãy kiểm tra lại trên bản đồ trước khi dùng thật.
 
-### 1.3 Run the tests
+### 1.3 Chạy kiểm thử
 
 ```bash
 cd backend
-npm test            # node --test tests/ ; 43 tests, in-memory database, no network needed
+npm test            # node --test tests/ ; 43 kiểm thử, cơ sở dữ liệu trong bộ nhớ, không cần mạng
 ```
 
-### 1.4 Environment variables
-All variables are optional for local development. They are read in `backend/src/config.js`.
+### 1.4 Biến môi trường
+Khi phát triển trên máy cục bộ, mọi biến đều không bắt buộc. Các biến được đọc trong `backend/src/config.js`.
 
-| Variable | Default | Description |
+| Biến | Mặc định | Mô tả |
 |---|---|---|
-| `PORT` | `4000` | HTTP port (the server binds to `0.0.0.0`) |
-| `DB_FILE` | `backend/data/narration.db` | Path of the SQLite database file (directory is created if missing) |
-| `UPLOAD_DIR` | `backend/uploads` | Directory for uploaded/generated audio and images, served at `/uploads` |
-| `JWT_SECRET` | `dev-only-secret-change-me` | Secret for signing admin tokens. **Required in production**: with `NODE_ENV=production` the server exits if it is not set |
-| `JWT_EXPIRES_IN` | `8h` | Admin token lifetime (jsonwebtoken format, e.g. `2h`, `1d`) |
-| `CORS_ORIGIN` | `*` | Allowed origins for browsers; comma-separated list (e.g. `https://cms.example.org`) |
-| `TRANSLATE_PROVIDER` | `google-free` | `google-free` (unofficial Google Translate endpoint), `libretranslate`, or `none` (disables auto-translate) |
-| `LIBRETRANSLATE_URL` | `https://libretranslate.com` | LibreTranslate server when `TRANSLATE_PROVIDER=libretranslate` |
-| `LIBRETRANSLATE_KEY` | empty | API key for LibreTranslate, if the server requires one |
-| `TTS_PROVIDER` | `google-free` | `google-free` (Google Translate TTS endpoint) or `none` (disables server TTS; the app still uses on-device TTS) |
-| `NODE_ENV` | unset | Set to `production` on the server to enforce the `JWT_SECRET` check |
-| `ADMIN_PASSWORD` | `admin123` | Used only by `npm run seed` / `seed:demo` for the initial admin password |
+| `PORT` | `4000` | Cổng HTTP (máy chủ lắng nghe trên `0.0.0.0`) |
+| `DB_FILE` | `backend/data/narration.db` | Đường dẫn file cơ sở dữ liệu SQLite (thư mục được tạo nếu chưa có) |
+| `UPLOAD_DIR` | `backend/uploads` | Thư mục chứa audio và ảnh được tải lên hoặc được tạo ra, phục vụ tại `/uploads` |
+| `JWT_SECRET` | `dev-only-secret-change-me` | Khoá bí mật để ký token quản trị. **Bắt buộc khi chạy thật**: với `NODE_ENV=production`, máy chủ dừng nếu chưa đặt biến này |
+| `JWT_EXPIRES_IN` | `8h` | Thời hạn token quản trị (định dạng jsonwebtoken, ví dụ `2h`, `1d`) |
+| `CORS_ORIGIN` | `*` | Các origin trình duyệt được phép; danh sách phân tách bằng dấu phẩy (ví dụ `https://cms.example.org`) |
+| `TRANSLATE_PROVIDER` | `google-free` | `google-free` (endpoint Google Translate không chính thức), `libretranslate`, hoặc `none` (tắt dịch tự động) |
+| `LIBRETRANSLATE_URL` | `https://libretranslate.com` | Máy chủ LibreTranslate khi `TRANSLATE_PROVIDER=libretranslate` |
+| `LIBRETRANSLATE_KEY` | trống | API key cho LibreTranslate, nếu máy chủ đó yêu cầu |
+| `TTS_PROVIDER` | `google-free` | `google-free` (endpoint TTS của Google Translate) hoặc `none` (tắt TTS phía máy chủ; ứng dụng vẫn dùng TTS trên thiết bị) |
+| `NODE_ENV` | không đặt | Đặt `production` trên máy chủ để bắt buộc kiểm tra `JWT_SECRET` |
+| `ADMIN_PASSWORD` | `admin123` | Chỉ dùng cho `npm run seed` / `seed:demo` để đặt mật khẩu quản trị ban đầu |
 
-Fixed in code (not environment variables): supported languages `vi, en, zh, ko, ja, fr`, default language `vi`, upload limit 15 MB, JSON body limit 1 MB, login limit 20 attempts / 15 min / IP, log endpoints 120 requests / min / IP.
+Cố định trong mã (không phải biến môi trường): các ngôn ngữ hỗ trợ `vi, en, zh, ko, ja, fr`, ngôn ngữ mặc định `vi`, giới hạn tải lên 15 MB, giới hạn thân JSON 1 MB, giới hạn đăng nhập 20 lần / 15 phút / IP, các endpoint ghi nhật ký 120 yêu cầu / phút / IP.
 
-Example for a shell session:
+Ví dụ trong một phiên shell:
 
 ```bash
 export JWT_SECRET="$(openssl rand -hex 32)"
@@ -83,121 +83,121 @@ npm start
 
 ## 2. CMS web
 
-### 2.1 Requirements
-- Node.js **22.22 or newer** (`engines` in `cms/package.json`).
-- The backend running (default `http://localhost:4000`) with seed data.
+### 2.1 Yêu cầu
+- Node.js **22.22 trở lên** (`engines` trong `cms/package.json`).
+- Backend đang chạy (mặc định `http://localhost:4000`) và đã có dữ liệu seed.
 
-### 2.2 Run in development
+### 2.2 Chạy ở chế độ phát triển
 
 ```bash
 cd cms
 npm install
-npm run dev          # http://localhost:5173 ; log in with admin / admin123 (seed data)
+npm run dev          # http://localhost:5173 ; đăng nhập bằng admin / admin123 (dữ liệu seed)
 ```
 
-In development, Vite proxies `/api` and `/uploads` to the backend, so no CORS configuration is needed.
+Ở chế độ phát triển, Vite chuyển tiếp (proxy) `/api` và `/uploads` tới backend nên không cần cấu hình CORS.
 
-| Command | Purpose |
+| Lệnh | Mục đích |
 |---|---|
-| `npm run dev` | Development server with proxy |
-| `npm run build` | Type check (`tsc -b`) and production build into `cms/dist/` |
-| `npm run preview` | Serve the production build locally (also proxied) |
-| `npm test` | Unit tests (Vitest): API client, validation, formatting, Excel export (36 tests) |
-| `npm run typecheck` | Type check only |
+| `npm run dev` | Máy chủ phát triển có proxy |
+| `npm run build` | Kiểm tra kiểu (`tsc -b`) và build bản chạy thật vào `cms/dist/` |
+| `npm run preview` | Phục vụ bản build chạy thật trên máy cục bộ (cũng có proxy) |
+| `npm test` | Kiểm thử đơn vị (unit test) bằng Vitest: API client, kiểm tra dữ liệu nhập, định dạng, xuất Excel (36 kiểm thử) |
+| `npm run typecheck` | Chỉ kiểm tra kiểu |
 
-### 2.3 Environment variables
-Copy `cms/.env.example` to `cms/.env` when needed.
+### 2.3 Biến môi trường
+Sao chép `cms/.env.example` thành `cms/.env` khi cần.
 
-| Variable | Used by | Description |
+| Biến | Dùng bởi | Mô tả |
 |---|---|---|
-| `VITE_API_URL` | `npm run build` | Backend origin without `/api`, e.g. `https://api.example.org`. Leave empty when the CMS and backend share one domain (reverse proxy routes `/api` and `/uploads`). Audio/image URLs (`/uploads/...`) are prefixed with this origin. Read at build time |
-| `DEV_PROXY_TARGET` | `npm run dev`, `npm run preview` | Backend the proxy forwards to; default `http://localhost:4000` |
+| `VITE_API_URL` | `npm run build` | Origin của backend, không kèm `/api`, ví dụ `https://api.example.org`. Để trống khi CMS và backend dùng chung một tên miền (reverse proxy định tuyến `/api` và `/uploads`). URL audio/ảnh (`/uploads/...`) được ghép origin này vào phía trước. Biến được đọc lúc build |
+| `DEV_PROXY_TARGET` | `npm run dev`, `npm run preview` | Backend mà proxy chuyển tiếp tới; mặc định `http://localhost:4000` |
 
-If the CMS is served from a different domain than the backend, set the backend's `CORS_ORIGIN` to the CMS origin. `cms/dist/` is a single-page application: the web server must return `index.html` for every path that is not a file (see the nginx example in §4).
+Nếu CMS được phục vụ từ tên miền khác backend, hãy đặt `CORS_ORIGIN` của backend bằng origin của CMS. `cms/dist/` là ứng dụng một trang (SPA): máy chủ web phải trả về `index.html` cho mọi đường dẫn không phải là file (xem ví dụ nginx ở §4).
 
 ---
 
-## 3. Mobile app
+## 3. Ứng dụng di động
 
-### 3.1 Requirements
-- Node.js 20 or newer; the backend running and reachable from the phone (port 4000 open in the firewall).
-- A phone with **Expo Go** (SDK 58) on the same Wi-Fi network as the computer, or an Android emulator / iOS simulator.
+### 3.1 Yêu cầu
+- Node.js 20 trở lên; backend đang chạy và điện thoại truy cập được (mở cổng 4000 trên tường lửa).
+- Điện thoại cài **Expo Go** (SDK 58), dùng chung mạng Wi-Fi với máy tính, hoặc Android emulator / iOS simulator.
 
-### 3.2 Run with Expo Go
+### 3.2 Chạy bằng Expo Go
 
 ```bash
 cd mobile
-npm install            # if npm reports ERESOLVE about react-dom, use: npm install --legacy-peer-deps
-cp .env.example .env   # then set EXPO_PUBLIC_API_URL (see below)
-npx expo start         # scan the QR code shown in the terminal with Expo Go
+npm install            # nếu npm báo lỗi ERESOLVE về react-dom, dùng: npm install --legacy-peer-deps
+cp .env.example .env   # sau đó đặt EXPO_PUBLIC_API_URL (xem bên dưới)
+npx expo start         # quét mã QR hiện trên terminal bằng Expo Go
 ```
 
-The `--legacy-peer-deps` note comes from a peer-dependency mismatch between `react-dom` (optional peer of `@expo/router-server`) and the `react` version pinned by SDK 58; the app does not use the web target.
+Ghi chú về `--legacy-peer-deps` xuất phát từ việc phụ thuộc ngang hàng (peer dependency) không khớp giữa `react-dom` (peer tuỳ chọn của `@expo/router-server`) và phiên bản `react` mà SDK 58 cố định; ứng dụng không dùng nền tảng web.
 
-### 3.3 Backend address
-On a phone, `localhost` refers to the phone itself. The app chooses the backend address in this order (`mobile/src/config.ts`):
+### 3.3 Địa chỉ backend
+Trên điện thoại, `localhost` là chính điện thoại. Ứng dụng chọn địa chỉ backend theo thứ tự sau (`mobile/src/config.ts`):
 
-1. The URL entered in the app under **Settings → Server → Server address** (stored on the device).
-2. `EXPO_PUBLIC_API_URL` in `mobile/.env` (restart `expo start` after editing), e.g. `http://192.168.1.10:4000`, without `/api`.
-3. Automatic: the LAN IP of the computer running Metro (from Expo's `hostUri`) plus port 4000. When phone and laptop are on the same Wi-Fi, this usually needs no configuration.
-4. Defaults: `http://10.0.2.2:4000` on the Android emulator, `http://localhost:4000` on the iOS simulator.
+1. URL nhập trong ứng dụng tại **Cài đặt → Máy chủ → Địa chỉ máy chủ** (lưu trên thiết bị).
+2. `EXPO_PUBLIC_API_URL` trong `mobile/.env` (khởi động lại `expo start` sau khi sửa), ví dụ `http://192.168.1.10:4000`, không kèm `/api`.
+3. Tự động: IP LAN của máy tính đang chạy Metro (lấy từ `hostUri` của Expo) cộng cổng 4000. Khi điện thoại và laptop dùng chung Wi-Fi, thường không cần cấu hình gì.
+4. Mặc định: `http://10.0.2.2:4000` trên Android emulator, `http://localhost:4000` trên iOS simulator.
 
-Find the LAN IP on macOS with `ipconfig getifaddr en0`. The backend already listens on `0.0.0.0`. Campus Wi-Fi networks often block device-to-device traffic (client isolation); in that case use a phone hotspot. Plain `http://` to a LAN IP is allowed (`usesCleartextTraffic` on Android, ATS exceptions on iOS in `app.json`); production builds should use the HTTPS backend URL.
+Trên macOS, xem IP LAN bằng `ipconfig getifaddr en0`. Backend đã lắng nghe trên `0.0.0.0`. Wi-Fi ở trường học thường chặn kết nối giữa các thiết bị (client isolation); khi đó hãy dùng điểm phát Wi-Fi từ điện thoại. Kết nối `http://` thuần tới IP LAN được cho phép (`usesCleartextTraffic` trên Android, ngoại lệ ATS trên iOS trong `app.json`); bản build chạy thật nên dùng URL backend HTTPS.
 
-### 3.4 Expo Go versus development build
+### 3.4 Expo Go so với development build
 
-| Feature | Expo Go | Development or store build |
+| Tính năng | Expo Go | Development build hoặc bản phát hành trên store |
 |---|---|---|
-| Map, tours, QR, TTS, audio, SQLite, sync | Yes | Yes |
-| Foreground GPS | Yes | Yes |
-| Background GPS / screen off | No (the app falls back to foreground GPS and Settings shows a note) | Yes, enable "Keep running in background" in Settings and grant "Always" |
+| Bản đồ, tour, QR, TTS, audio, SQLite, đồng bộ (sync) | Có | Có |
+| GPS khi ứng dụng đang mở trên màn hình | Có | Có |
+| Định vị nền (background location) / khi tắt màn hình | Không (ứng dụng chuyển về GPS khi đang mở và Cài đặt hiện ghi chú) | Có, bật "Tiếp tục khi chạy nền" trong Cài đặt và cấp quyền vị trí "Luôn luôn" |
 
 Development build:
 
 ```bash
 npx expo install expo-dev-client
-npx expo run:android                       # requires Android Studio / SDK
-# or
+npx expo run:android                       # cần Android Studio / SDK
+# hoặc
 npx eas-cli@latest build --profile development --platform android
 ```
 
-### 3.5 Tests and checks
+### 3.5 Kiểm thử và kiểm tra
 
 ```bash
-npm test                                              # unit tests (62)
-LIVE_API=http://localhost:4000 npx jest backend.live  # 5 read-only tests against a running seeded backend
+npm test                                              # kiểm thử đơn vị (62)
+LIVE_API=http://localhost:4000 npx jest backend.live  # 5 kiểm thử chỉ đọc với backend đang chạy, đã seed
 npm run typecheck                                     # tsc --noEmit
 npm run doctor                                        # expo-doctor
-npm run export:android                                # bundle compiles (output in dist-android/)
-npm run gen:leaflet                                   # regenerate embedded Leaflet after upgrading leaflet
+npm run export:android                                # bundle biên dịch được (kết quả trong dist-android/)
+npm run gen:leaflet                                   # tạo lại Leaflet nhúng sau khi nâng cấp leaflet
 ```
 
-### 3.6 Classroom demo without GPS or camera
-1. **Settings → Demo mode → Location simulation**: on (real GPS is ignored).
-2. On the **Map** tab, tap inside a POI circle; narration starts. Or open **Tours → a tour → Simulate walking this tour**; speed ×1–×30 in Settings.
-3. QR without a camera: **Scan QR → Enter code manually** and paste a code from the CMS **QR** page (e.g. `NARR:…`).
-4. Offline: disable the network after the first sync; map circles, tours, synced QR codes and TTS keep working and logs are uploaded later.
+### 3.6 Trình diễn trên lớp không cần GPS hoặc camera
+1. **Cài đặt → Chế độ demo → Mô phỏng vị trí**: bật (bỏ qua GPS thật).
+2. Ở tab **Bản đồ**, chạm vào bên trong vòng tròn của một điểm tham quan; thuyết minh bắt đầu phát. Hoặc mở **Tour → một tour → Mô phỏng đi bộ theo tour**; tốc độ ×1–×30 chỉnh trong Cài đặt.
+3. QR không cần camera: **Quét QR → Nhập mã thủ công** rồi dán một mã lấy từ trang **Mã QR** của CMS (ví dụ `NARR:…`).
+4. Ngoại tuyến (offline): ngắt mạng sau lần đồng bộ đầu tiên; vòng tròn trên bản đồ, tour, mã QR đã đồng bộ và TTS vẫn hoạt động, nhật ký sẽ được gửi lên sau.
 
-Emulators can also fake GPS: Android Emulator → Extended controls → Location; iOS Simulator → Features → Location.
+Emulator cũng có thể giả lập GPS: Android Emulator → Extended controls → Location; iOS Simulator → Features → Location.
 
 ---
 
-## 4. Production deployment notes
+## 4. Ghi chú triển khai thật
 
-### 4.1 Topology
-One Linux server runs the Node.js backend behind a reverse proxy; the CMS is a static bundle served by the same proxy. See the deployment diagram in `02-design.md` §7.
+### 4.1 Mô hình triển khai
+Một máy chủ Linux chạy backend Node.js phía sau reverse proxy; CMS là gói file tĩnh do chính proxy đó phục vụ. Xem sơ đồ triển khai trong `02-design.md` §7.
 
-### 4.2 Checklist
-1. Install Node.js ≥ 22.13. Copy `backend/` and run `npm ci --omit=dev`.
-2. Set environment variables: `NODE_ENV=production`, a random `JWT_SECRET` (at least 32 bytes), `CORS_ORIGIN` restricted to the CMS origin, and `DB_FILE` / `UPLOAD_DIR` pointing to a persistent data directory outside the code directory.
-3. Create the first admin with `ADMIN_PASSWORD=<strong password> npm run seed`, then replace the sample content in the CMS; or prepare the content database elsewhere and copy it. Change the password after first login. Never run `seed` again on the production database (it deletes all data).
-4. Run the backend as a service (systemd or pm2) bound to localhost only (firewall port 4000), restart on failure.
-5. Put a reverse proxy (nginx or Caddy) in front with HTTPS (e.g. Let's Encrypt). The app sets `trust proxy = 1`, so the rate limiters use the client IP from the proxy's `X-Forwarded-For` header; exactly one proxy hop is assumed.
-6. Set the proxy's maximum request body size to at least 16 MB so audio uploads (≤ 15 MB) are not rejected by the proxy.
-7. Build the CMS with `VITE_API_URL` empty (same domain) or set to the API origin, and serve `cms/dist/` as static files; route `/api` and `/uploads` to the backend.
-8. Build the mobile app with `EXPO_PUBLIC_API_URL` set to the production HTTPS origin (EAS build or `expo run`), so background location is available.
+### 4.2 Danh sách kiểm tra
+1. Cài Node.js ≥ 22.13. Sao chép `backend/` và chạy `npm ci --omit=dev`.
+2. Đặt biến môi trường: `NODE_ENV=production`, `JWT_SECRET` ngẫu nhiên (ít nhất 32 byte), `CORS_ORIGIN` giới hạn ở origin của CMS, và `DB_FILE` / `UPLOAD_DIR` trỏ tới một thư mục dữ liệu lâu dài nằm ngoài thư mục mã nguồn.
+3. Tạo tài khoản quản trị đầu tiên bằng `ADMIN_PASSWORD=<mật khẩu mạnh> npm run seed`, rồi thay nội dung mẫu trong CMS; hoặc chuẩn bị cơ sở dữ liệu nội dung ở nơi khác rồi sao chép vào. Đổi mật khẩu sau lần đăng nhập đầu tiên. Không bao giờ chạy lại `seed` trên cơ sở dữ liệu thật (lệnh này xoá toàn bộ dữ liệu).
+4. Chạy backend dưới dạng dịch vụ (systemd hoặc pm2), chỉ lắng nghe trên localhost (chặn cổng 4000 bằng tường lửa), tự khởi động lại khi lỗi.
+5. Đặt reverse proxy (nginx hoặc Caddy) phía trước, có HTTPS (ví dụ Let's Encrypt). Ứng dụng đặt `trust proxy = 1`, nên bộ giới hạn tần suất dùng IP của client lấy từ header `X-Forwarded-For` của proxy; giả định có đúng một tầng proxy.
+6. Đặt kích thước thân yêu cầu tối đa của proxy ít nhất 16 MB để proxy không từ chối file audio tải lên (≤ 15 MB).
+7. Build CMS với `VITE_API_URL` để trống (cùng tên miền) hoặc đặt bằng origin của API, rồi phục vụ `cms/dist/` dưới dạng file tĩnh; định tuyến `/api` và `/uploads` tới backend.
+8. Build ứng dụng di động với `EXPO_PUBLIC_API_URL` là origin HTTPS chạy thật (EAS build hoặc `expo run`), để có định vị nền.
 
-Example nginx server block (adapt paths and domain):
+Ví dụ khối server nginx (điều chỉnh đường dẫn và tên miền):
 
 ```nginx
 server {
@@ -214,16 +214,16 @@ server {
 }
 ```
 
-### 4.3 Backups
-Data to back up: the SQLite database (`DB_FILE`) and the uploads directory (`UPLOAD_DIR`). Both are needed: the database stores audio paths, the directory stores the files.
+### 4.3 Sao lưu
+Dữ liệu cần sao lưu: cơ sở dữ liệu SQLite (`DB_FILE`) và thư mục tải lên (`UPLOAD_DIR`). Cần cả hai: cơ sở dữ liệu lưu đường dẫn audio, còn thư mục lưu chính các file.
 
-- The database runs in WAL mode, so copying only `narration.db` while the server is writing can produce an inconsistent copy. Use SQLite's online backup, for example `sqlite3 /srv/narration/data/narration.db ".backup '/backup/narration-$(date +%F).db'"`, or stop the service briefly and copy `narration.db`, `narration.db-wal` and `narration.db-shm` together.
-- Copy the uploads directory with `rsync -a` after the database backup.
-- Schedule daily backups (cron), keep at least 7 daily and 4 weekly copies, and store one copy off the server.
-- Test restoration once: restore to a separate directory, start the backend with `DB_FILE`/`UPLOAD_DIR` pointing there, and check that POIs and audio load.
+- Cơ sở dữ liệu chạy ở chế độ WAL, nên nếu chỉ sao chép `narration.db` trong lúc máy chủ đang ghi thì bản sao có thể không nhất quán. Hãy dùng cơ chế sao lưu trực tuyến của SQLite, ví dụ `sqlite3 /srv/narration/data/narration.db ".backup '/backup/narration-$(date +%F).db'"`, hoặc dừng dịch vụ trong chốc lát rồi sao chép cùng lúc `narration.db`, `narration.db-wal` và `narration.db-shm`.
+- Sao chép thư mục tải lên bằng `rsync -a` sau khi sao lưu cơ sở dữ liệu.
+- Lên lịch sao lưu hằng ngày (cron), giữ ít nhất 7 bản hằng ngày và 4 bản hằng tuần, và lưu một bản ở ngoài máy chủ.
+- Thử khôi phục một lần: khôi phục vào một thư mục riêng, khởi động backend với `DB_FILE`/`UPLOAD_DIR` trỏ tới đó, rồi kiểm tra điểm tham quan và audio có tải được không.
 
-### 4.4 Operations
-- Logs: the backend prints errors to stdout/stderr; collect them with journald or pm2 logs.
-- Health check: `GET /api/health`.
-- Upgrades: stop service, back up, deploy new code, `npm ci --omit=dev`, start. The schema uses `CREATE TABLE IF NOT EXISTS`; changes to existing tables would need a migration script (none exist yet).
-- If the free translate/TTS endpoints fail or are blocked, set `TRANSLATE_PROVIDER=none` / `TTS_PROVIDER=none`, or switch to a self-hosted LibreTranslate. Content editing and the app keep working.
+### 4.4 Vận hành
+- Nhật ký: backend in lỗi ra stdout/stderr; thu thập bằng journald hoặc pm2 logs.
+- Kiểm tra tình trạng: `GET /api/health`.
+- Nâng cấp: dừng dịch vụ, sao lưu, triển khai mã mới, `npm ci --omit=dev`, khởi động. Lược đồ dùng `CREATE TABLE IF NOT EXISTS`; thay đổi bảng đã có sẽ cần script migration (hiện chưa có).
+- Nếu các endpoint dịch/TTS miễn phí lỗi hoặc bị chặn, đặt `TRANSLATE_PROVIDER=none` / `TTS_PROVIDER=none`, hoặc chuyển sang LibreTranslate tự lưu trữ. Việc soạn nội dung và ứng dụng vẫn hoạt động bình thường.

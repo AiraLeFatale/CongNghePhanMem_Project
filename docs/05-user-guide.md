@@ -1,147 +1,147 @@
-# User Guide
+# Hướng dẫn sử dụng
 
-**Project:** Multilingual Automatic Narration System
-**Document version:** 1.0 (18/10/2026)
+**Dự án:** Hệ thống thuyết minh tự động đa ngôn ngữ
+**Phiên bản tài liệu:** 1.0 (18/10/2026)
 
-This guide follows use cases UC1–UC5. The CMS interface is in Vietnamese; labels are quoted as they appear, with an English translation in brackets. The mobile app shows a Vietnamese interface when the narration language is Vietnamese and an English interface otherwise; English labels are quoted. Screenshots are marked **TODO**.
-
----
-
-## Part A. Content administrators (CMS web)
-
-### A.1 Logging in and out
-1. Open the CMS address in a browser (e.g. `https://<server>/`; in development `http://localhost:5173`).
-2. Enter "Tên đăng nhập" [username] and "Mật khẩu" [password] and click "Đăng nhập" [Log in].
-3. After 20 failed attempts within 15 minutes, login is blocked for 15 minutes from that network.
-4. A session lasts 8 hours. When it expires, the CMS returns to the login page and, after logging in again, reopens the page you were on.
-5. "Đăng xuất" [Log out] is at the bottom of the sidebar. Your name in the sidebar opens the account page, where "Đổi mật khẩu" [Change password] requires the current password and a new one of at least 8 characters.
-
-The sidebar contains "Tổng quan" [Overview], "Điểm thuyết minh" [Points of interest], "Tour tham quan" [Tours], "Mã QR" [QR codes] and "Thống kê" [Analytics]. On a phone-sized screen it collapses into a menu button.
-
-> Screenshot TODO: login page, sidebar.
-
-### A.2 Overview
-"Tổng quan" shows the number of POIs, tours and QR codes, figures for the last 7 days, and a "Việc cần làm" [To do] list of POIs missing audio, missing languages or without a QR code, with shortcuts such as "Thêm điểm thuyết minh" [Add POI].
-
-> Screenshot TODO: overview page.
-
-### A.3 Managing points of interest (UC3)
-**View and search.** Open "Điểm thuyết minh". The list shows each POI's name, address, radius, priority, languages with text, languages with audio and number of QR codes. Type in "Tìm theo tên hoặc địa chỉ…" [Search by name or address] to filter.
-
-**Create or edit a POI.**
-1. Click "Thêm điểm" [Add POI], or click an existing POI.
-2. Enter "Tên điểm" [name] and optionally "Địa chỉ" [address].
-3. Set the location: click on the map to place the pin, or drag it; you can also type "Vĩ độ" [latitude] and "Kinh độ" [longitude]. Other POIs are shown faded so overlaps are visible.
-4. Set "Bán kính kích hoạt (m)" [activation radius, greater than 0, at most 5000 m]. The circle on the map shows the area in which the app starts the narration. Typical values: 50–150 m.
-5. Set "Mức ưu tiên" [priority, 0–100]. When a visitor is inside several POIs at once, the higher priority is played.
-6. Optionally upload an image (JPG, PNG or WebP, up to 15 MB) with "Tải ảnh lên" [Upload image].
-7. In the Vietnamese tab enter "Tiêu đề hiển thị" [display title] and "Nội dung thuyết minh" [narration text]. Vietnamese is mandatory and is played when a visitor's language has no text.
-8. For other languages, open the language tab and type the text, or click "Dịch tự động từ tiếng Việt" [Translate from Vietnamese]; "Dịch tất cả ngôn ngữ còn trống" [Translate all empty languages] fills every empty tab at once. Machine translation is a draft: read and correct it.
-9. Click "Tạo điểm" [Create POI] for a new POI or "Lưu thay đổi" [Save changes]. Invalid fields (missing coordinates, radius 0, no Vietnamese text) are marked with a message under the field and nothing is saved.
-
-If you try to leave the page with unsaved changes, the CMS asks for confirmation.
-
-**Audio for a language.** In each language tab:
-- "Tải file audio" [Upload audio file]: mp3, m4a, aac, wav, ogg or webm, up to 15 MB, e.g. a recording by a guide;
-- "Tạo giọng đọc" [Create voice]: generates an MP3 from the saved text with server text-to-speech. If the form has unsaved changes, the CMS offers "Lưu và tạo giọng đọc" [Save and create voice];
-- listen to the audio in the built-in player, or "Gỡ audio" [Remove audio].
-
-Without audio, the app reads the text with the phone's built-in voice.
-
-**Delete a POI.** Click "Xoá điểm" [Delete POI] and confirm. This also deletes its translations, audio, image and QR codes and removes it from tours. Past statistics are kept.
-
-Changes reach visitors' phones at their next sync (at app start, every 5 minutes while the app is open, or when the connection returns).
-
-> Screenshots TODO: POI list, POI form with map, language tabs, audio panel.
-
-### A.4 QR codes for bus stops (UC3 A2, used by UC2)
-1. Open a POI and scroll to "Mã QR tại trạm xe buýt" [QR codes at bus stops].
-2. Enter a label naming the stop (e.g. "Trạm xe buýt Khánh Hội") and click "Tạo mã QR" [Create QR code].
-3. Click "PNG" to download the image, or "In mã QR của điểm này" [Print this POI's QR codes].
-4. The "Mã QR" page lists all codes and can be filtered by POI ("Lọc theo điểm"). Select codes and click "In bảng mã" [Print code sheet] to print an A4 sheet with four codes per page, each with the stop label, POI name and an instruction to scan.
-5. Print at least A5 size and laminate for outdoor use. Install at the stop and test with the app.
-6. To withdraw a damaged or moved code, delete it ("Xoá mã QR"); after the next sync the app reports "Invalid QR code" for it. Create a new code if needed.
-
-> Screenshot TODO: QR section of a POI, QR page, print sheet.
-
-### A.5 Managing tours (UC4)
-1. Open "Tour tham quan" and click "Tạo tour" [Create tour], or open an existing tour.
-2. Enter "Tên tour" [name] and "Mô tả" [description].
-3. Add POIs from the list, then order them by dragging or with the up/down buttons (also usable with the keyboard). The map draws the numbered route.
-4. Click "Tạo tour" (new tour) or "Lưu tour" [Save tour]. A tour must contain at least one POI.
-5. To delete a tour, click "Xoá tour" and confirm. The POIs themselves are not deleted.
-
-> Screenshot TODO: tour editor with map.
-
-### A.6 Usage analytics (UC5)
-1. Open "Thống kê".
-2. Choose a period with the presets "7 ngày", "30 ngày" (default) or "90 ngày", or with "Từ ngày" / "Đến ngày" [from / to], and optionally a tour (default "Tất cả tour" [all tours]); click "Xem báo cáo" [View report].
-3. The report shows:
-   - totals: plays, sessions (app launches), average and total listening time;
-   - "Điểm được nghe nhiều nhất" [most-listened POIs] and average listening time per POI, with a detail table;
-   - plays per day (UTC dates), by trigger method (automatic GPS, QR, manual), by language and by hour of day (Vietnam time);
-   - "Bản đồ nhiệt vị trí người dùng" [visitor location heatmap]; tick "Hiện lộ trình ẩn danh" [Show anonymous routes] to draw sample routes.
-4. If nothing was recorded for the filter, "Không có dữ liệu" [No data] is shown.
-5. "Xuất Excel" [Export Excel] downloads a workbook with one sheet per table. "Xuất PDF" [Export PDF] opens a print-ready report; click "In / Lưu PDF" [Print / Save PDF] and choose "Save as PDF" in the browser's print dialog.
-
-All data is anonymous: there are no visitor accounts, each app launch uses a new random session code, and locations are stored at about 11 m precision.
-
-> Screenshots TODO: analytics page, heatmap, print report.
+Hướng dẫn này đi theo các ca sử dụng (use case) UC1–UC5. Giao diện CMS bằng tiếng Việt; các nhãn được trích đúng như trên màn hình. Ứng dụng di động hiển thị giao diện tiếng Việt khi ngôn ngữ thuyết minh là tiếng Việt và giao diện tiếng Anh với các ngôn ngữ khác; tài liệu trích nhãn theo giao diện tiếng Việt. Các vị trí cần ảnh chụp màn hình được đánh dấu **Cần bổ sung**.
 
 ---
 
-## Part B. Tourists and passengers (mobile app)
+## Phần A. Quản trị viên nội dung (content administrator) – CMS web
 
-The app has four tabs: **Map**, **Tours**, **Scan QR** and **Settings**.
+### A.1 Đăng nhập và đăng xuất
+1. Mở địa chỉ CMS trên trình duyệt (ví dụ `https://<server>/`; khi phát triển là `http://localhost:5173`).
+2. Nhập "Tên đăng nhập" và "Mật khẩu", rồi bấm "Đăng nhập".
+3. Sau 20 lần đăng nhập sai trong 15 phút, mạng đó bị chặn đăng nhập trong 15 phút.
+4. Một phiên làm việc kéo dài 8 giờ. Khi phiên hết hạn, CMS quay về trang đăng nhập; sau khi đăng nhập lại, CMS mở lại trang bạn đang dùng.
+5. Nút "Đăng xuất" nằm ở cuối thanh bên. Bấm vào tên của bạn trên thanh bên để mở trang tài khoản; tại đây, "Đổi mật khẩu" yêu cầu nhập mật khẩu hiện tại và mật khẩu mới dài ít nhất 8 ký tự.
 
-### B.1 First start
-1. Open the app while connected to the internet. It downloads the narration content for the area; afterwards it works offline.
-2. Allow **location** access so narration can start automatically. If you refuse, the app explains why it is needed and offers "Open Settings" and "Retry"; QR scanning and playing from the map still work.
-3. The narration language starts as your phone's language if supported, otherwise Vietnamese. Change it in **Settings → Narration language** (Tiếng Việt, English, 中文, 한국어, 日本語, Français). If a place has no text in your language, you hear Vietnamese and a notice tells you so.
-4. Without internet on first start, the map shows "You are offline and no data is stored on this device…"; connect once to download the content.
+Thanh bên gồm "Tổng quan", "Điểm thuyết minh", "Tour tham quan", "Mã QR" và "Thống kê". Trên màn hình cỡ điện thoại, thanh bên thu gọn thành một nút menu.
 
-> Screenshots TODO: permission screen, settings.
+> Cần bổ sung ảnh chụp: trang đăng nhập, thanh bên.
 
-### B.2 Automatic narration while walking (UC1)
-- Walk or ride as usual. When you come close to a point of interest, its narration starts by itself and the mini player at the bottom shows "Now playing" with a "Stop playback" button.
-- The map colours each circle by state: inside, playing, recently heard, next stop of a followed tour.
-- If another narration is playing, the new place is skipped ("Skipped …: another narration is playing"). Tap the place on the map and press "Play narration" to hear it.
-- The same place is not repeated within 10 minutes ("Skipped …: heard recently"). The time can be changed in Settings ("Do not replay the same point within (minutes)"); 0 turns the limit off.
-- With weak GPS the map shows "Weak GPS (±… m) — ignored to avoid false triggers"; narration may start late. Use the map or a QR code instead.
-- "Narrate automatically nearby" in Settings turns automatic narration on or off.
-- To keep narration running with the screen off, enable "Keep running in background" and allow location "Always". This needs an installed build of the app; it is not available in Expo Go.
+### A.2 Tổng quan
+Trang "Tổng quan" hiển thị số điểm tham quan (POI), số tour và số mã QR, số liệu 7 ngày gần nhất, cùng danh sách "Việc cần làm" gồm các điểm còn thiếu audio, thiếu ngôn ngữ hoặc chưa có mã QR, kèm các lối tắt như "Thêm điểm thuyết minh".
 
-> Screenshot TODO: map with circles and mini player.
+> Cần bổ sung ảnh chụp: trang tổng quan.
 
-### B.3 Scanning a QR code at a bus stop (UC2)
-1. Open **Scan QR** and allow the camera ("Allow camera"). The camera is only used to read QR codes.
-2. Point the camera at the code on the bus stop sign. If the camera cannot be used, type the printed code in "Enter code manually" and tap "Open narration".
-3. The narration starts at once in your language, stopping any narration already playing; GPS is not needed. You can choose another language to listen again.
-4. "Invalid QR code" means the code is not part of the system or was withdrawn.
-5. Codes are stored on the phone at each sync, so they also work offline. A code not yet stored cannot be checked without internet; connect and scan again.
+### A.3 Quản lý điểm tham quan (UC3)
+**Xem và tìm kiếm.** Mở "Điểm thuyết minh". Danh sách hiển thị tên, địa chỉ, bán kính (radius), độ ưu tiên (priority), các ngôn ngữ đã có nội dung, các ngôn ngữ đã có audio và số mã QR của từng điểm. Gõ vào ô "Tìm theo tên hoặc địa chỉ…" để lọc.
 
-> Screenshot TODO: scanner screen.
+**Tạo hoặc sửa một điểm.**
+1. Bấm "Thêm điểm", hoặc bấm vào một điểm đã có.
+2. Nhập "Tên điểm" và (không bắt buộc) "Địa chỉ".
+3. Đặt vị trí: bấm lên bản đồ để cắm ghim, hoặc kéo ghim; cũng có thể gõ "Vĩ độ" và "Kinh độ". Các điểm khác hiện mờ để dễ thấy chỗ chồng lấn.
+4. Đặt "Bán kính kích hoạt (m)" (lớn hơn 0, tối đa 5000 m). Vòng tròn trên bản đồ thể hiện vùng mà trong đó ứng dụng bắt đầu phát thuyết minh. Giá trị thường dùng: 50–150 m.
+5. Đặt "Mức ưu tiên" (0–100). Khi khách đứng trong nhiều vùng cùng lúc, điểm có độ ưu tiên cao hơn được phát.
+6. Có thể tải ảnh lên (JPG, PNG hoặc WebP, tối đa 15 MB) bằng nút "Tải ảnh lên".
+7. Trong tab tiếng Việt, nhập "Tiêu đề hiển thị" và "Nội dung thuyết minh". Tiếng Việt là bắt buộc và được phát khi ngôn ngữ của khách chưa có nội dung.
+8. Với các ngôn ngữ khác, mở tab ngôn ngữ đó và gõ nội dung, hoặc bấm "Dịch tự động từ tiếng Việt"; nút "Dịch tất cả ngôn ngữ còn trống" điền mọi tab còn trống cùng lúc. Bản dịch máy chỉ là bản nháp: hãy đọc lại và sửa.
+9. Bấm "Tạo điểm" với điểm mới, hoặc "Lưu thay đổi". Các trường không hợp lệ (thiếu toạ độ, bán kính bằng 0, thiếu nội dung tiếng Việt) được báo lỗi ngay dưới trường và không có gì được lưu.
 
-### B.4 Tours
-Open **Tours** to see suggested routes. Open a tour to see its stops in order and tap "Follow this tour": the app shows the next stop and its distance, and "Tour … completed" at the end. "Skip this stop" moves to the next one.
+Nếu bạn rời trang khi còn thay đổi chưa lưu, CMS sẽ hỏi xác nhận.
 
-> Screenshot TODO: tour screen.
+**Audio cho từng ngôn ngữ.** Trong mỗi tab ngôn ngữ:
+- "Tải file audio": mp3, m4a, aac, wav, ogg hoặc webm, tối đa 15 MB, ví dụ bản thu giọng của hướng dẫn viên;
+- "Tạo giọng đọc (TTS)": tạo file MP3 từ nội dung đã lưu bằng chức năng chuyển văn bản thành giọng nói (TTS) của máy chủ. Nếu biểu mẫu còn thay đổi chưa lưu, CMS đề xuất "Lưu và tạo giọng đọc";
+- nghe audio bằng trình phát có sẵn, hoặc bấm "Gỡ audio".
 
-### B.5 Settings and offline use
-- **Data**: "Sync now", last sync time, content version, "Download all audio for offline use", "Clear cache".
-- **Server**: the backend address (only needed for demos on a local network).
-- **Privacy**: "Send anonymous data" on/off, number of records waiting to upload, current session ID.
-- **Demo mode**: "Location simulation" ignores real GPS; tap the map to set a position, or open a tour and use "Simulate walking this tour".
+Nếu không có audio, ứng dụng đọc nội dung bằng giọng đọc có sẵn của điện thoại.
 
-### B.6 Privacy
-The app does not ask for a name, phone number or account. It sends anonymous usage data (which place was played, in which language, for how long, how it was triggered) and occasional approximate locations, tied only to a random code that changes every time you open the app. You can switch this off in Settings.
+**Xoá một điểm.** Bấm "Xoá điểm" và xác nhận. Thao tác này xoá luôn bản dịch, audio, ảnh và mã QR của điểm, đồng thời gỡ điểm khỏi các tour. Số liệu thống kê cũ được giữ lại.
 
-### B.7 Troubleshooting
+Thay đổi đến được điện thoại của khách ở lần đồng bộ tiếp theo (khi mở ứng dụng, cứ 5 phút một lần khi ứng dụng đang mở, hoặc khi có mạng trở lại).
 
-| Problem | What to do |
+> Cần bổ sung ảnh chụp: danh sách điểm, biểu mẫu điểm có bản đồ, các tab ngôn ngữ, khu vực audio.
+
+### A.4 Mã QR cho trạm xe buýt (UC3 A2, dùng cho UC2)
+1. Mở một điểm và cuộn tới mục "Mã QR tại trạm xe buýt".
+2. Nhập nhãn ghi tên trạm (ví dụ "Trạm xe buýt Khánh Hội") rồi bấm "Tạo mã QR".
+3. Bấm "PNG" để tải ảnh mã về, hoặc bấm "In mã QR của điểm này".
+4. Trang "Mã QR" liệt kê mọi mã và có thể lọc theo điểm ("Lọc theo điểm"). Chọn các mã rồi bấm "In bảng mã" để in tờ A4, mỗi trang bốn mã, mỗi mã kèm nhãn trạm, tên điểm và hướng dẫn quét.
+5. In khổ tối thiểu A5 và ép plastic nếu dùng ngoài trời. Lắp tại trạm và thử quét bằng ứng dụng.
+6. Để thu hồi một mã bị hỏng hoặc đã dời chỗ, hãy xoá mã đó ("Xoá mã QR"); sau lần đồng bộ tiếp theo, ứng dụng báo "Mã QR không hợp lệ" khi quét mã này. Tạo mã mới nếu cần.
+
+> Cần bổ sung ảnh chụp: mục QR của một điểm, trang Mã QR, tờ in.
+
+### A.5 Quản lý tour (UC4)
+1. Mở "Tour tham quan" và bấm "Tạo tour", hoặc mở một tour đã có.
+2. Nhập "Tên tour" và "Mô tả".
+3. Thêm các điểm từ danh sách, rồi sắp thứ tự bằng cách kéo thả hoặc bằng nút lên/xuống (dùng được cả bằng bàn phím). Bản đồ vẽ lộ trình có đánh số.
+4. Bấm "Tạo tour" (tour mới) hoặc "Lưu tour". Một tour phải có ít nhất một điểm.
+5. Để xoá tour, bấm "Xoá tour" và xác nhận. Bản thân các điểm không bị xoá.
+
+> Cần bổ sung ảnh chụp: trình soạn tour có bản đồ.
+
+### A.6 Thống kê sử dụng (UC5)
+1. Mở "Thống kê".
+2. Chọn khoảng thời gian bằng các nút chọn nhanh "7 ngày", "30 ngày" (mặc định) hoặc "90 ngày", hoặc bằng "Từ ngày" / "Đến ngày", và có thể chọn một tour (mặc định "Tất cả tour"); bấm "Xem báo cáo".
+3. Báo cáo gồm:
+   - số tổng: lượt phát, số phiên (số lần mở ứng dụng), thời gian nghe trung bình và tổng thời gian nghe;
+   - "Điểm được nghe nhiều nhất" và thời gian nghe trung bình theo từng điểm, kèm bảng chi tiết;
+   - lượt phát theo ngày (ngày theo UTC), theo cách kích hoạt (tự động bằng GPS, QR, thủ công), theo ngôn ngữ và theo giờ trong ngày (giờ Việt Nam);
+   - "Bản đồ nhiệt vị trí người dùng"; đánh dấu "Hiện lộ trình ẩn danh" để vẽ một số lộ trình mẫu.
+4. Nếu không có dữ liệu nào khớp bộ lọc, trang hiển thị "Không có dữ liệu".
+5. "Xuất Excel" tải về một workbook, mỗi bảng một sheet. "Xuất PDF" mở báo cáo sẵn để in; bấm "In / Lưu PDF" rồi chọn "Save as PDF" (Lưu dưới dạng PDF) trong hộp thoại in của trình duyệt.
+
+Mọi dữ liệu đều ẩn danh: khách không có tài khoản, mỗi lần mở ứng dụng dùng một mã phiên ngẫu nhiên mới, và vị trí được lưu với độ chính xác khoảng 11 m.
+
+> Cần bổ sung ảnh chụp: trang thống kê, bản đồ nhiệt, báo cáo in.
+
+---
+
+## Phần B. Khách du lịch và hành khách xe buýt (ứng dụng di động)
+
+Ứng dụng có bốn tab: **Bản đồ**, **Tour**, **Quét QR** và **Cài đặt**.
+
+### B.1 Lần khởi động đầu tiên
+1. Mở ứng dụng khi đang có kết nối Internet. Ứng dụng tải nội dung thuyết minh (narration) của khu vực; sau đó dùng được khi ngoại tuyến (offline).
+2. Cho phép truy cập **vị trí** để thuyết minh tự động bắt đầu. Nếu bạn từ chối, ứng dụng giải thích lý do cần quyền này và đưa ra các nút "Mở Cài đặt" và "Thử lại"; quét QR và phát từ bản đồ vẫn dùng được.
+3. Ngôn ngữ thuyết minh ban đầu là ngôn ngữ của điện thoại nếu được hỗ trợ, nếu không thì là tiếng Việt. Đổi ngôn ngữ tại **Cài đặt → Ngôn ngữ thuyết minh** (Tiếng Việt, English, 中文, 한국어, 日本語, Français). Nếu một điểm chưa có nội dung bằng ngôn ngữ của bạn, bạn sẽ nghe bản tiếng Việt và có thông báo cho biết điều đó.
+4. Nếu lần khởi động đầu tiên không có Internet, bản đồ hiển thị "Bạn đang ngoại tuyến và máy chưa có dữ liệu…"; hãy kết nối mạng một lần để tải nội dung.
+
+> Cần bổ sung ảnh chụp: màn hình xin quyền, màn hình cài đặt.
+
+### B.2 Thuyết minh tự động khi di chuyển (UC1)
+- Cứ đi bộ hoặc đi xe như bình thường. Khi bạn đến gần một điểm tham quan, thuyết minh của điểm đó tự bắt đầu và trình phát thu nhỏ ở cuối màn hình hiển thị "Đang phát" kèm nút "Dừng phát".
+- Bản đồ tô màu từng vòng tròn theo trạng thái: "Đang ở trong", "Đang phát", "Vừa nghe", "Điểm kế tiếp" của tour đang đi theo.
+- Nếu đang phát một bài thuyết minh khác, điểm mới bị bỏ qua ("Bỏ qua “…”: đang phát bài khác"). Chạm vào điểm đó trên bản đồ và bấm "Nghe thuyết minh" để nghe.
+- Cùng một điểm không được phát lại trong vòng 10 phút ("Bỏ qua “…”: vừa nghe (còn … phút)"). Có thể đổi thời gian chờ phát lại (cooldown) này trong Cài đặt ("Không phát lại cùng một điểm trong (phút)"); đặt 0 để bỏ giới hạn.
+- Khi GPS yếu, bản đồ hiển thị "GPS yếu (±… m) — bỏ qua để tránh kích hoạt nhầm"; thuyết minh có thể bắt đầu muộn. Khi đó hãy dùng bản đồ hoặc mã QR.
+- Mục "Tự động thuyết minh khi đến gần" trong Cài đặt dùng để bật hoặc tắt thuyết minh tự động.
+- Để thuyết minh tiếp tục chạy khi tắt màn hình, bật "Tiếp tục khi chạy nền" và cấp quyền vị trí "Luôn luôn". Tính năng này cần bản ứng dụng đã cài đặt; không dùng được trong Expo Go.
+
+> Cần bổ sung ảnh chụp: bản đồ có các vòng tròn và trình phát thu nhỏ.
+
+### B.3 Quét mã QR tại trạm xe buýt (UC2)
+1. Mở **Quét QR** và cho phép dùng camera ("Cho phép camera"). Camera chỉ dùng để đọc mã QR.
+2. Hướng camera vào mã trên biển trạm xe buýt. Nếu không dùng được camera, gõ mã in trên biển vào ô "Nhập mã thủ công" rồi bấm "Mở thuyết minh".
+3. Thuyết minh bắt đầu ngay bằng ngôn ngữ của bạn và dừng bài đang phát (nếu có); không cần GPS. Bạn có thể chọn ngôn ngữ khác để nghe lại.
+4. "Mã QR không hợp lệ" nghĩa là mã không thuộc hệ thống hoặc đã bị thu hồi.
+5. Các mã được lưu trên điện thoại ở mỗi lần đồng bộ nên vẫn dùng được khi ngoại tuyến. Mã chưa được lưu thì không kiểm tra được khi không có Internet; hãy kết nối mạng rồi quét lại.
+
+> Cần bổ sung ảnh chụp: màn hình quét mã.
+
+### B.4 Tour
+Mở **Tour** để xem các lộ trình gợi ý. Mở một tour để xem các điểm dừng theo thứ tự và bấm "Đi theo tour này": ứng dụng hiển thị điểm kế tiếp và khoảng cách tới đó, và hiển thị "Hoàn thành tour “…”" khi kết thúc. "Bỏ qua điểm này" chuyển sang điểm tiếp theo.
+
+> Cần bổ sung ảnh chụp: màn hình tour.
+
+### B.5 Cài đặt và dùng ngoại tuyến
+- **Dữ liệu**: "Đồng bộ ngay", "Lần đồng bộ cuối", "Phiên bản nội dung", "Tải tất cả audio để nghe offline", "Xoá bộ nhớ đệm".
+- **Máy chủ**: địa chỉ backend (chỉ cần khi trình diễn trong mạng nội bộ).
+- **Quyền riêng tư**: bật/tắt "Gửi dữ liệu ẩn danh", số bản ghi đang chờ gửi, "Mã phiên hiện tại".
+- **Chế độ demo**: "Mô phỏng vị trí" bỏ qua GPS thật; chạm vào bản đồ để đặt vị trí, hoặc mở một tour và dùng "Mô phỏng đi bộ theo tour".
+
+### B.6 Quyền riêng tư
+Ứng dụng không hỏi tên, số điện thoại hay tài khoản. Ứng dụng gửi dữ liệu sử dụng ẩn danh (điểm nào được phát, bằng ngôn ngữ nào, trong bao lâu, được kích hoạt bằng cách nào) và thỉnh thoảng gửi vị trí gần đúng, chỉ gắn với một mã ngẫu nhiên thay đổi mỗi lần bạn mở ứng dụng. Bạn có thể tắt việc này trong Cài đặt.
+
+### B.7 Xử lý sự cố
+
+| Sự cố | Cách xử lý |
 |---|---|
-| No narration when arriving at a place | Check that location is allowed, "Narrate automatically nearby" is on and the volume is up; wait for a better GPS signal; play it from the map |
-| "You are offline and no data is stored on this device" | Connect to the internet once so the app can download content |
-| "Could not download data from …" | The backend address is wrong or unreachable; check **Settings → Server** |
-| Narration stops when the screen is off | Use an installed build, enable "Keep running in background", allow location "Always", and disable battery optimisation for the app (Android) |
-| Wrong language | Change it in **Settings → Narration language** |
+| Không có thuyết minh khi đến một điểm | Kiểm tra đã cho phép vị trí, đã bật "Tự động thuyết minh khi đến gần" và âm lượng đã mở; chờ tín hiệu GPS tốt hơn; phát từ bản đồ |
+| "Bạn đang ngoại tuyến và máy chưa có dữ liệu" | Kết nối Internet một lần để ứng dụng tải nội dung |
+| "Không tải được dữ liệu từ máy chủ …" | Địa chỉ backend sai hoặc không truy cập được; kiểm tra **Cài đặt → Máy chủ** |
+| Thuyết minh dừng khi tắt màn hình | Dùng bản ứng dụng đã cài đặt, bật "Tiếp tục khi chạy nền", cấp quyền vị trí "Luôn luôn" và tắt tối ưu hoá pin cho ứng dụng (Android) |
+| Sai ngôn ngữ | Đổi tại **Cài đặt → Ngôn ngữ thuyết minh** |

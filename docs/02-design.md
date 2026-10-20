@@ -1,30 +1,30 @@
-# Software Design Description
+# Tài liệu mô tả thiết kế phần mềm
 
-**Project:** Multilingual Automatic Narration System
-**Document version:** 1.0 (18/10/2026)
-**Related documents:** `01-SRS.md` (requirements FR/NFR), `api.md` (REST contract), `03-test-plan.md`
+**Dự án:** Hệ thống thuyết minh tự động đa ngôn ngữ
+**Phiên bản tài liệu:** 1.0 (18/10/2026)
+**Tài liệu liên quan:** `01-SRS.md` (yêu cầu FR/NFR), `api.md` (hợp đồng REST), `03-test-plan.md`
 
-This document describes the implemented code: `backend/src` (Express API), `cms/src` (admin web) and `mobile/src` (Expo app). File and module names below match the repository on 18/10/2026.
+Tài liệu này mô tả mã nguồn đã hiện thực: `backend/src` (API Express), `cms/src` (web quản trị) và `mobile/src` (ứng dụng Expo). Tên file và tên module dưới đây khớp với repository ngày 18/10/2026.
 
 ---
 
-## 1. Architecture
+## 1. Kiến trúc
 
-### 1.1 System context and components
-The system follows a client–server architecture with two clients (mobile app, CMS web) sharing one REST backend. The mobile app is offline-first: it keeps a local copy of content (including QR codes) and only needs the network for sync, map background tiles, audio streaming of files not yet downloaded, and log upload.
+### 1.1 Ngữ cảnh hệ thống và các thành phần
+Hệ thống theo kiến trúc khách–chủ (client–server), gồm hai client (ứng dụng di động, web CMS) dùng chung một backend REST. Ứng dụng di động ưu tiên hoạt động ngoại tuyến (offline): ứng dụng giữ một bản sao nội dung cục bộ (kể cả mã QR) và chỉ cần mạng để đồng bộ (sync), tải ô nền bản đồ, phát trực tuyến các file âm thanh chưa tải về và gửi nhật ký.
 
 ```mermaid
 flowchart TB
-    QR["QR codes<br/>Bus stops"]
-    MOBILE["Mobile app (Expo)<br/>Geofence, QR, playback"]
-    CMS["CMS web (React)<br/>Admin content tools"]
-    BACKEND["Backend API (Express 5)<br/>Content, sync, analytics"]
-    EXT["External services<br/>Google Translate, Google TTS"]
-    DB[("SQLite database<br/>POIs, admins, logs")]
-    FS[("uploads/ directory<br/>Audio and images")]
-    TILES["Map tiles<br/>OpenStreetMap, CARTO"]
+    QR["Mã QR<br/>Trạm xe buýt"]
+    MOBILE["Ứng dụng di động (Expo)<br/>Geofence, QR, phát âm thanh"]
+    CMS["Web CMS (React)<br/>Công cụ quản trị nội dung"]
+    BACKEND["Backend API (Express 5)<br/>Nội dung, đồng bộ, thống kê"]
+    EXT["Dịch vụ bên ngoài<br/>Google Translate, Google TTS"]
+    DB[("Cơ sở dữ liệu SQLite<br/>POI, quản trị viên, nhật ký")]
+    FS[("Thư mục uploads/<br/>Âm thanh và hình ảnh")]
+    TILES["Ô bản đồ<br/>OpenStreetMap, CARTO"]
 
-    QR -. "camera scan" .-> MOBILE
+    QR -. "quét bằng camera" .-> MOBILE
     MOBILE -.-> TILES
     CMS -.-> TILES
     MOBILE <-->|"HTTPS / JSON"| BACKEND
@@ -34,24 +34,24 @@ flowchart TB
     BACKEND --> FS
 ```
 
-Refinements compared with the team's original component diagram (README §1): the database is a single SQLite file accessed through `node:sqlite`; file storage is a local `uploads/` directory served statically at `/uploads`; translate/TTS APIs are used only by the backend on behalf of the CMS, never by the mobile app (the app uses on-device TTS). Both clients load map background tiles directly from public tile servers (CMS: OpenStreetMap; app: CARTO Voyager).
+Các điểm chi tiết hoá so với sơ đồ thành phần ban đầu của nhóm (README §1): cơ sở dữ liệu là một file SQLite duy nhất, truy cập qua `node:sqlite`; nơi lưu file là thư mục cục bộ `uploads/`, phục vụ tĩnh tại `/uploads`; API dịch và chuyển văn bản thành giọng nói (TTS) chỉ được backend gọi thay cho CMS, ứng dụng di động không bao giờ gọi (ứng dụng dùng TTS trên thiết bị). Cả hai client tải ô nền bản đồ trực tiếp từ máy chủ ô bản đồ công cộng (CMS: OpenStreetMap; ứng dụng: CARTO Voyager).
 
-### 1.2 Backend: layered architecture
+### 1.2 Backend: kiến trúc phân lớp
 
 ```mermaid
 flowchart TB
-    MOBILE["Mobile app"]
-    CMS["CMS web"]
+    MOBILE["Ứng dụng di động"]
+    CMS["Web CMS"]
 
     subgraph BACKEND["Backend (backend/src)"]
-        MW["Middleware<br/>helmet, cors, json 1 MB, rate limit,<br/>requireAdmin (JWT), multer upload, error handler"]
-        CTRL["Controller layer<br/>routes/index.js, controllers/*"]
-        SVC["Service layer<br/>services/* : validation, business rules"]
-        REPO["Repository layer<br/>repositories/* : SQL"]
+        MW["Middleware<br/>helmet, cors, json 1 MB, giới hạn tần suất,<br/>requireAdmin (JWT), multer upload, xử lý lỗi"]
+        CTRL["Lớp điều khiển (controller)<br/>routes/index.js, controllers/*"]
+        SVC["Lớp nghiệp vụ (service)<br/>services/* : kiểm tra hợp lệ, quy tắc nghiệp vụ"]
+        REPO["Lớp truy cập dữ liệu (repository)<br/>repositories/* : SQL"]
     end
 
-    TR["Translate provider<br/>google-free, libretranslate, none"]
-    TTS["TTS provider<br/>google-free, none"]
+    TR["Nhà cung cấp dịch<br/>google-free, libretranslate, none"]
+    TTS["Nhà cung cấp TTS<br/>google-free, none"]
     DB[("SQLite<br/>data/narration.db")]
     FS[("uploads/")]
 
@@ -66,60 +66,60 @@ flowchart TB
     SVC --> FS
 ```
 
-Rules applied:
-- Controllers only parse HTTP input (`idParam`, `req.body`, `req.file`) and format responses; they contain no business rules.
-- Services own validation and business rules (UC3 E1, UC4 E1, log validation, coordinate rounding, content versioning) and open transactions.
-- Repositories own SQL and return plain objects. They never throw business errors.
-- Composition happens once in `app.js` (`createRepositories(db)` → `createServices(repos, {translator, tts})` → `createRouter(services)`). Translate and TTS providers are injected, which lets tests replace them with fakes.
-- Errors are raised as `AppError(status, code, message, details)` and converted to JSON by `middleware/error.js`.
+Các quy tắc áp dụng:
+- Controller chỉ đọc đầu vào HTTP (`idParam`, `req.body`, `req.file`) và định dạng phản hồi; controller không chứa quy tắc nghiệp vụ.
+- Service đảm nhận kiểm tra hợp lệ và quy tắc nghiệp vụ (UC3 E1, UC4 E1, kiểm tra nhật ký, làm tròn toạ độ, đánh phiên bản nội dung) và mở transaction.
+- Repository đảm nhận SQL và trả về object thuần. Repository không bao giờ ném lỗi nghiệp vụ.
+- Việc lắp ghép các lớp diễn ra một lần trong `app.js` (`createRepositories(db)` → `createServices(repos, {translator, tts})` → `createRouter(services)`). Nhà cung cấp dịch và TTS được tiêm (inject) vào, nhờ đó kiểm thử có thể thay chúng bằng bản giả.
+- Lỗi được tạo dưới dạng `AppError(status, code, message, details)` và được `middleware/error.js` chuyển thành JSON.
 
-Files are written by the service/middleware layer (multer disk storage, `saveBuffer`, `removeAudioFile`) rather than by repositories; the original diagram's "Repository → File storage" edge is therefore drawn from the service layer here.
+File được ghi bởi lớp service/middleware (multer disk storage, `saveBuffer`, `removeAudioFile`) chứ không phải repository; vì vậy cạnh "Repository → Lưu trữ file" của sơ đồ ban đầu được vẽ từ lớp service ở đây.
 
-### 1.3 Backend module list
+### 1.3 Danh sách module backend
 
-| Layer | Module | Responsibility | UC |
+| Lớp | Module | Trách nhiệm | UC |
 |---|---|---|---|
-| Entry | `server.js` | Opens DB, ensures upload dir, refuses production start with the default JWT secret, listens on `PORT` | all |
-| Entry | `app.js` | Wires layers, security middleware, static `/uploads`, `/api` router | all |
-| Config | `config.js` | Environment variables, language list, default language `vi` | all |
-| Routes | `routes/index.js` | Public routes, `/auth/login`, `/admin/*` guarded by `requireAdmin`, rate limiters | all |
-| Controller | `publicController` | health, languages, sync, QR resolve, log ingestion | UC1, UC2, UC5 |
-| Controller | `authController` | login, me, change password | UC3–UC5 |
-| Controller | `poiController` | POI CRUD, audio upload/remove, TTS, images, translate, QR | UC3 |
-| Controller | `tourController` | Tour CRUD | UC4 |
-| Controller | `analyticsController` | Report | UC5 |
-| Service | `authService` | bcrypt verification, JWT issue/verify, password change | UC3–UC5 |
-| Service | `poiService` | `validatePoiInput`, transactional create/update/delete, audio attach/remove, clean-up of replaced audio and image files, version bump | UC3 |
-| Service | `tourService` | Tour validation (≥ 1 POI, unique, existing), ordered save, version bump | UC4 |
-| Service | `qrService` | Random payload generation, `extractPayload`, resolve to POI; create/delete bump the content version | UC2, UC3 A2 |
-| Service | `syncService` | Content version, full snapshot (POIs with translations, QR codes, tours) | UC1, UC2, UC4 |
-| Service | `logService` | Validate and insert usage/location batches; skip usage records of deleted POIs (`{inserted, skipped}`); 4-decimal rounding | UC1, UC2, UC5 |
-| Service | `analyticsService` | Filter parsing, tour bounding box, report assembly | UC5 |
-| Service | `translateService` | Provider adapter (Google free endpoint, LibreTranslate, none), input limits | UC3 |
-| Service | `ttsService` | Text chunking (≤ 180 chars), Google TTS calls, MP3 concatenation | UC3 |
-| Repository | `adminRepository`, `poiRepository`, `translationRepository`, `qrRepository`, `tourRepository`, `logRepository`, `metaRepository`, `analyticsRepository` | SQL per aggregate | all |
-| DB | `db/database.js` | Schema DDL, `openDatabase`, `transaction()` helper | all |
-| DB | `db/seed.js` | Sample data (8 POIs in District 4, 2 tours, 5 bus-stop QR codes); `--demo` adds 30 days of simulated logs | demo |
-| Middleware | `auth.js`, `upload.js`, `error.js` | Bearer token guard; MIME/size-checked uploads with random names; error mapping | all |
+| Điểm vào | `server.js` | Mở DB, đảm bảo có thư mục upload, từ chối khởi động production khi dùng JWT secret mặc định, lắng nghe trên `PORT` | tất cả |
+| Điểm vào | `app.js` | Nối các lớp, middleware bảo mật, `/uploads` tĩnh, router `/api` | tất cả |
+| Cấu hình | `config.js` | Biến môi trường, danh sách ngôn ngữ, ngôn ngữ mặc định `vi` | tất cả |
+| Route | `routes/index.js` | Route công khai, `/auth/login`, `/admin/*` được bảo vệ bởi `requireAdmin`, bộ giới hạn tần suất | tất cả |
+| Controller | `publicController` | health, ngôn ngữ, đồng bộ, phân giải QR, nhận nhật ký | UC1, UC2, UC5 |
+| Controller | `authController` | đăng nhập, me, đổi mật khẩu | UC3–UC5 |
+| Controller | `poiController` | CRUD điểm tham quan (POI), tải lên/xoá âm thanh, TTS, hình ảnh, dịch, QR | UC3 |
+| Controller | `tourController` | CRUD tour | UC4 |
+| Controller | `analyticsController` | Báo cáo | UC5 |
+| Service | `authService` | Xác minh bcrypt, cấp/xác minh JWT, đổi mật khẩu | UC3–UC5 |
+| Service | `poiService` | `validatePoiInput`, tạo/sửa/xoá trong transaction, gắn/gỡ âm thanh, dọn file âm thanh và hình ảnh bị thay thế, tăng phiên bản | UC3 |
+| Service | `tourService` | Kiểm tra hợp lệ tour (≥ 1 POI, không trùng, tồn tại), lưu theo thứ tự, tăng phiên bản | UC4 |
+| Service | `qrService` | Sinh payload ngẫu nhiên, `extractPayload`, phân giải ra POI; tạo/xoá làm tăng phiên bản nội dung | UC2, UC3 A2 |
+| Service | `syncService` | Phiên bản nội dung, bản chụp dữ liệu (snapshot) đầy đủ (POI kèm bản dịch, mã QR, tour) | UC1, UC2, UC4 |
+| Service | `logService` | Kiểm tra và chèn các lô nhật ký sử dụng/vị trí; bỏ qua bản ghi sử dụng của POI đã xoá (`{inserted, skipped}`); làm tròn 4 chữ số thập phân | UC1, UC2, UC5 |
+| Service | `analyticsService` | Đọc bộ lọc, khung bao của tour, lắp ráp báo cáo | UC5 |
+| Service | `translateService` | Bộ chuyển đổi nhà cung cấp (endpoint miễn phí của Google, LibreTranslate, none), giới hạn đầu vào | UC3 |
+| Service | `ttsService` | Chia văn bản thành đoạn (≤ 180 ký tự), gọi Google TTS, nối MP3 | UC3 |
+| Repository | `adminRepository`, `poiRepository`, `translationRepository`, `qrRepository`, `tourRepository`, `logRepository`, `metaRepository`, `analyticsRepository` | SQL theo từng nhóm dữ liệu (aggregate) | tất cả |
+| DB | `db/database.js` | DDL lược đồ, `openDatabase`, hàm hỗ trợ `transaction()` | tất cả |
+| DB | `db/seed.js` | Dữ liệu mẫu (8 POI ở Quận 4, 2 tour, 5 mã QR trạm xe buýt); `--demo` thêm 30 ngày nhật ký mô phỏng | demo |
+| Middleware | `auth.js`, `upload.js`, `error.js` | Bảo vệ bằng Bearer token; upload có kiểm tra MIME/kích thước, đặt tên ngẫu nhiên; ánh xạ lỗi | tất cả |
 
-### 1.4 Mobile app (`mobile/`, Expo SDK 58, React Native 0.88, TypeScript, Expo Router)
+### 1.4 Ứng dụng di động (`mobile/`, Expo SDK 58, React Native 0.88, TypeScript, Expo Router)
 
 ```mermaid
 flowchart LR
-    subgraph MOBILE["Mobile app (mobile/src)"]
-        LOC["Location service<br/>services/location"]
-        SIM["Simulation<br/>services/simulation.ts"]
+    subgraph MOBILE["Ứng dụng di động (mobile/src)"]
+        LOC["Dịch vụ định vị<br/>services/location"]
+        SIM["Mô phỏng<br/>services/simulation.ts"]
         PIPE["Pipeline<br/>services/pipeline.ts"]
-        GEO["Geofence engine<br/>engine/geofence.ts, geo.ts"]
-        GATE["Cooldown gate<br/>engine/cooldown.ts"]
-        NAR["Narration engine<br/>engine/narration.ts, language.ts"]
-        OUT["Audio output<br/>services/audioOutput.ts<br/>expo-audio, expo-speech"]
-        QRS["QR scanner<br/>app/(tabs)/scan.tsx, engine/qr.ts"]
-        QRR["QR resolver<br/>services/qrResolver.ts"]
-        UI["Screens<br/>app/, components/"]
-        CONTENT[("Content layer<br/>data/db.ts (SQLite)")]
-        SYNC["Sync<br/>data/sync.ts, syncLogic.ts, audioCache.ts"]
-        LOGQ["Analytics queue<br/>services/analytics.ts"]
+        GEO["Bộ máy geofence<br/>engine/geofence.ts, geo.ts"]
+        GATE["Cổng thời gian chờ phát lại<br/>engine/cooldown.ts"]
+        NAR["Bộ máy thuyết minh<br/>engine/narration.ts, language.ts"]
+        OUT["Đầu ra âm thanh<br/>services/audioOutput.ts<br/>expo-audio, expo-speech"]
+        QRS["Trình quét QR<br/>app/(tabs)/scan.tsx, engine/qr.ts"]
+        QRR["Bộ phân giải QR<br/>services/qrResolver.ts"]
+        UI["Màn hình<br/>app/, components/"]
+        CONTENT[("Lớp nội dung<br/>data/db.ts (SQLite)")]
+        SYNC["Đồng bộ<br/>data/sync.ts, syncLogic.ts, audioCache.ts"]
+        LOGQ["Hàng đợi thống kê<br/>services/analytics.ts"]
     end
     API["Backend API<br/>data/api.ts"]
 
@@ -132,7 +132,7 @@ flowchart LR
     NAR --> OUT
     QRS --> QRR
     QRR --> CONTENT
-    QRR -. "unknown code, online" .-> API
+    QRR -. "mã lạ, có mạng" .-> API
     QRR --> NAR
     CONTENT --> PIPE
     CONTENT --> UI
@@ -143,24 +143,24 @@ flowchart LR
     LOGQ --> API
 ```
 
-| Module (file) | Design as implemented |
+| Module (file) | Thiết kế đã hiện thực |
 |---|---|
-| Entry (`index.js`) | Defines the background location task before loading `expo-router/entry` (required by TaskManager). |
-| Screens (`src/app/`) | Tabs `(tabs)/index.tsx` Map, `tours.tsx`, `scan.tsx`, `settings.tsx`; detail screens `poi/[id].tsx`, `tour/[id].tsx`. Shared `MiniPlayer`, `NoticeBanner`, `ui.tsx`. UI strings in `src/i18n` (Vietnamese UI when the narration language is `vi`, English otherwise). |
-| Map (`src/components/map/`) | `LeafletMap.tsx`: `react-native-webview` hosting Leaflet, which is embedded in the bundle (`leafletAssets.generated.ts`), so POI circles and the user position render offline (only background tiles need the network). Chosen over `react-native-maps` because it behaves the same in Expo Go, dev builds and store builds and needs no Google Maps key. |
-| Location service (`src/services/location/`) | Foreground `watchPositionAsync`; background `startLocationUpdatesAsync` + `expo-task-manager` (`backgroundTask.ts`) when the user enables "Keep running in background" and grants "Always" permission. Background mode is unavailable in Expo Go; the app falls back to foreground GPS. |
-| Pipeline (`src/services/pipeline.ts`) | Single path Location → Geofence → Narration (+ location sampling) used by real GPS, background GPS and simulation. Holds the singleton `GeofenceEngine`, `CooldownGate`, `NarrationEngine`. |
-| Geofence engine (`src/engine/geofence.ts`, `geo.ts`) | Pure TypeScript. Drops fixes with `accuracy > 60 m`; enters a POI when haversine distance ≤ `radius_m`; exits only when distance > `radius_m × 1.2`; among all POIs the user is inside, picks highest `priority`, then nearest, then lowest id; triggers each POI at most once per visit (a visit ends on exit). |
-| Cooldown gate (`src/engine/cooldown.ts`) | For `geofence` triggers: rejects with `busy` while anything is playing and with `cooldown` if the same POI started playing less than the cooldown ago (default 10 min, configurable 0–240 in Settings). `manual` and `qr` triggers bypass the cooldown and interrupt the current playback. |
-| Narration engine (`src/engine/narration.ts`, `language.ts`) | Resolves the translation: selected language → Vietnamese → any language with content (user is notified of the fallback). Source order: downloaded file → server `audio_url` when online → on-device TTS (`expo-speech`, locale from `TTS_LOCALE`). An audio error switches to TTS. On finish/stop logs `listen_seconds`. Audio/speech are injected adapters (`services/audioOutput.ts`), so the engine is unit-tested without a device. |
-| QR (`src/engine/qr.ts`, `src/services/qrResolver.ts`, `app/(tabs)/scan.tsx`) | `expo-camera` reads QR codes only; a "Enter code manually" field supports emulators. `parseQrPayload` accepts `NARR:<code>`, bare code and `.../q/<code>`. Lookup order: synced `qr_code` table (offline) → `qr_cache` (codes resolved before) → `GET /api/qr/:payload`. 404/400 → "Invalid QR code" (E1); not found locally and offline → E2 message. A POI returned by the server but missing locally is stored so it plays offline next time. |
-| Content layer (`src/data/db.ts`) | `expo-sqlite`, WAL. Content tables are replaced in one transaction on each sync (§6.2). |
-| Sync (`src/data/sync.ts`, `syncLogic.ts`, `audioCache.ts`) | Runs on launch, every 5 min, when the app returns to foreground and when connectivity returns. `GET /api/sync/version`; if it differs from the local version (or no data / old local format) downloads `/api/sync`, validates it (`validateBundle` drops malformed POIs and tours/QRs pointing to missing POIs) and replaces content atomically; on error the old data is kept. Afterwards prunes unused audio files and pre-downloads audio of the selected language; "Download all audio" in Settings fetches the rest. |
-| Analytics queue (`src/services/analytics.ts`, `analyticsPolicy.ts`) | `SESSION_ID` generated with `expo-crypto` per launch, kept in memory. Usage records and location samples (every ~30 s, or after ≥ 25 m but not more often than every 5 s) are stored in `usage_queue` / `location_queue` and flushed every 60 s in batches of 200. If the server rejects a batch with 400 the records are sent one by one and invalid ones dropped. Turning off "Send anonymous data" stops logging and clears the queues. |
-| Simulation (`src/services/simulation.ts`) | "Location simulation" in Settings ignores real GPS: tap the map to place a fake position, or "Simulate walking this tour" moves a marker through the tour stops at ×1–×30 speed, pausing while narration plays. |
-| Configuration (`src/config.ts`) | Server URL priority: Settings → `EXPO_PUBLIC_API_URL` → LAN IP of the Metro host (`hostUri`) + port 4000 → platform default (`10.0.2.2` Android emulator, `localhost` iOS simulator). |
+| Điểm vào (`index.js`) | Định nghĩa tác vụ định vị nền (background location) trước khi nạp `expo-router/entry` (TaskManager yêu cầu như vậy). |
+| Màn hình (`src/app/`) | Các tab `(tabs)/index.tsx` Bản đồ, `tours.tsx`, `scan.tsx`, `settings.tsx`; màn hình chi tiết `poi/[id].tsx`, `tour/[id].tsx`. Thành phần dùng chung `MiniPlayer`, `NoticeBanner`, `ui.tsx`. Chuỗi giao diện nằm trong `src/i18n` (giao diện tiếng Việt khi ngôn ngữ thuyết minh là `vi`, tiếng Anh trong các trường hợp còn lại). |
+| Bản đồ (`src/components/map/`) | `LeafletMap.tsx`: `react-native-webview` chứa Leaflet, được nhúng sẵn trong bundle (`leafletAssets.generated.ts`), nên vòng tròn POI và vị trí người dùng hiển thị được khi ngoại tuyến (chỉ ô nền cần mạng). Chọn thay cho `react-native-maps` vì chạy giống nhau trên Expo Go, bản dev build và bản phát hành lên store, và không cần khoá Google Maps. |
+| Dịch vụ định vị (`src/services/location/`) | Tiền cảnh: `watchPositionAsync`; nền: `startLocationUpdatesAsync` + `expo-task-manager` (`backgroundTask.ts`) khi người dùng bật "Tiếp tục khi chạy nền" và cấp quyền "Luôn luôn". Chế độ nền không dùng được trên Expo Go; khi đó ứng dụng quay về GPS tiền cảnh. |
+| Pipeline (`src/services/pipeline.ts`) | Một đường xử lý duy nhất Vị trí → Geofence → Thuyết minh (kèm lấy mẫu vị trí), dùng chung cho GPS thật, GPS nền và mô phỏng. Giữ các thể hiện singleton `GeofenceEngine`, `CooldownGate`, `NarrationEngine`. |
+| Bộ máy geofence (geofence engine) (`src/engine/geofence.ts`, `geo.ts`) | TypeScript thuần. Bỏ các điểm định vị có `accuracy > 60 m`; vào một POI khi khoảng cách haversine ≤ bán kính (radius, trường `radius_m`); chỉ ra khỏi khi khoảng cách > `radius_m × 1.2`; trong các POI mà người dùng đang ở bên trong, chọn POI có độ ưu tiên (priority, trường `priority`) cao nhất, sau đó gần nhất, sau đó id nhỏ nhất; mỗi POI chỉ được kích hoạt tối đa một lần cho mỗi lượt ghé (một lượt ghé kết thúc khi ra khỏi vùng). |
+| Cổng thời gian chờ phát lại (`src/engine/cooldown.ts`) | Với kích hoạt (trigger) `geofence`: từ chối với lý do `busy` khi đang phát bất kỳ nội dung nào, và với lý do `cooldown` nếu cùng POI đó đã bắt đầu phát chưa quá thời gian chờ phát lại (cooldown, mặc định 10 phút, chỉnh được 0–240 trong Cài đặt). Kích hoạt `manual` và `qr` bỏ qua thời gian chờ và ngắt nội dung đang phát. |
+| Bộ máy thuyết minh (narration engine) (`src/engine/narration.ts`, `language.ts`) | Chọn bản dịch: ngôn ngữ đã chọn → tiếng Việt → bất kỳ ngôn ngữ nào có nội dung (người dùng được thông báo khi phải dùng ngôn ngữ thay thế). Thứ tự nguồn: file đã tải về → `audio_url` trên máy chủ khi có mạng → TTS trên thiết bị (`expo-speech`, locale lấy từ `TTS_LOCALE`). Lỗi âm thanh thì chuyển sang TTS. Khi phát xong/dừng thì ghi `listen_seconds`. Âm thanh/giọng nói là các adapter được tiêm vào (`services/audioOutput.ts`), nên bộ máy được kiểm thử đơn vị mà không cần thiết bị. |
+| QR (`src/engine/qr.ts`, `src/services/qrResolver.ts`, `app/(tabs)/scan.tsx`) | `expo-camera` chỉ đọc mã QR; ô "Nhập mã thủ công" hỗ trợ máy ảo. `parseQrPayload` chấp nhận `NARR:<code>`, mã trần và `.../q/<code>`. Thứ tự tra cứu: bảng `qr_code` đã đồng bộ (ngoại tuyến) → `qr_cache` (các mã đã phân giải trước đó) → `GET /api/qr/:payload`. 404/400 → "Mã QR không hợp lệ" (E1); không có cục bộ và đang ngoại tuyến → thông báo E2. POI do máy chủ trả về mà chưa có cục bộ sẽ được lưu lại để lần sau phát được khi ngoại tuyến. |
+| Lớp nội dung (`src/data/db.ts`) | `expo-sqlite`, WAL. Các bảng nội dung được thay thế trong một transaction ở mỗi lần đồng bộ (§6.2). |
+| Đồng bộ (`src/data/sync.ts`, `syncLogic.ts`, `audioCache.ts`) | Chạy khi mở ứng dụng, mỗi 5 phút, khi ứng dụng quay lại tiền cảnh và khi có mạng trở lại. Gọi `GET /api/sync/version`; nếu khác phiên bản cục bộ (hoặc chưa có dữ liệu / định dạng cục bộ cũ) thì tải `/api/sync`, kiểm tra (`validateBundle` loại POI sai cấu trúc và tour/QR trỏ tới POI không tồn tại) rồi thay nội dung một cách nguyên tử; khi lỗi thì giữ dữ liệu cũ. Sau đó dọn các file âm thanh không còn dùng và tải trước âm thanh của ngôn ngữ đã chọn; nút "Tải tất cả audio để nghe offline" trong Cài đặt tải phần còn lại. |
+| Hàng đợi thống kê (`src/services/analytics.ts`, `analyticsPolicy.ts`) | `SESSION_ID` sinh bằng `expo-crypto` cho mỗi lần mở ứng dụng, chỉ giữ trong bộ nhớ. Bản ghi nhật ký sử dụng (usage log) và mẫu vị trí (khoảng mỗi 30 s, hoặc sau khi di chuyển ≥ 25 m nhưng không dày hơn 5 s một lần) được lưu vào `usage_queue` / `location_queue` và gửi đi mỗi 60 s theo lô 200 bản ghi. Nếu máy chủ từ chối một lô với mã 400 thì các bản ghi được gửi lần lượt từng cái và bản ghi không hợp lệ bị bỏ. Tắt "Gửi dữ liệu ẩn danh" sẽ ngừng ghi nhật ký và xoá các hàng đợi. |
+| Mô phỏng (`src/services/simulation.ts`) | "Mô phỏng vị trí" trong Cài đặt bỏ qua GPS thật: chạm vào bản đồ để đặt vị trí giả, hoặc "Mô phỏng đi bộ theo tour" di chuyển một điểm đánh dấu qua các điểm dừng của tour với tốc độ ×1–×30, tạm dừng trong lúc phát thuyết minh. |
+| Cấu hình (`src/config.ts`) | Thứ tự ưu tiên URL máy chủ: Cài đặt → `EXPO_PUBLIC_API_URL` → IP LAN của máy chạy Metro (`hostUri`) + cổng 4000 → mặc định theo nền tảng (`10.0.2.2` cho máy ảo Android, `localhost` cho trình giả lập iOS). |
 
-Geofence algorithm per fix (as in `GeofenceEngine.update`):
+Thuật toán geofence cho mỗi điểm định vị (theo `GeofenceEngine.update`):
 
 ```text
 if fix.accuracy is known and > 60 m: ignore fix
@@ -174,20 +174,20 @@ if best exists and best not in triggeredThisVisit:
     triggeredThisVisit.add(best); emit trigger(best)      # cooldown/busy checked by the narration engine
 ```
 
-A consequence of evaluating all POIs the user is inside (not only new entries): when the user leaves a high-priority POI but is still inside a lower-priority one, the lower one is triggered then.
+Hệ quả của việc xét mọi POI mà người dùng đang ở bên trong (không chỉ các POI vừa vào): khi người dùng rời một POI có độ ưu tiên cao nhưng vẫn còn ở trong một POI có độ ưu tiên thấp hơn, POI thấp hơn sẽ được kích hoạt vào lúc đó.
 
-### 1.5 CMS web (`cms/`, Vite 8, React 19, TypeScript)
+### 1.5 Web CMS (`cms/`, Vite 8, React 19, TypeScript)
 
 ```mermaid
 flowchart LR
-    subgraph CMS["CMS web (cms/src)"]
-        AUTH["auth/AuthContext.tsx<br/>login, RequireAuth, 401 handling"]
+    subgraph CMS["Web CMS (cms/src)"]
+        AUTH["auth/AuthContext.tsx<br/>đăng nhập, RequireAuth, xử lý 401"]
         PAGES["pages/<br/>Login, Dashboard, PoiList, PoiEdit, Qr,<br/>TourList, TourEdit, Analytics,<br/>AnalyticsReport, Account"]
         COMP["components/<br/>Layout, maps, charts, QrImage,<br/>ConfirmDialog, Toast, States"]
         LIB["lib/<br/>api.ts, validation.ts, exportExcel.ts,<br/>format.ts, qr.ts, storage.ts"]
     end
     API["Backend API"]
-    TILES["OpenStreetMap tiles"]
+    TILES["Ô bản đồ OpenStreetMap"]
 
     PAGES --> AUTH
     PAGES --> COMP
@@ -197,22 +197,22 @@ flowchart LR
     COMP -.-> TILES
 ```
 
-| Module (file) | Design as implemented |
+| Module (file) | Thiết kế đã hiện thực |
 |---|---|
-| Routing (`App.tsx`, react-router) | `/login`; protected layout with `/` (dashboard), `/pois`, `/pois/:id` (`new` for creation), `/tours`, `/tours/:id`, `/qr`, `/analytics`, `/account`; `/analytics/report` is a protected print layout without the sidebar. |
-| API client (`lib/api.ts`) | Base URL from `VITE_API_URL` (empty = same origin; in dev Vite proxies `/api` and `/uploads`). Adds `Authorization: Bearer`, converts errors to `ApiError` with field `details`, calls `onUnauthorized` on 401 from admin APIs (not from login), maps network failures to `NETWORK_ERROR`. `fileUrl` prefixes `/uploads/...` with the backend origin. |
-| Auth (`auth/AuthContext.tsx`, `lib/storage.ts`) | Token stored through a safe localStorage wrapper (in-memory fallback). On 401 the user is sent to `/login?next=<current page>`. |
-| Validation (`lib/validation.ts`) | Mirrors backend rules (coordinates, radius 0–5000, priority 0–100, Vietnamese text required, secondary language with title but no text is an error, tour not empty) and maps server `details` to form fields (`mapServerErrors`). |
-| POI editor (`pages/PoiEditPage.tsx`, `components/maps.tsx`) | react-leaflet map: click to place, draggable pin, radius circle, other POIs dimmed; manual lat/lng inputs; image upload; six language tabs with "Translate from Vietnamese" and "Translate all empty languages"; per-language audio: upload file, "Create voice" (TTS, asks to save first because TTS uses saved text), preview, remove; QR section (create with label, download PNG, print, delete). Unsaved-changes warning (`useUnsavedWarning`). |
-| QR (`pages/QrPage.tsx`, `components/QrImage.tsx`, `lib/qr.ts`) | Lists all codes with POI filter; select codes and print an A4 sheet (4 per page) with stop label, POI name and "scan to listen" text. Images are generated in the browser with `qrcode` from `content` (`NARR:<payload>`). |
-| Tours (`pages/TourEditPage.tsx`) | Add POIs, reorder by drag-and-drop or up/down buttons (keyboard accessible, screen-reader announcements), numbered route polyline; empty tour blocked (E1). |
-| Analytics (`pages/AnalyticsPage.tsx`, `components/charts.tsx`) | Date presets (7/30/90 days, default 30) and tour filter; KPIs; Chart.js charts (top POIs, average listening time per POI, daily, trigger method, language, hourly converted from UTC to Vietnam time); `leaflet.heat` heatmap with toggle for anonymous routes; "No data" state when `has_data=false`. |
-| Export (`lib/exportExcel.ts`, `pages/AnalyticsReportPage.tsx`) | "Export Excel": multi-sheet workbook with SheetJS (`xlsx` 0.20.3). "Export PDF": opens the print-optimised report page and the browser's print dialog ("Save as PDF"), because jsPDF cannot render Vietnamese diacritics without embedding a font. |
-| Dashboard / Account | Counts of POIs, tours, QR codes; last-7-days figures; to-do list (POIs missing audio, languages or QR). Account page shows the admin and changes the password. |
+| Định tuyến (`App.tsx`, react-router) | `/login`; layout được bảo vệ gồm `/` (bảng điều khiển), `/pois`, `/pois/:id` (`new` để tạo mới), `/tours`, `/tours/:id`, `/qr`, `/analytics`, `/account`; `/analytics/report` là layout in được bảo vệ, không có thanh bên. |
+| API client (`lib/api.ts`) | URL gốc lấy từ `VITE_API_URL` (rỗng = cùng origin; khi phát triển, Vite proxy `/api` và `/uploads`). Thêm `Authorization: Bearer`, chuyển lỗi thành `ApiError` kèm trường `details`, gọi `onUnauthorized` khi API quản trị trả 401 (không áp dụng cho đăng nhập), ánh xạ lỗi mạng thành `NETWORK_ERROR`. `fileUrl` thêm origin của backend vào trước `/uploads/...`. |
+| Xác thực (`auth/AuthContext.tsx`, `lib/storage.ts`) | Token được lưu qua lớp bọc localStorage an toàn (dự phòng bằng bộ nhớ trong). Khi gặp 401, người dùng được chuyển tới `/login?next=<trang hiện tại>`. |
+| Kiểm tra hợp lệ (`lib/validation.ts`) | Phản chiếu quy tắc của backend (toạ độ, bán kính 0–5000, độ ưu tiên 0–100, bắt buộc có văn bản tiếng Việt, ngôn ngữ phụ có tiêu đề mà không có văn bản là lỗi, tour không được rỗng) và ánh xạ `details` của máy chủ vào các trường của form (`mapServerErrors`). |
+| Trình sửa POI (`pages/PoiEditPage.tsx`, `components/maps.tsx`) | Bản đồ react-leaflet: bấm để đặt điểm, ghim kéo được, vòng tròn bán kính, các POI khác hiển thị mờ; ô nhập lat/lng thủ công; tải ảnh lên; sáu tab ngôn ngữ với "Dịch tự động từ tiếng Việt" và "Dịch tất cả ngôn ngữ còn trống"; âm thanh theo từng ngôn ngữ: tải file lên, "Tạo giọng đọc (TTS)" (yêu cầu lưu trước vì TTS dùng văn bản đã lưu), nghe thử, xoá; phần QR (tạo kèm nhãn, tải PNG, in, xoá). Cảnh báo khi có thay đổi chưa lưu (`useUnsavedWarning`). |
+| QR (`pages/QrPage.tsx`, `components/QrImage.tsx`, `lib/qr.ts`) | Liệt kê mọi mã, có bộ lọc theo POI; chọn mã và in tờ A4 (4 mã mỗi trang) kèm nhãn trạm, tên POI và dòng chữ "Quét mã để nghe thuyết minh". Ảnh được sinh trong trình duyệt bằng `qrcode` từ `content` (`NARR:<payload>`). |
+| Tour (`pages/TourEditPage.tsx`) | Thêm POI, sắp xếp lại bằng kéo-thả hoặc nút lên/xuống (dùng được bằng bàn phím, có thông báo cho trình đọc màn hình), đường lộ trình có đánh số; chặn tour rỗng (E1). |
+| Thống kê (analytics) (`pages/AnalyticsPage.tsx`, `components/charts.tsx`) | Khoảng ngày đặt sẵn (7/30/90 ngày, mặc định 30) và bộ lọc tour; các chỉ số KPI; biểu đồ Chart.js (POI hàng đầu, thời gian nghe trung bình theo POI, theo ngày, cách kích hoạt, ngôn ngữ, theo giờ đã đổi từ UTC sang giờ Việt Nam); bản đồ nhiệt (heatmap) `leaflet.heat` có nút bật/tắt lộ trình ẩn danh; trạng thái "Không có dữ liệu" khi `has_data=false`. |
+| Xuất báo cáo (`lib/exportExcel.ts`, `pages/AnalyticsReportPage.tsx`) | "Xuất Excel": workbook nhiều sheet bằng SheetJS (`xlsx` 0.20.3). "Xuất PDF": mở trang báo cáo tối ưu cho in và hộp thoại in của trình duyệt ("Lưu dưới dạng PDF"), vì jsPDF không hiển thị được dấu tiếng Việt nếu không nhúng font. |
+| Bảng điều khiển / Tài khoản | Số lượng POI, tour, mã QR; số liệu 7 ngày gần nhất; danh sách việc cần làm (POI thiếu âm thanh, ngôn ngữ hoặc QR). Trang tài khoản hiển thị quản trị viên và cho đổi mật khẩu. |
 
-## 2. Class diagram (backend services and repositories)
+## 2. Biểu đồ lớp (service và repository của backend)
 
-The backend uses factory functions returning objects rather than ES classes; each factory is modelled as a class below. Only the main public operations are shown.
+Backend dùng các hàm factory trả về object thay vì class ES; mỗi factory được mô hình hoá thành một lớp dưới đây. Chỉ thể hiện các thao tác công khai chính.
 
 ```mermaid
 classDiagram
@@ -342,134 +342,134 @@ classDiagram
     AnalyticsService --> TourRepository
 ```
 
-`Translator` and `Tts` are used by `poiController` (`/admin/translate`, `/admin/pois/:id/tts/:lang`); the TTS result is then stored through `PoiService.attachAudio`.
+`Translator` và `Tts` được `poiController` sử dụng (`/admin/translate`, `/admin/pois/:id/tts/:lang`); kết quả TTS sau đó được lưu qua `PoiService.attachAudio`.
 
 ---
 
-## 3. Activity diagrams
+## 3. Biểu đồ hoạt động
 
-### 3.1 UC1: Trigger automatic narration via geofence
+### 3.1 UC1: Kích hoạt thuyết minh tự động qua vùng kích hoạt (geofence)
 
 ```mermaid
 flowchart TD
-    S(["Start: user opens app"]) --> D{"Local POI data available?"}
-    D -- "No" --> N{"Server reachable?"}
-    N -- "No" --> E2["Show: offline and no data, connect to download (E2)"] --> X2(["End"])
-    N -- "Yes" --> SY["Download snapshot into SQLite"] --> P
-    D -- "Yes" --> V["Check content version in background"] --> P
-    P{"Location permission granted?"}
-    P -- "No" --> E1["Show explanation, Open Settings and Retry; automatic narration off; QR and manual play still available (E1)"] --> X1(["End"])
-    P -- "Yes" --> L["Receive location fix (GPS or simulation)"]
-    L --> A{"Accuracy within 60 m?"}
-    A -- "No" --> W["Show weak GPS notice"] --> L
-    A -- "Yes" --> G["Update inside-set: enter at radius, exit beyond radius x 1.2"]
-    G --> SEL["Best inside POI: highest priority, then nearest"]
-    SEL --> NE{"Best POI not yet triggered in this visit?"}
-    NE -- "No" --> L
-    NE -- "Yes" --> BUSY{"Playing, or POI started within cooldown?"}
-    BUSY -- "Yes" --> DIS["Discard trigger, show notice (A1)"] --> L
-    BUSY -- "No" --> RES["Resolve content: selected language, else Vietnamese"]
-    RES --> AU{"Audio file local, or online URL?"}
-    AU -- "Yes" --> PA["Play audio file"]
-    AU -- "No" --> PT["Read text with on-device TTS"]
-    PA -- "audio error" --> PT
-    PA --> LOG["On finish or stop: queue usage log with seconds listened"]
+    S(["Bắt đầu: người dùng mở ứng dụng"]) --> D{"Có dữ liệu POI cục bộ?"}
+    D -- "Không" --> N{"Kết nối được máy chủ?"}
+    N -- "Không" --> E2["Hiển thị: đang ngoại tuyến và chưa có dữ liệu, hãy kết nối mạng để tải (E2)"] --> X2(["Kết thúc"])
+    N -- "Có" --> SY["Tải bản chụp dữ liệu vào SQLite"] --> P
+    D -- "Có" --> V["Kiểm tra phiên bản nội dung ở chế độ nền"] --> P
+    P{"Đã cấp quyền vị trí?"}
+    P -- "Không" --> E1["Hiển thị giải thích, nút Mở Cài đặt và Thử lại; tắt thuyết minh tự động; vẫn dùng được QR và phát thủ công (E1)"] --> X1(["Kết thúc"])
+    P -- "Có" --> L["Nhận điểm định vị (GPS hoặc mô phỏng)"]
+    L --> A{"Độ chính xác trong 60 m?"}
+    A -- "Không" --> W["Hiển thị thông báo GPS yếu"] --> L
+    A -- "Có" --> G["Cập nhật tập POI đang ở trong: vào khi trong bán kính, ra khi vượt bán kính x 1.2"]
+    G --> SEL["POI tốt nhất trong tập: độ ưu tiên cao nhất, sau đó gần nhất"]
+    SEL --> NE{"POI tốt nhất chưa được kích hoạt trong lượt ghé này?"}
+    NE -- "Không" --> L
+    NE -- "Có" --> BUSY{"Đang phát, hoặc POI đã bắt đầu phát trong thời gian chờ phát lại?"}
+    BUSY -- "Có" --> DIS["Bỏ lượt kích hoạt, hiển thị thông báo (A1)"] --> L
+    BUSY -- "Không" --> RES["Chọn nội dung: ngôn ngữ đã chọn, nếu không có thì tiếng Việt"]
+    RES --> AU{"Có file âm thanh cục bộ, hoặc URL khi có mạng?"}
+    AU -- "Có" --> PA["Phát file âm thanh"]
+    AU -- "Không" --> PT["Đọc văn bản bằng TTS trên thiết bị"]
+    PA -- "lỗi âm thanh" --> PT
+    PA --> LOG["Khi phát xong hoặc dừng: đưa nhật ký sử dụng kèm số giây đã nghe vào hàng đợi"]
     PT --> LOG
     LOG --> L
 ```
 
-The app syncs before asking for location permission, so E2 is checked first; this does not change the outcome of either exception path.
+Ứng dụng đồng bộ trước khi xin quyền vị trí, nên E2 được kiểm tra trước; điều này không làm thay đổi kết quả của cả hai luồng ngoại lệ.
 
-### 3.2 UC2: Trigger content via QR code scan
+### 3.2 UC2: Kích hoạt nội dung bằng cách quét mã QR
 
 ```mermaid
 flowchart TD
-    S(["Start: user opens Scan QR tab"]) --> C{"Camera permission granted?"}
-    C -- "No" --> CE["Ask for camera; manual code entry remains available"] --> SC
-    C -- "Yes" --> SC["Scan QR code at bus stop or enter code manually"]
-    SC --> DEC{"Payload parses as NARR code, bare code or URL?"}
-    DEC -- "No" --> E1
-    DEC -- "Yes" --> LQ{"Code in synced qr_code table or qr_cache?"}
-    LQ -- "Yes" --> LANG
-    LQ -- "No" --> REQ["GET /api/qr/payload"]
-    REQ --> R{"Response"}
-    R -- "404 or 400" --> E1["Show: Invalid QR code (E1)"] --> X1(["End"])
-    R -- "network error" --> E2["Show: offline and code not stored, retry when connected (E2)"] --> X2(["End"])
-    R -- "200" --> CACHE["Save code in qr_cache; store POI if missing locally"] --> LANG
-    LANG["Pick selected language (A1), else Vietnamese"]
-    LANG --> PLAY["Stop current playback; play audio or on-device TTS immediately"]
-    PLAY --> LOG["Queue usage log with method qr"] --> X3(["End"])
+    S(["Bắt đầu: người dùng mở tab Quét QR"]) --> C{"Đã cấp quyền camera?"}
+    C -- "Không" --> CE["Xin quyền camera; vẫn có thể nhập mã thủ công"] --> SC
+    C -- "Có" --> SC["Quét mã QR tại trạm xe buýt hoặc nhập mã thủ công"]
+    SC --> DEC{"Payload đọc được dưới dạng mã NARR, mã trần hoặc URL?"}
+    DEC -- "Không" --> E1
+    DEC -- "Có" --> LQ{"Mã có trong bảng qr_code đã đồng bộ hoặc qr_cache?"}
+    LQ -- "Có" --> LANG
+    LQ -- "Không" --> REQ["GET /api/qr/payload"]
+    REQ --> R{"Phản hồi"}
+    R -- "404 hoặc 400" --> E1["Hiển thị: Mã QR không hợp lệ (E1)"] --> X1(["Kết thúc"])
+    R -- "lỗi mạng" --> E2["Hiển thị: đang ngoại tuyến và mã chưa được lưu, thử lại khi có mạng (E2)"] --> X2(["Kết thúc"])
+    R -- "200" --> CACHE["Lưu mã vào qr_cache; lưu POI nếu chưa có cục bộ"] --> LANG
+    LANG["Chọn ngôn ngữ đã chọn (A1), nếu không có thì tiếng Việt"]
+    LANG --> PLAY["Dừng nội dung đang phát; phát âm thanh hoặc TTS trên thiết bị ngay"]
+    PLAY --> LOG["Đưa nhật ký sử dụng với cách kích hoạt qr vào hàng đợi"] --> X3(["Kết thúc"])
 ```
 
-### 3.3 UC3: Manage POIs and narration content
+### 3.3 UC3: Quản lý POI và nội dung thuyết minh
 
 ```mermaid
 flowchart TD
-    S(["Start"]) --> LG["Login authentication"]
-    LG --> DB["Show dashboard"] --> SEL["Open POI management"] --> LST["Show POI list"]
-    LST --> ACT{"Action"}
-    ACT -- "Delete (A1)" --> CF{"Confirm delete?"}
-    CF -- "No" --> LST
-    CF -- "Yes" --> DEL["Delete POI, translations, audio, QR codes; bump version"] --> LST
-    ACT -- "Create or edit" --> F["Enter name, coordinates on map, radius, priority"]
-    F --> T["Enter narration per language; optional auto-translate"]
-    T --> SAVE["Save"]
-    SAVE --> VAL{"Valid? coordinates, radius greater than 0, Vietnamese text"}
-    VAL -- "No" --> ERR["Show field errors (E1)"] --> F
-    VAL -- "Yes" --> STORE["Save POI and translations in one transaction; bump content version"]
-    STORE --> OPT{"Add audio or QR?"}
-    OPT -- "Upload audio" --> UP["Upload file per language"] --> OPT
-    OPT -- "Generate TTS" --> TTS["Server TTS from saved text"] --> OPT
-    OPT -- "Create QR (A2)" --> QR["Create QR code, print"] --> OPT
-    OPT -- "Done" --> E(["End: available at next app sync"])
+    S(["Bắt đầu"]) --> LG["Đăng nhập xác thực"]
+    LG --> DB["Hiển thị bảng điều khiển"] --> SEL["Mở mục quản lý POI"] --> LST["Hiển thị danh sách POI"]
+    LST --> ACT{"Thao tác"}
+    ACT -- "Xoá (A1)" --> CF{"Xác nhận xoá?"}
+    CF -- "Không" --> LST
+    CF -- "Có" --> DEL["Xoá POI, bản dịch, âm thanh, mã QR; tăng phiên bản"] --> LST
+    ACT -- "Tạo hoặc sửa" --> F["Nhập tên, toạ độ trên bản đồ, bán kính, độ ưu tiên"]
+    F --> T["Nhập nội dung thuyết minh theo từng ngôn ngữ; có thể dịch tự động"]
+    T --> SAVE["Lưu"]
+    SAVE --> VAL{"Hợp lệ? toạ độ, bán kính lớn hơn 0, văn bản tiếng Việt"}
+    VAL -- "Không" --> ERR["Hiển thị lỗi theo trường (E1)"] --> F
+    VAL -- "Có" --> STORE["Lưu POI và bản dịch trong một transaction; tăng phiên bản nội dung"]
+    STORE --> OPT{"Thêm âm thanh hoặc QR?"}
+    OPT -- "Tải âm thanh lên" --> UP["Tải file lên theo từng ngôn ngữ"] --> OPT
+    OPT -- "Tạo TTS" --> TTS["TTS phía máy chủ từ văn bản đã lưu"] --> OPT
+    OPT -- "Tạo QR (A2)" --> QR["Tạo mã QR, in"] --> OPT
+    OPT -- "Xong" --> E(["Kết thúc: có hiệu lực ở lần đồng bộ tiếp theo của ứng dụng"])
 ```
 
-### 3.4 UC4: Manage tours
+### 3.4 UC4: Quản lý tour
 
 ```mermaid
 flowchart TD
-    S(["Start"]) --> LG["Login authentication"] --> M["Open tour management"] --> L["Show tour list"]
-    L --> ACT{"Action"}
-    ACT -- "Delete (A1)" --> CF{"Confirm delete?"}
-    CF -- "No" --> L
-    CF -- "Yes" --> DEL["Delete tour; bump version"] --> L
-    ACT -- "Create or edit" --> F["Enter name and description"]
-    F --> P["Select POIs and order them; preview polyline on map"]
-    P --> SAVE["Save"]
-    SAVE --> V{"At least one POI, no duplicates, all exist?"}
-    V -- "No" --> W["Show warning (E1)"] --> P
-    V -- "Yes" --> ST["Save tour and ordered POIs in one transaction; bump version"]
-    ST --> E(["End: tour available at next app sync"])
+    S(["Bắt đầu"]) --> LG["Đăng nhập xác thực"] --> M["Mở mục quản lý tour"] --> L["Hiển thị danh sách tour"]
+    L --> ACT{"Thao tác"}
+    ACT -- "Xoá (A1)" --> CF{"Xác nhận xoá?"}
+    CF -- "Không" --> L
+    CF -- "Có" --> DEL["Xoá tour; tăng phiên bản"] --> L
+    ACT -- "Tạo hoặc sửa" --> F["Nhập tên và mô tả"]
+    F --> P["Chọn POI và sắp thứ tự; xem trước đường lộ trình trên bản đồ"]
+    P --> SAVE["Lưu"]
+    SAVE --> V{"Có ít nhất một POI, không trùng, tất cả đều tồn tại?"}
+    V -- "Không" --> W["Hiển thị cảnh báo (E1)"] --> P
+    V -- "Có" --> ST["Lưu tour và các POI theo thứ tự trong một transaction; tăng phiên bản"]
+    ST --> E(["Kết thúc: tour có hiệu lực ở lần đồng bộ tiếp theo của ứng dụng"])
 ```
 
-### 3.5 UC5: View usage analytics
+### 3.5 UC5: Xem thống kê sử dụng
 
 ```mermaid
 flowchart TD
-    S(["Start"]) --> LG["Login authentication"] --> M["Open analytics"] --> F["Show filters: date range, tour"]
-    F --> Q["Select filters and request report"]
-    Q --> V{"Filters valid?"}
-    V -- "No" --> FE["Show filter error"] --> F
-    V -- "Yes" --> C["Query anonymous logs: summary, per POI, method, language, daily, hourly, heatmap, routes"]
-    C --> H{"Any data?"}
-    H -- "No" --> ND["Show: No data available (E1)"] --> E1(["End"])
-    H -- "Yes" --> R["Show charts, ranked table, heatmap and routes"]
-    R --> X{"Export? (A1)"}
-    X -- "Excel" --> XL["Generate multi-sheet .xlsx in browser (SheetJS)"] --> E2(["End"])
-    X -- "PDF" --> PDF["Open print report page; browser Save as PDF"] --> E2
-    X -- "No" --> E2
+    S(["Bắt đầu"]) --> LG["Đăng nhập xác thực"] --> M["Mở mục thống kê"] --> F["Hiển thị bộ lọc: khoảng ngày, tour"]
+    F --> Q["Chọn bộ lọc và yêu cầu báo cáo"]
+    Q --> V{"Bộ lọc hợp lệ?"}
+    V -- "Không" --> FE["Hiển thị lỗi bộ lọc"] --> F
+    V -- "Có" --> C["Truy vấn nhật ký ẩn danh: tổng quan, theo POI, cách kích hoạt, ngôn ngữ, theo ngày, theo giờ, bản đồ nhiệt, lộ trình"]
+    C --> H{"Có dữ liệu?"}
+    H -- "Không" --> ND["Hiển thị: Không có dữ liệu (E1)"] --> E1(["Kết thúc"])
+    H -- "Có" --> R["Hiển thị biểu đồ, bảng xếp hạng, bản đồ nhiệt và lộ trình"]
+    R --> X{"Xuất báo cáo? (A1)"}
+    X -- "Excel" --> XL["Tạo file .xlsx nhiều sheet trong trình duyệt (SheetJS)"] --> E2(["Kết thúc"])
+    X -- "PDF" --> PDF["Mở trang báo cáo để in; trình duyệt Lưu dưới dạng PDF"] --> E2
+    X -- "Không" --> E2
 ```
 
 ---
 
-## 4. Sequence diagrams
+## 4. Biểu đồ tuần tự
 
-### 4.1 UC1: Geofence trigger
+### 4.1 UC1: Kích hoạt qua geofence
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant OS as OS location (GPS)
+    participant OS as Định vị hệ điều hành (GPS)
     participant LOC as services/location
     participant PIPE as services/pipeline
     participant GEO as GeofenceEngine
@@ -479,79 +479,79 @@ sequenceDiagram
     participant Q as services/analytics
     participant API as Backend API
 
-    OS->>LOC: location update (lat, lng, accuracy)
+    OS->>LOC: cập nhật vị trí (lat, lng, accuracy)
     LOC->>PIPE: onFix(fix)
-    PIPE->>Q: sampleLocation(fix) if 30 s or 25 m passed
+    PIPE->>Q: sampleLocation(fix) nếu đã qua 30 s hoặc 25 m
     PIPE->>GEO: update(fix)
-    GEO->>GEO: ignore if accuracy over 60 m, hysteresis, best of inside POIs
-    GEO-->>PIPE: trigger(poi) once per visit
+    GEO->>GEO: bỏ qua nếu độ chính xác trên 60 m, vùng trễ, chọn POI tốt nhất trong tập
+    GEO-->>PIPE: trigger(poi) một lần mỗi lượt ghé
     PIPE->>NAR: play(poi, geofence, language)
     NAR->>GATE: check(poi, geofence, isPlaying)
-    alt busy or cooldown
-        GATE-->>NAR: rejected
-        NAR-->>PIPE: discarded, show notice (UC1 A1)
-    else accepted
-        NAR->>NAR: resolve translation (selected, else vi)
+    alt đang bận hoặc trong thời gian chờ phát lại
+        GATE-->>NAR: bị từ chối
+        NAR-->>PIPE: bỏ lượt, hiển thị thông báo (UC1 A1)
+    else được chấp nhận
+        NAR->>NAR: chọn bản dịch (ngôn ngữ đã chọn, nếu không có thì vi)
         NAR->>GATE: markPlayed(poi, now)
-        NAR->>OUT: play local file or server URL, else speak text
-        OUT-->>NAR: finished
+        NAR->>OUT: phát file cục bộ hoặc URL máy chủ, nếu không có thì đọc văn bản
+        OUT-->>NAR: phát xong
         NAR->>Q: logPlayback(listen_seconds)
     end
-    opt every 60 s when online
-        Q->>API: POST /api/logs/usage and /api/logs/location (batches of 200)
+    opt mỗi 60 s khi có mạng
+        Q->>API: POST /api/logs/usage và /api/logs/location (lô 200 bản ghi)
         API-->>Q: 201 inserted, skipped
-        Q->>Q: delete sent records from queue
+        Q->>Q: xoá các bản ghi đã gửi khỏi hàng đợi
     end
 ```
 
-### 4.2 UC2: QR scan
+### 4.2 UC2: Quét QR
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor U as Passenger
-    participant CAM as Scan QR screen
+    actor U as Hành khách
+    participant CAM as Màn hình Quét QR
     participant RES as qrResolver
-    participant DB as Local SQLite
+    participant DB as SQLite cục bộ
     participant API as Backend publicController
     participant QS as qrService
     participant NAR as NarrationEngine
 
-    U->>CAM: scan code at bus stop
+    U->>CAM: quét mã tại trạm xe buýt
     CAM->>RES: resolveQr(raw)
     RES->>RES: parseQrPayload(raw)
-    RES->>DB: qr_code table (synced), then qr_cache
-    alt found locally
+    RES->>DB: bảng qr_code (đã đồng bộ), sau đó qr_cache
+    alt tìm thấy cục bộ
         DB-->>RES: poi_id, label
-    else not found locally
+    else không có cục bộ
         RES->>API: GET /api/qr/NARR%3Acode
-        alt network error
-            RES-->>CAM: offline
-            CAM-->>U: offline, code not stored (E2)
-        else unknown payload
+        alt lỗi mạng
+            RES-->>CAM: ngoại tuyến
+            CAM-->>U: đang ngoại tuyến, mã chưa được lưu (E2)
+        else payload không xác định
             API->>QS: resolve(raw)
             QS-->>API: AppError 404
             API-->>RES: 404 NOT_FOUND
-            RES-->>CAM: invalid
-            CAM-->>U: "Invalid QR code" (E1)
-        else found
+            RES-->>CAM: không hợp lệ
+            CAM-->>U: "Mã QR không hợp lệ" (E1)
+        else tìm thấy
             API->>QS: resolve(raw)
-            QS-->>API: qr and poi with translations
+            QS-->>API: qr và poi kèm bản dịch
             API-->>RES: 200 JSON
-            RES->>DB: save in qr_cache, store POI if missing
+            RES->>DB: lưu vào qr_cache, lưu POI nếu chưa có
         end
     end
-    CAM->>NAR: play(poi, qr, selected language)
-    NAR->>NAR: bypass cooldown, stop current playback, play
+    CAM->>NAR: play(poi, qr, ngôn ngữ đã chọn)
+    NAR->>NAR: bỏ qua thời gian chờ phát lại, dừng nội dung đang phát, phát
 ```
 
-### 4.3 UC3: Save POI and generate TTS audio
+### 4.3 UC3: Lưu POI và tạo âm thanh TTS
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor A as Administrator
-    participant CMS as CMS web
+    actor A as Quản trị viên
+    participant CMS as Web CMS
     participant MW as requireAdmin
     participant C as poiController
     participant S as poiService
@@ -560,144 +560,149 @@ sequenceDiagram
     participant G as Google TTS
     participant FS as uploads/
 
-    A->>CMS: fill form and click Save
+    A->>CMS: điền form và bấm Tạo điểm
     CMS->>MW: POST /api/admin/pois (Bearer token)
-    MW->>MW: verify JWT, load admin
+    MW->>MW: xác minh JWT, nạp quản trị viên
     MW->>C: create(req)
     C->>S: create(body, adminId)
     S->>S: validatePoiInput(body)
-    alt invalid
-        S-->>CMS: 400 VALIDATION_ERROR with field details
-    else valid
-        S->>R: transaction: poi.create, translation.upsertText per language, meta.bump
-        S-->>CMS: 201 POI with translations
+    alt không hợp lệ
+        S-->>CMS: 400 VALIDATION_ERROR kèm chi tiết theo trường
+    else hợp lệ
+        S->>R: transaction: poi.create, translation.upsertText cho từng ngôn ngữ, meta.bump
+        S-->>CMS: 201 POI kèm bản dịch
     end
-    A->>CMS: click Generate voice (en)
+    A->>CMS: bấm Tạo giọng đọc (TTS) cho en
     CMS->>C: POST /api/admin/pois/7/tts/en
     C->>S: get(7)
     C->>T: synthesize(narration_text, "en")
-    T->>T: splitText into chunks of 180 chars or less
-    loop each chunk
+    T->>T: splitText thành các đoạn không quá 180 ký tự
+    loop mỗi đoạn
         T->>G: GET translate_tts
-        G-->>T: MP3 bytes
+        G-->>T: dữ liệu MP3
     end
-    T-->>C: concatenated MP3 buffer
+    T-->>C: buffer MP3 đã nối
     C->>FS: saveBuffer (tts-random.mp3)
     C->>S: attachAudio(7, "en", file, "tts")
     S->>R: transaction: translation.setAudio, poi.touch, meta.bump
-    S->>FS: remove previous audio file if replaced
+    S->>FS: xoá file âm thanh cũ nếu bị thay thế
     S-->>CMS: 200 POI (audio_source tts)
 ```
 
-### 4.4 Data sync
+### 4.4 Đồng bộ dữ liệu
 
-Triggered on launch, every 5 minutes, when the app returns to the foreground and when connectivity returns (`services/bootstrap.ts`), or by "Sync now" in Settings.
+Được kích hoạt khi mở ứng dụng, mỗi 5 phút, khi ứng dụng quay lại tiền cảnh và khi có mạng trở lại (`services/bootstrap.ts`), hoặc bằng nút "Đồng bộ ngay" trong Cài đặt.
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant APP as data/sync.ts
-    participant DB as Local SQLite
+    participant DB as SQLite cục bộ
     participant API as Backend API
     participant SS as syncService
     participant FS as /uploads
 
-    APP->>DB: read content_version, POI count, sync_format
+    APP->>DB: đọc content_version, số POI, sync_format
     APP->>API: GET /api/sync/version
     API->>SS: version()
-    SS-->>APP: version N
-    alt N differs from local, or no data, or old local format
+    SS-->>APP: phiên bản N
+    alt N khác phiên bản cục bộ, hoặc chưa có dữ liệu, hoặc định dạng cục bộ cũ
         APP->>API: GET /api/sync
         API->>SS: snapshot()
-        SS-->>APP: version, languages, pois with translations, qrcodes, tours
+        SS-->>APP: version, languages, pois kèm bản dịch, qrcodes, tours
         APP->>APP: validateBundle, diffBundles
-        APP->>DB: transaction: replace content tables and qr_code, set version N
-        APP->>APP: prune audio files no longer referenced
-        loop each audio_url of the selected language not yet downloaded
+        APP->>DB: transaction: thay các bảng nội dung và qr_code, đặt phiên bản N
+        APP->>APP: dọn các file âm thanh không còn được tham chiếu
+        loop mỗi audio_url của ngôn ngữ đã chọn chưa tải về
             APP->>FS: GET /uploads/file
-            FS-->>APP: audio bytes
-            APP->>DB: record in audio_file
+            FS-->>APP: dữ liệu âm thanh
+            APP->>DB: ghi vào audio_file
         end
-    else same version
-        APP->>APP: keep local data
+    else cùng phiên bản
+        APP->>APP: giữ dữ liệu cục bộ
     end
 ```
 
-### 4.5 UC5: Analytics report
+### 4.5 UC5: Báo cáo thống kê
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor A as Administrator
-    participant CMS as CMS dashboard
+    actor A as Quản trị viên
+    participant CMS as Bảng điều khiển CMS
     participant C as analyticsController
     participant S as analyticsService
     participant TR as tourRepository
     participant AR as analyticsRepository
 
-    A->>CMS: choose date range and tour, click View
+    A->>CMS: chọn khoảng ngày và tour, bấm Xem báo cáo
     CMS->>C: GET /api/admin/analytics?from&to&tour_id
     C->>S: report(query)
-    S->>S: parseFilters (dates, from before to)
-    opt tour_id given
+    S->>S: parseFilters (ngày, from trước to)
+    opt có tour_id
         S->>TR: findById(tour_id)
-        S->>S: bounding box of tour POIs plus about 300 m
+        S->>S: khung bao các POI của tour cộng thêm khoảng 300 m
     end
     S->>AR: summary, byMethod, byLanguage, perPoi, daily, hourly
     S->>AR: heatmap(bbox), routes(bbox)
-    AR-->>S: aggregated rows (no session ids)
-    S-->>CMS: report with has_data
-    alt has_data is false
-        CMS-->>A: "No data available" (E1)
+    AR-->>S: các dòng đã tổng hợp (không có session id)
+    S-->>CMS: báo cáo kèm has_data
+    alt has_data là false
+        CMS-->>A: "Không có dữ liệu" (E1)
     else
-        CMS-->>A: charts, ranking, heatmap, routes
-        opt export (A1)
-            A->>CMS: Export Excel or Export PDF
-            CMS-->>A: .xlsx download, or print page for Save as PDF
+        CMS-->>A: biểu đồ, bảng xếp hạng, bản đồ nhiệt, lộ trình
+        opt xuất báo cáo (A1)
+            A->>CMS: Xuất Excel hoặc Xuất PDF
+            CMS-->>A: tải file .xlsx, hoặc trang in để Lưu dưới dạng PDF
         end
     end
 ```
 
 ---
 
-## 5. State diagrams: narration engine
+## 5. Biểu đồ trạng thái: bộ máy thuyết minh
 
-The engine has one global playback state (`NarrationEngine`) and a per-POI state combining the geofence visit (`GeofenceEngine`) and the cooldown (`CooldownGate`). The cooldown is measured from the moment a POI **starts** playing (`markPlayed` is called when playback begins).
+Bộ máy có một trạng thái phát toàn cục (`NarrationEngine`) và một trạng thái theo từng POI, kết hợp lượt ghé geofence (`GeofenceEngine`) và thời gian chờ phát lại (`CooldownGate`). Thời gian chờ phát lại được tính từ thời điểm POI **bắt đầu** phát (`markPlayed` được gọi khi bắt đầu phát).
 
-Engine playback state:
+Trạng thái phát của bộ máy:
 
 ```mermaid
 stateDiagram-v2
+    state "Rảnh" as Idle
+    state "Đang phát" as Playing
     [*] --> Idle
-    Idle --> Playing : trigger accepted / markPlayed, start audio or TTS
-    Idle --> Idle : geofence trigger for POI in cooldown / discard
-    Playing --> Playing : geofence trigger / discard, busy (A1)
-    Playing --> Playing : manual or QR trigger / stop and log current, play new
-    Playing --> Playing : audio error / switch to TTS
-    Playing --> Idle : playback finished / log listen_seconds
-    Playing --> Idle : user presses Stop / log listen_seconds
+    Idle --> Playing : kích hoạt được chấp nhận / markPlayed, phát âm thanh hoặc TTS
+    Idle --> Idle : kích hoạt geofence cho POI đang trong thời gian chờ phát lại / bỏ lượt
+    Playing --> Playing : kích hoạt geofence / bỏ lượt, đang bận (A1)
+    Playing --> Playing : kích hoạt thủ công hoặc QR / dừng và ghi nhật ký nội dung hiện tại, phát nội dung mới
+    Playing --> Playing : lỗi âm thanh / chuyển sang TTS
+    Playing --> Idle : phát xong / ghi listen_seconds
+    Playing --> Idle : người dùng bấm Dừng / ghi listen_seconds
 ```
 
-Per-POI state (geofence triggers only; manual and QR plays ignore it):
+Trạng thái theo từng POI (chỉ áp dụng cho kích hoạt geofence; phát thủ công và phát qua QR bỏ qua trạng thái này):
 
 ```mermaid
 stateDiagram-v2
+    state "Sẵn sàng" as Ready
+    state "Trong vùng" as Inside
+    state "Chờ phát lại" as Cooldown
     [*] --> Ready
-    Ready --> Inside : distance within radius, accuracy ok, best POI / emit trigger
-    Inside --> Inside : jitter inside hysteresis band / no trigger
-    Inside --> Cooldown : distance over radius x 1.2, started playing under cooldown ago
-    Inside --> Ready : distance over radius x 1.2, not played (trigger discarded)
-    Cooldown --> Inside : re-entered / trigger rejected by cooldown gate
-    Cooldown --> Ready : cooldown elapsed (default 10 min)
+    Ready --> Inside : khoảng cách trong bán kính, độ chính xác đạt, là POI tốt nhất / phát kích hoạt
+    Inside --> Inside : dao động trong vùng trễ / không kích hoạt
+    Inside --> Cooldown : khoảng cách vượt bán kính x 1.2, đã bắt đầu phát chưa quá thời gian chờ
+    Inside --> Ready : khoảng cách vượt bán kính x 1.2, chưa phát (kích hoạt đã bị bỏ)
+    Cooldown --> Inside : vào lại vùng / kích hoạt bị cổng thời gian chờ từ chối
+    Cooldown --> Ready : hết thời gian chờ phát lại (mặc định 10 phút)
 ```
 
-A POI cannot re-trigger while the user stays inside its hysteresis band, so standing at the boundary produces at most one trigger; the cooldown additionally covers walking out and back in.
+Một POI không thể kích hoạt lại khi người dùng vẫn ở trong vùng trễ (hysteresis) của nó, nên đứng ở ranh giới chỉ tạo ra tối đa một lần kích hoạt; thời gian chờ phát lại còn xử lý thêm trường hợp đi ra rồi quay vào.
 
 ---
 
-## 6. Data design
+## 6. Thiết kế dữ liệu
 
-### 6.1 Server ERD (actual schema, `backend/src/db/database.js`)
+### 6.1 ERD phía máy chủ (lược đồ thực tế, `backend/src/db/database.js`)
 
 ```mermaid
 erDiagram
@@ -771,77 +776,77 @@ erDiagram
         string value
     }
 
-    ADMIN_USER |o--o{ POI : creates
-    ADMIN_USER |o--o{ TOUR : creates
-    POI ||--o{ POI_TRANSLATION : has
-    POI ||--o{ QR_CODE : linked_to
-    TOUR ||--|{ TOUR_POI : contains
-    POI ||--o{ TOUR_POI : included_in
-    POI |o--o{ USAGE_LOG : triggers
+    ADMIN_USER |o--o{ POI : "tạo"
+    ADMIN_USER |o--o{ TOUR : "tạo"
+    POI ||--o{ POI_TRANSLATION : "có"
+    POI ||--o{ QR_CODE : "gắn với"
+    TOUR ||--|{ TOUR_POI : "chứa"
+    POI ||--o{ TOUR_POI : "thuộc"
+    POI |o--o{ USAGE_LOG : "kích hoạt"
 ```
 
-Constraints and indexes:
+Ràng buộc và chỉ mục:
 - `poi.latitude` CHECK −90..90, `poi.longitude` CHECK −180..180, `poi.radius_m` CHECK > 0.
 - `poi_translation` UNIQUE (`poi_id`, `language_code`); `audio_source` CHECK IN (`upload`, `tts`).
 - `usage_log.trigger_method` CHECK IN (`geofence`, `qr`, `manual`).
-- ON DELETE: translations, QR codes and tour links CASCADE with the POI; `usage_log.poi_id` and `created_by` SET NULL.
-- Indexes: `usage_log(played_at)`, `usage_log(poi_id)`, `location_log(recorded_at)`.
-- `PRAGMA foreign_keys = ON`; WAL journal mode for file databases.
-- Timestamps: `created_at`/`updated_at` are SQLite `datetime('now')` (UTC, `YYYY-MM-DD HH:MM:SS`); log timestamps are ISO-8601 UTC strings.
+- ON DELETE: bản dịch, mã QR và liên kết tour bị xoá dây chuyền (CASCADE) theo POI; `usage_log.poi_id` và `created_by` được đặt NULL (SET NULL).
+- Chỉ mục: `usage_log(played_at)`, `usage_log(poi_id)`, `location_log(recorded_at)`.
+- `PRAGMA foreign_keys = ON`; chế độ nhật ký WAL cho cơ sở dữ liệu dạng file.
+- Mốc thời gian: `created_at`/`updated_at` là `datetime('now')` của SQLite (UTC, `YYYY-MM-DD HH:MM:SS`); mốc thời gian trong nhật ký là chuỗi ISO-8601 UTC.
 
-Differences from the team's original ERD (README §6):
+Khác biệt so với ERD ban đầu của nhóm (README §6):
 
-| Change | Reason |
+| Thay đổi | Lý do |
 |---|---|
-| `poi.address`, `poi.image_url` added | Shown in the CMS list and app detail screen |
-| `poi.created_by`, `tour.created_by` (FK to `admin_user`, nullable) | Realise the "manages" relationship; SET NULL so deleting an admin keeps content |
-| `created_at` / `updated_at` on `poi`, `tour`; `created_at` on `admin_user`, `qr_code` | Auditing; `updated_at` is included in the snapshot |
-| `admin_user.full_name` added | Display name in the CMS |
-| `poi_translation.title` added | Per-language display name of the POI |
-| `poi_translation.audio_source` (`upload` / `tts`) added | CMS shows whether audio is recorded or synthesised |
-| `qr_code.label`, UNIQUE `payload` | Identify the bus stop where the code is installed; payload lookup must be unambiguous |
-| `meta` table with `content_version` | Drives version-based sync (§8, D1) |
-| `usage_log.poi_id` nullable | Keep history when a POI is deleted |
-| `location_log` is not related to any table | Anonymous by design; linking only via random `session_id` |
+| Thêm `poi.address`, `poi.image_url` | Hiển thị trong danh sách CMS và màn hình chi tiết của ứng dụng |
+| `poi.created_by`, `tour.created_by` (FK tới `admin_user`, cho phép null) | Hiện thực quan hệ "quản lý"; dùng SET NULL để xoá quản trị viên vẫn giữ được nội dung |
+| `created_at` / `updated_at` trên `poi`, `tour`; `created_at` trên `admin_user`, `qr_code` | Phục vụ kiểm vết; `updated_at` có trong bản chụp dữ liệu |
+| Thêm `admin_user.full_name` | Tên hiển thị trong CMS |
+| Thêm `poi_translation.title` | Tên hiển thị của POI theo từng ngôn ngữ |
+| Thêm `poi_translation.audio_source` (`upload` / `tts`) | CMS cho biết âm thanh là bản thu hay giọng tổng hợp |
+| `qr_code.label`, `payload` UNIQUE | Xác định trạm xe buýt nơi dán mã; tra cứu theo payload phải không mơ hồ |
+| Bảng `meta` với `content_version` | Điều khiển cơ chế đồng bộ theo phiên bản (§8, D1) |
+| `usage_log.poi_id` cho phép null | Giữ lịch sử khi POI bị xoá |
+| `location_log` không liên kết với bảng nào | Ẩn danh theo thiết kế; chỉ liên kết qua `session_id` ngẫu nhiên |
 
-### 6.2 Mobile local database (`mobile/src/data/db.ts`)
+### 6.2 Cơ sở dữ liệu cục bộ trên di động (`mobile/src/data/db.ts`)
 
-| Table | Purpose |
+| Bảng | Mục đích |
 |---|---|
-| `poi`, `poi_translation`, `tour`, `tour_poi` | Copy of the snapshot; replaced in one transaction on each sync |
-| `qr_code(payload, poi_id, label)` | QR codes from the snapshot, for offline resolution |
-| `qr_cache(code, poi_id, label, resolved_at)` | Codes resolved online that were not in the snapshot |
-| `audio_file(url, local_uri, bytes, downloaded_at)` | Audio files downloaded for offline playback |
-| `usage_queue`, `location_queue` | Pending anonymous log records (JSON payload) until uploaded |
-| `kv(key, value)` | Settings (language, auto narration, cooldown, server URL, anonymous data, background, simulation), `content_version`, `last_sync_at`, `sync_format` |
+| `poi`, `poi_translation`, `tour`, `tour_poi` | Bản sao của bản chụp dữ liệu; được thay thế trong một transaction ở mỗi lần đồng bộ |
+| `qr_code(payload, poi_id, label)` | Mã QR từ bản chụp dữ liệu, dùng để phân giải khi ngoại tuyến |
+| `qr_cache(code, poi_id, label, resolved_at)` | Các mã đã phân giải trực tuyến mà không có trong bản chụp dữ liệu |
+| `audio_file(url, local_uri, bytes, downloaded_at)` | File âm thanh đã tải về để phát ngoại tuyến |
+| `usage_queue`, `location_queue` | Bản ghi nhật ký ẩn danh đang chờ (payload JSON) cho tới khi được gửi lên |
+| `kv(key, value)` | Cài đặt (ngôn ngữ, thuyết minh tự động, thời gian chờ phát lại, URL máy chủ, dữ liệu ẩn danh, chạy nền, mô phỏng), `content_version`, `last_sync_at`, `sync_format` |
 
-The schema version is tracked with `PRAGMA user_version`.
+Phiên bản lược đồ được theo dõi bằng `PRAGMA user_version`.
 
 ---
 
-## 7. Deployment
+## 7. Triển khai (deployment)
 
 ```mermaid
 flowchart TB
-    subgraph PHONE["Tourist smartphone (Android / iOS)"]
-        APP["Mobile app (Expo build)"]
-        LDB[("SQLite<br/>content, cache, pending logs")]
-        AFILES[("Downloaded audio files")]
+    subgraph PHONE["Điện thoại của khách du lịch (Android / iOS)"]
+        APP["Ứng dụng di động (bản build Expo)"]
+        LDB[("SQLite<br/>nội dung, bộ nhớ đệm, nhật ký chờ gửi")]
+        AFILES[("File âm thanh đã tải về")]
     end
-    subgraph ADMINPC["Administrator computer"]
-        BROWSER["Web browser<br/>CMS static bundle"]
+    subgraph ADMINPC["Máy tính của quản trị viên"]
+        BROWSER["Trình duyệt web<br/>bundle tĩnh của CMS"]
     end
-    STOP["Printed QR codes<br/>Bus stops"]
+    STOP["Mã QR đã in<br/>Trạm xe buýt"]
 
-    subgraph SERVER["Application server (Linux VPS)"]
-        PROXY["Reverse proxy (nginx or Caddy)<br/>HTTPS termination, serves CMS dist/"]
-        NODE["Node.js 22.13+ process<br/>backend/src/server.js, port 4000"]
+    subgraph SERVER["Máy chủ ứng dụng (Linux VPS)"]
+        PROXY["Reverse proxy (nginx hoặc Caddy)<br/>kết thúc HTTPS, phục vụ CMS dist/"]
+        NODE["Tiến trình Node.js 22.13+<br/>backend/src/server.js, cổng 4000"]
         SDB[("data/narration.db<br/>SQLite WAL")]
-        UP[("uploads/<br/>audio, images")]
+        UP[("uploads/<br/>âm thanh, hình ảnh")]
     end
-    GOOG["Google Translate / TTS endpoints"]
+    GOOG["Endpoint Google Translate / TTS"]
 
-    STOP -. "camera scan" .-> APP
+    STOP -. "quét bằng camera" .-> APP
     APP --- LDB
     APP --- AFILES
     APP -->|"HTTPS"| PROXY
@@ -852,27 +857,27 @@ flowchart TB
     NODE -->|"HTTPS"| GOOG
 ```
 
-The database server and file storage of the original deployment diagram are realised on the same host as the API (embedded SQLite, local directory). This is adequate for the expected load of a ward-level pilot; §8 D5 discusses the trade-off.
+Máy chủ cơ sở dữ liệu và nơi lưu file trong sơ đồ triển khai ban đầu được hiện thực trên cùng máy chủ với API (SQLite nhúng, thư mục cục bộ). Cách này đáp ứng được tải dự kiến của một đợt thí điểm cấp phường; §8 D5 bàn về sự đánh đổi này.
 
 ---
 
-## 8. Key design decisions
+## 8. Các quyết định thiết kế chính
 
-| ID | Decision | Rationale | Consequences |
+| ID | Quyết định | Lý do | Hệ quả |
 |---|---|---|---|
-| D1 | **Full-snapshot, version-based sync.** One integer `content_version` is bumped inside the same transaction as every content change; the app compares versions and downloads the complete snapshot when it differs. | Content is small (tens of POIs, a few KB of text each). A full snapshot avoids delta bookkeeping, tombstones for deletions and clock problems. The check request is tiny, so it runs on launch, every 5 minutes and on reconnect. | Each change triggers a full re-download (acceptable at this size). Audio files are fetched separately by URL so the JSON stays small. If the data set grows to thousands of POIs, a delta endpoint by `updated_at` would be needed. |
-| D2 | **Discard, do not queue, concurrent triggers** (UC1 A1). | UC1 A1 states the trigger is discarded. Queuing would play stale content after the user has walked past a POI, and could chain several narrations. | A POI passed during another narration is not narrated automatically; the user can open it from the map and press "Play narration" (`trigger_method = manual`). Manual and QR plays are explicit user actions and therefore interrupt the current narration instead of being discarded. |
-| D3 | **Accuracy filter (60 m) and exit hysteresis (radius × 1.2)** in addition to cooldown. | Urban GPS fixes jitter by tens of metres; without hysteresis a user standing at the boundary would enter and exit repeatedly. Cooldown alone would hide but not fix this. | Slight delay in detecting exits; narration may not start when accuracy is poor (e.g. under tall buildings). Thresholds are configurable and must be tuned in field tests. |
-| D4 | **Privacy by design.** No tourist accounts; random session ID per launch; coordinates rounded to 4 decimals at ingestion; heatmap aggregated in ~11 m cells; routes returned without session IDs. | UC5 business rule requires anonymous processing. Rounding at the server boundary guarantees that precise positions are never stored even if a client sends them. | Routes cannot be linked across days or app launches; analytics count sessions, not unique people. |
-| D5 | **Embedded SQLite via `node:sqlite`, no ORM.** | No separate database server to install for the team or the lecturer; transactions and foreign keys are sufficient; zero native build dependencies. | Single-writer model and single-host deployment. Backups must copy the DB file safely (see `04-installation.md`). Migration to PostgreSQL would require rewriting repositories only. |
-| D6 | **Two TTS paths.** Server-side TTS produces MP3 files stored with the content; the app falls back to on-device TTS (`expo-speech`) when no audio exists. | Pre-generated MP3 gives consistent voice quality and works offline after download; on-device TTS guarantees narration even when no audio was produced or the free TTS service is unavailable. | Voice quality differs between POIs with and without audio. Device voices for some languages may be missing on some phones. |
-| D7 | **Pluggable free translate/TTS providers** (`TRANSLATE_PROVIDER`, `TTS_PROVIDER`, including `none`). | Free endpoints have no SLA and may be rate-limited. Providers are injected so they can be swapped (LibreTranslate) or disabled, and replaced by fakes in tests. | Machine translation is a draft; administrators must review text. Failures surface as 502 `UPSTREAM_ERROR` and never block saving a POI. |
-| D8 | **Random, opaque QR payloads** (`NARR:` + 12-char base64url from 9 random bytes) instead of POI IDs. | Codes cannot be enumerated or guessed; a printed code can be revoked (deleted) and re-issued without changing the POI. A POI can have one code per bus stop. | The mapping lives on the server; the `/sync` snapshot carries `qrcodes: [{payload, poi_id, label}]` so the app resolves codes offline. |
-| D9 | **Stateless JWT for the CMS** (8 h expiry), bcrypt password hashes, login rate limit. | Simple for a single-role admin system; no session store needed. | Tokens cannot be revoked before expiry except by rotating `JWT_SECRET`. Acceptable for a small admin group. |
-| D10 | **Validation in the service layer, mirrored in the CMS.** | The backend is the authority (BR-02, BR-03); CMS checks give immediate feedback. Field-keyed `details` let the CMS place errors next to inputs. | Rules must be kept consistent in two places; backend tests are the reference. |
+| D1 | **Đồng bộ toàn bộ bản chụp dữ liệu, dựa trên phiên bản.** Một số nguyên `content_version` được tăng trong cùng transaction với mọi thay đổi nội dung; ứng dụng so sánh phiên bản và tải toàn bộ bản chụp dữ liệu khi khác nhau. | Nội dung nhỏ (vài chục POI, mỗi POI vài KB văn bản). Bản chụp đầy đủ tránh phải theo dõi phần chênh lệch, đánh dấu bản ghi đã xoá và các vấn đề về đồng hồ. Yêu cầu kiểm tra rất nhỏ nên chạy được khi mở ứng dụng, mỗi 5 phút và khi kết nối lại. | Mỗi thay đổi dẫn tới tải lại toàn bộ (chấp nhận được ở kích thước này). File âm thanh được tải riêng theo URL nên JSON vẫn nhỏ. Nếu dữ liệu tăng lên hàng nghìn POI thì cần endpoint trả phần chênh lệch theo `updated_at`. |
+| D2 | **Bỏ, không xếp hàng, các kích hoạt đồng thời** (UC1 A1). | UC1 A1 quy định lượt kích hoạt bị bỏ. Xếp hàng sẽ phát nội dung đã lỗi thời sau khi người dùng đi qua POI, và có thể nối liền nhiều đoạn thuyết minh. | POI đi qua trong lúc đang phát thuyết minh khác sẽ không được thuyết minh tự động; người dùng có thể mở POI đó từ bản đồ và bấm "Nghe thuyết minh" (`trigger_method = manual`). Phát thủ công và phát qua QR là thao tác chủ động của người dùng, nên ngắt thuyết minh hiện tại thay vì bị bỏ. |
+| D3 | **Lọc độ chính xác (60 m) và vùng trễ khi ra (bán kính × 1.2)** bên cạnh thời gian chờ phát lại. | Điểm định vị GPS trong đô thị dao động hàng chục mét; không có vùng trễ thì người dùng đứng ở ranh giới sẽ liên tục vào rồi ra. Chỉ dùng thời gian chờ phát lại thì che được hiện tượng này nhưng không khắc phục được. | Phát hiện việc ra khỏi vùng chậm hơn một chút; thuyết minh có thể không bắt đầu khi độ chính xác kém (ví dụ dưới các toà nhà cao). Các ngưỡng cấu hình được và phải tinh chỉnh qua kiểm thử thực địa (field test). |
+| D4 | **Bảo vệ quyền riêng tư ngay từ thiết kế.** Không có tài khoản khách du lịch; ID phiên ngẫu nhiên cho mỗi lần mở ứng dụng; toạ độ được làm tròn 4 chữ số thập phân khi nhận; bản đồ nhiệt tổng hợp theo ô ~11 m; lộ trình trả về không kèm ID phiên. | Quy tắc nghiệp vụ (business rule) của UC5 yêu cầu xử lý ẩn danh. Làm tròn ngay tại ranh giới máy chủ đảm bảo vị trí chính xác không bao giờ được lưu, kể cả khi client gửi lên. | Không thể liên kết lộ trình giữa các ngày hoặc các lần mở ứng dụng; thống kê đếm theo phiên, không theo số người thực. |
+| D5 | **SQLite nhúng qua `node:sqlite`, không dùng ORM.** | Nhóm và giảng viên không phải cài máy chủ cơ sở dữ liệu riêng; transaction và khoá ngoại là đủ; không phụ thuộc build native. | Mô hình một tiến trình ghi và triển khai trên một máy. Sao lưu phải sao chép file DB một cách an toàn (xem `04-installation.md`). Chuyển sang PostgreSQL chỉ cần viết lại các repository. |
+| D6 | **Hai đường TTS.** TTS phía máy chủ tạo file MP3 lưu cùng nội dung; ứng dụng dùng TTS trên thiết bị (`expo-speech`) khi không có âm thanh. | MP3 tạo sẵn cho chất lượng giọng đồng đều và dùng được ngoại tuyến sau khi tải; TTS trên thiết bị đảm bảo luôn có thuyết minh kể cả khi chưa tạo âm thanh hoặc dịch vụ TTS miễn phí không khả dụng. | Chất lượng giọng khác nhau giữa POI có và không có âm thanh. Một số điện thoại có thể thiếu giọng đọc cho vài ngôn ngữ. |
+| D7 | **Nhà cung cấp dịch/TTS miễn phí có thể thay thế** (`TRANSLATE_PROVIDER`, `TTS_PROVIDER`, kể cả `none`). | Endpoint miễn phí không có cam kết dịch vụ (SLA) và có thể bị giới hạn tần suất. Nhà cung cấp được tiêm vào để có thể thay (LibreTranslate) hoặc tắt, và thay bằng bản giả khi kiểm thử. | Bản dịch máy chỉ là bản nháp; quản trị viên phải duyệt lại văn bản. Lỗi được trả về dưới dạng 502 `UPSTREAM_ERROR` và không bao giờ chặn việc lưu POI. |
+| D8 | **Payload QR ngẫu nhiên, không mang ý nghĩa** (`NARR:` + 12 ký tự base64url từ 9 byte ngẫu nhiên) thay vì ID của POI. | Mã không thể bị liệt kê hay đoán; mã đã in có thể bị thu hồi (xoá) và cấp lại mà không đổi POI. Một POI có thể có một mã cho mỗi trạm xe buýt. | Ánh xạ nằm trên máy chủ; bản chụp dữ liệu `/sync` mang theo `qrcodes: [{payload, poi_id, label}]` để ứng dụng phân giải mã khi ngoại tuyến. |
+| D9 | **JWT không trạng thái cho CMS** (hết hạn sau 8 giờ), băm mật khẩu bằng bcrypt, giới hạn tần suất đăng nhập. | Đơn giản cho hệ thống quản trị chỉ có một vai trò; không cần kho lưu phiên. | Không thể thu hồi token trước khi hết hạn, trừ khi đổi `JWT_SECRET`. Chấp nhận được với một nhóm quản trị nhỏ. |
+| D10 | **Kiểm tra hợp lệ ở lớp nghiệp vụ, phản chiếu ở CMS.** | Backend là nơi quyết định (BR-02, BR-03); kiểm tra ở CMS cho phản hồi ngay. `details` theo tên trường giúp CMS đặt thông báo lỗi cạnh ô nhập. | Phải giữ quy tắc nhất quán ở hai nơi; kiểm thử backend là chuẩn tham chiếu. |
 
-### 8.1 Open design issues
-1. **Offline QR resolution (resolved).** `GET /sync` now includes `qrcodes: [{payload, poi_id, label}]` and QR create/delete bumps `content_version`, so codes resolve offline from SQLite; the online `/qr/:payload` lookup remains as a fallback.
-2. **QR scan during playback (decided).** UC2 does not specify this case. The implementation lets QR and manual plays bypass the cooldown and stop the current narration, because they are explicit user requests; UC1 A1 (discard) applies only to geofence triggers.
-3. **Background location limits.** iOS and Android may throttle or stop background updates; background mode also requires a development or store build (not Expo Go). The design keeps foreground operation as the reference behaviour (see risks in `06-project-management.md`).
-4. **Device verification.** The mobile app has been verified by unit tests, live-backend tests, type checking and bundle export, but not yet on a phone, emulator or simulator; map, camera, audio, permissions and background location still need device testing (`03-test-plan.md`).
+### 8.1 Các vấn đề thiết kế còn mở
+1. **Phân giải QR khi ngoại tuyến (đã giải quyết).** `GET /sync` nay có `qrcodes: [{payload, poi_id, label}]` và việc tạo/xoá QR làm tăng `content_version`, nên mã được phân giải ngoại tuyến từ SQLite; tra cứu trực tuyến `/qr/:payload` vẫn giữ làm phương án dự phòng.
+2. **Quét QR trong lúc đang phát (đã quyết định).** UC2 không nêu trường hợp này. Bản hiện thực cho phép phát qua QR và phát thủ công bỏ qua thời gian chờ phát lại và dừng thuyết minh hiện tại, vì đây là yêu cầu chủ động của người dùng; UC1 A1 (bỏ lượt) chỉ áp dụng cho kích hoạt geofence.
+3. **Giới hạn của định vị nền.** iOS và Android có thể giảm tần suất hoặc dừng cập nhật nền; chế độ nền cũng cần bản development build hoặc bản phát hành lên store (không phải Expo Go). Thiết kế lấy hoạt động ở tiền cảnh làm hành vi chuẩn (xem phần rủi ro trong `06-project-management.md`).
+4. **Kiểm chứng trên thiết bị.** Ứng dụng di động đã được kiểm chứng bằng kiểm thử đơn vị (unit test), kiểm thử với backend thật, kiểm tra kiểu và xuất bundle, nhưng chưa chạy trên điện thoại, máy ảo hay trình giả lập; bản đồ, camera, âm thanh, quyền truy cập và định vị nền vẫn cần kiểm thử trên thiết bị (`03-test-plan.md`).
