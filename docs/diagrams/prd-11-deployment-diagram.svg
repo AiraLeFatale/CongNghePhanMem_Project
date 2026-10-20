@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 820" width="1500" height="820" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif">
+<defs><marker id="dep" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#1f2328" stroke-width="1.4"/></marker><marker id="sol" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1f2328"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<polygon points="30,70 44,56 374,56 360,70" fill="#ffffff" stroke="#a95f1a" stroke-width="1.5"/>
+<polygon points="360,70 374,56 374,326 360,340" fill="#a95f1a" opacity="0.18" stroke="#a95f1a" stroke-width="1.5"/>
+<rect x="30" y="70" width="330" height="270" fill="#fdf3e7" stroke="#a95f1a" stroke-width="1.5"/>
+<text x="44" y="90" font-size="11.5" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«device»</text>
+<text x="44" y="110" font-size="15" font-weight="700" fill="#1f2328" text-anchor="start">Điện thoại du khách</text>
+<text x="44" y="131" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">Android / iOS</text>
+<rect x="50" y="140" width="290" height="80" rx="3" fill="#ffffff" stroke="#a95f1a" stroke-width="1.3"/>
+<text x="62" y="158" font-size="11" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«artifact»</text>
+<text x="62" y="176" font-size="13.5" font-weight="700" fill="#1f2328" text-anchor="start">App thuyết minh (Expo)</text>
+<text x="62" y="195" font-size="12" font-weight="400" fill="#1f2328" text-anchor="start">SQLite trong máy, GPS, camera</text>
+<rect x="50" y="235" width="290" height="85" rx="3" fill="#ffffff" stroke="#a95f1a" stroke-width="1.3"/>
+<text x="62" y="253" font-size="11" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«execution environment»</text>
+<text x="62" y="271" font-size="13.5" font-weight="700" fill="#1f2328" text-anchor="start">Trình duyệt di động</text>
+<text x="62" y="290" font-size="12" font-weight="400" fill="#1f2328" text-anchor="start">Website công khai, trang /q/&lt;mã&gt;</text>
+<polygon points="30,440 44,426 374,426 360,440" fill="#ffffff" stroke="#a95f1a" stroke-width="1.5"/>
+<polygon points="360,440 374,426 374,616 360,630" fill="#a95f1a" opacity="0.18" stroke="#a95f1a" stroke-width="1.5"/>
+<rect x="30" y="440" width="330" height="190" fill="#fdf3e7" stroke="#a95f1a" stroke-width="1.5"/>
+<text x="44" y="460" font-size="11.5" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«device»</text>
+<text x="44" y="480" font-size="15" font-weight="700" fill="#1f2328" text-anchor="start">Máy tính quản trị</text>
+<text x="44" y="501" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">Windows / macOS</text>
+<rect x="50" y="510" width="290" height="95" rx="3" fill="#ffffff" stroke="#a95f1a" stroke-width="1.3"/>
+<text x="62" y="528" font-size="11" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«execution environment»</text>
+<text x="62" y="546" font-size="13.5" font-weight="700" fill="#1f2328" text-anchor="start">Trình duyệt</text>
+<text x="62" y="565" font-size="12" font-weight="400" fill="#1f2328" text-anchor="start">CMS tại /admin</text>
+<text x="62" y="582" font-size="12" font-weight="400" fill="#1f2328" text-anchor="start">nhận số &quot;đang dùng&quot; qua SSE</text>
+<polygon points="440,70 454,56 1094,56 1080,70" fill="#ffffff" stroke="#2f5f98" stroke-width="1.5"/>
+<polygon points="1080,70 1094,56 1094,776 1080,790" fill="#2f5f98" opacity="0.18" stroke="#2f5f98" stroke-width="1.5"/>
+<rect x="440" y="70" width="640" height="720" fill="#eef3fa" stroke="#2f5f98" stroke-width="1.5"/>
+<text x="454" y="90" font-size="11.5" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«device»</text>
+<text x="454" y="110" font-size="15" font-weight="700" fill="#1f2328" text-anchor="start">VPS2 InterData – 36.50.177.103</text>
+<text x="454" y="131" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">Tên miền thuyetminh.hmarketing.vn</text>
+<polygon points="465,160 475,150 1065,150 1055,160" fill="#ffffff" stroke="#2f5f98" stroke-width="1.5"/>
+<polygon points="1055,160 1065,150 1065,270 1055,280" fill="#2f5f98" opacity="0.18" stroke="#2f5f98" stroke-width="1.5"/>
+<rect x="465" y="160" width="590" height="120" fill="#ffffff" stroke="#2f5f98" stroke-width="1.5"/>
+<text x="479" y="180" font-size="11.5" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«execution environment»</text>
+<text x="479" y="200" font-size="15" font-weight="700" fill="#1f2328" text-anchor="start">OpenLiteSpeed (web server, reverse proxy)</text>
+<text x="479" y="221" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">HTTPS :443, chứng chỉ Let&#x27;s Encrypt; vhost thuyetminh.hmarketing.vn</text>
+<text x="479" y="239" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">Chuyển tiếp tới 127.0.0.1:4410, không đệm phản hồi (respBuffer 0)</text>
+<polygon points="465,330 475,320 1065,320 1055,330" fill="#ffffff" stroke="#2f5f98" stroke-width="1.5"/>
+<polygon points="1055,330 1065,320 1065,590 1055,600" fill="#2f5f98" opacity="0.18" stroke="#2f5f98" stroke-width="1.5"/>
+<rect x="465" y="330" width="590" height="270" fill="#ffffff" stroke="#2f5f98" stroke-width="1.5"/>
+<text x="479" y="350" font-size="11.5" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«execution environment»</text>
+<text x="479" y="370" font-size="15" font-weight="700" fill="#1f2328" text-anchor="start">Docker container &quot;thuyetminh&quot;</text>
+<text x="479" y="391" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">Image node:24-alpine, giới hạn 384 MB, tự khởi động lại</text>
+<text x="479" y="409" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">Cổng 127.0.0.1:4410 → 4000 trong container</text>
+<rect x="485" y="425" width="205" height="150" rx="3" fill="#ffffff" stroke="#2f5f98" stroke-width="1.3"/>
+<text x="497" y="443" font-size="11" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«artifact»</text>
+<text x="497" y="461" font-size="13.5" font-weight="700" fill="#1f2328" text-anchor="start">backend/src</text>
+<text x="497" y="480" font-size="12" font-weight="400" fill="#1f2328" text-anchor="start">Express 5 API (server.js)</text>
+<text x="497" y="497" font-size="12" font-weight="400" fill="#1f2328" text-anchor="start">PUBLIC_URL, JWT_SECRET</text>
+<text x="497" y="514" font-size="12" font-weight="400" fill="#1f2328" text-anchor="start">đọc từ tệp .env</text>
+<rect x="705" y="425" width="160" height="150" rx="3" fill="#ffffff" stroke="#2f5f98" stroke-width="1.3"/>
+<text x="717" y="443" font-size="11" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«artifact»</text>
+<text x="717" y="461" font-size="13.5" font-weight="700" fill="#1f2328" text-anchor="start">web/dist</text>
+<text x="717" y="480" font-size="12" font-weight="400" fill="#1f2328" text-anchor="start">Website công khai</text>
+<text x="717" y="497" font-size="12" font-weight="400" fill="#1f2328" text-anchor="start">phục vụ ở &quot;/&quot;</text>
+<rect x="880" y="425" width="160" height="150" rx="3" fill="#ffffff" stroke="#2f5f98" stroke-width="1.3"/>
+<text x="892" y="443" font-size="11" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«artifact»</text>
+<text x="892" y="461" font-size="13.5" font-weight="700" fill="#1f2328" text-anchor="start">cms/dist</text>
+<text x="892" y="480" font-size="12" font-weight="400" fill="#1f2328" text-anchor="start">CMS quản trị</text>
+<text x="892" y="497" font-size="12" font-weight="400" fill="#1f2328" text-anchor="start">phục vụ ở &quot;/admin&quot;</text>
+<polygon points="465,650 475,640 1065,640 1055,650" fill="#ffffff" stroke="#2e7d4f" stroke-width="1.5"/>
+<polygon points="1055,650 1065,640 1065,755 1055,765" fill="#2e7d4f" opacity="0.18" stroke="#2e7d4f" stroke-width="1.5"/>
+<rect x="465" y="650" width="590" height="115" fill="#eef6ef" stroke="#2e7d4f" stroke-width="1.5"/>
+<text x="479" y="670" font-size="11.5" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«volume»</text>
+<text x="479" y="690" font-size="15" font-weight="700" fill="#1f2328" text-anchor="start">/var/www/thuyetminh/data  →  /data</text>
+<text x="479" y="711" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">narration.db (SQLite)</text>
+<text x="479" y="729" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">uploads/ (ảnh, MP3)</text>
+<polygon points="1170,70 1180,60 1440,60 1430,70" fill="#ffffff" stroke="#686d75" stroke-width="1.5"/>
+<polygon points="1430,70 1440,60 1440,155 1430,165" fill="#686d75" opacity="0.18" stroke="#686d75" stroke-width="1.5"/>
+<rect x="1170" y="70" width="260" height="95" fill="#f2f3f4" stroke="#686d75" stroke-width="1.5"/>
+<text x="1184" y="90" font-size="11.5" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«device»</text>
+<text x="1184" y="110" font-size="15" font-weight="700" fill="#1f2328" text-anchor="start">SePay / Casso</text>
+<text x="1184" y="131" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">Báo giao dịch ngân hàng</text>
+<polygon points="1170,210 1180,200 1440,200 1430,210" fill="#ffffff" stroke="#686d75" stroke-width="1.5"/>
+<polygon points="1430,210 1440,200 1440,295 1430,305" fill="#686d75" opacity="0.18" stroke="#686d75" stroke-width="1.5"/>
+<rect x="1170" y="210" width="260" height="95" fill="#f2f3f4" stroke="#686d75" stroke-width="1.5"/>
+<text x="1184" y="230" font-size="11.5" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«device»</text>
+<text x="1184" y="250" font-size="15" font-weight="700" fill="#1f2328" text-anchor="start">Google Translate</text>
+<text x="1184" y="271" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">Dịch tự động</text>
+<polygon points="1170,350 1180,340 1440,340 1430,350" fill="#ffffff" stroke="#686d75" stroke-width="1.5"/>
+<polygon points="1430,350 1440,340 1440,435 1430,445" fill="#686d75" opacity="0.18" stroke="#686d75" stroke-width="1.5"/>
+<rect x="1170" y="350" width="260" height="95" fill="#f2f3f4" stroke="#686d75" stroke-width="1.5"/>
+<text x="1184" y="370" font-size="11.5" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«device»</text>
+<text x="1184" y="390" font-size="15" font-weight="700" fill="#1f2328" text-anchor="start">ElevenLabs / Google TTS</text>
+<text x="1184" y="411" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">Tạo giọng đọc MP3</text>
+<polygon points="1170,490 1180,480 1440,480 1430,490" fill="#ffffff" stroke="#686d75" stroke-width="1.5"/>
+<polygon points="1430,490 1440,480 1440,575 1430,585" fill="#686d75" opacity="0.18" stroke="#686d75" stroke-width="1.5"/>
+<rect x="1170" y="490" width="260" height="95" fill="#f2f3f4" stroke="#686d75" stroke-width="1.5"/>
+<text x="1184" y="510" font-size="11.5" font-weight="400" fill="#5b6470" text-anchor="start" font-style="italic">«device»</text>
+<text x="1184" y="530" font-size="15" font-weight="700" fill="#1f2328" text-anchor="start">OpenStreetMap</text>
+<text x="1184" y="551" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">Ảnh nền bản đồ</text>
+<path d="M360 200 H465" fill="none" stroke="#1f2328" stroke-width="1.4"/>
+<rect x="390" y="184" width="43" height="16" fill="#ffffff" opacity="0.95"/>
+<text x="412" y="196" font-size="11.5" font-weight="500" fill="#2f5f98" text-anchor="middle">HTTPS</text>
+<path d="M360 540 C415 540 420 250 465 250" fill="none" stroke="#1f2328" stroke-width="1.4"/>
+<rect x="388" y="418" width="43" height="16" fill="#ffffff" opacity="0.95"/>
+<text x="410" y="430" font-size="11.5" font-weight="500" fill="#2f5f98" text-anchor="middle">HTTPS</text>
+<rect x="369" y="434" width="83" height="16" fill="#ffffff" opacity="0.95"/>
+<text x="410" y="446" font-size="11.5" font-weight="500" fill="#2f5f98" text-anchor="middle">(REST, SSE)</text>
+<path d="M760 280 V330" fill="none" stroke="#1f2328" stroke-width="1.4"/>
+<rect x="777" y="297" width="135" height="16" fill="#ffffff" opacity="0.95"/>
+<text x="845" y="309" font-size="11.5" font-weight="500" fill="#2f5f98" text-anchor="middle">HTTP 127.0.0.1:4410</text>
+<path d="M760 600 V650" fill="none" stroke="#1f2328" stroke-width="1.4"/>
+<rect x="786" y="617" width="109" height="16" fill="#ffffff" opacity="0.95"/>
+<text x="840" y="629" font-size="11.5" font-weight="500" fill="#2f5f98" text-anchor="middle">gắn ổ đĩa /data</text>
+<path d="M1170 117 H1110 V215 H1055" fill="none" stroke="#1f2328" stroke-width="1.4"/>
+<rect x="1062" y="148" width="96" height="16" fill="#ffffff" opacity="0.95"/>
+<text x="1110" y="160" font-size="11.5" font-weight="500" fill="#2f5f98" text-anchor="middle">HTTPS webhook</text>
+<path d="M1055 370 H1125 V257 H1170" fill="none" stroke="#1f2328" stroke-width="1.4"/>
+<rect x="1118" y="306" width="43" height="16" fill="#ffffff" opacity="0.95"/>
+<text x="1140" y="318" font-size="11.5" font-weight="500" fill="#2f5f98" text-anchor="middle">HTTPS</text>
+<path d="M1055 397 H1170" fill="none" stroke="#1f2328" stroke-width="1.4"/>
+<rect x="1090" y="381" width="43" height="16" fill="#ffffff" opacity="0.95"/>
+<text x="1112" y="393" font-size="11.5" font-weight="500" fill="#2f5f98" text-anchor="middle">HTTPS</text>
+<path d="M190 70 V30 H1470 V537 H1441" fill="none" stroke="#1f2328" stroke-width="1.4"/>
+<rect x="669" y="22" width="182" height="16" fill="#ffffff" opacity="0.95"/>
+<text x="760" y="34" font-size="11.5" font-weight="500" fill="#2f5f98" text-anchor="middle">HTTPS (tải ảnh nền bản đồ)</text>
+</svg>
