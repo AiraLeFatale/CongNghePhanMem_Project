@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 752" width="1280" height="752" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif">
+<defs><marker id="o" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#1f2328" stroke-width="1.4"/></marker></defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="250" y="40" width="780" height="682" rx="6" fill="#f7f9fc" stroke="#1f2328" stroke-width="1.5"/>
+<text x="268" y="66" font-size="15" font-weight="700" fill="#1f2328">Hệ thống thuyết minh tự động đa ngôn ngữ</text>
+<line x1="154.0" y1="428.0" x2="437.2" y2="227.5" stroke="#1f2328" stroke-width="1.3"/>
+<line x1="154.0" y1="428.0" x2="386.9" y2="401.9" stroke="#1f2328" stroke-width="1.3"/>
+<line x1="154.0" y1="428.0" x2="750.3" y2="604.3" stroke="#1f2328" stroke-width="1.3"/>
+<line x1="154.0" y1="172.3" x2="389.3" y2="188.0" stroke="#1f2328" stroke-width="1.3"/>
+<line x1="154.0" y1="578.0" x2="388.3" y2="584.9" stroke="#1f2328" stroke-width="1.3"/>
+<line x1="154.0" y1="428.0" x2="423.2" y2="558.3" stroke="#1f2328" stroke-width="1.3"/>
+<line x1="1126.0" y1="320.5" x2="883.3" y2="186.0" stroke="#1f2328" stroke-width="1.3"/>
+<line x1="1126.0" y1="320.5" x2="916.3" y2="287.2" stroke="#1f2328" stroke-width="1.3"/>
+<line x1="1126.0" y1="320.5" x2="909.7" y2="371.5" stroke="#1f2328" stroke-width="1.3"/>
+<line x1="1126.0" y1="320.5" x2="861.8" y2="591.5" stroke="#1f2328" stroke-width="1.3"/>
+<line x1="1126.0" y1="470.5" x2="918.5" y2="497.2" stroke="#1f2328" stroke-width="1.3"/>
+<line x1="1126.0" y1="114.0" x2="918.9" y2="142.4" stroke="#1f2328" stroke-width="1.3"/>
+<line x1="1126.0" y1="620.5" x2="923.1" y2="624.9" stroke="#1f2328" stroke-width="1.3"/>
+<ellipse cx="484.0" cy="194.3" rx="96.0" ry="38" fill="#ffffff" stroke="#1f2328" stroke-width="1.5"/>
+<text x="484.0" y="189.8" text-anchor="middle" font-size="15" fill="#1f2328">E4 Tự phát</text>
+<text x="484.0" y="208.8" text-anchor="middle" font-size="15" fill="#1f2328">theo GPS</text>
+<ellipse cx="484.0" cy="391.0" rx="101.4" ry="38" fill="#ffffff" stroke="#1f2328" stroke-width="1.5"/>
+<text x="484.0" y="386.5" text-anchor="middle" font-size="15" fill="#1f2328">E3 Đồng bộ,</text>
+<text x="484.0" y="405.5" text-anchor="middle" font-size="15" fill="#1f2328">dùng khi mất mạng</text>
+<ellipse cx="484.0" cy="587.7" rx="96.0" ry="38" fill="#ffffff" stroke="#1f2328" stroke-width="1.5"/>
+<text x="484.0" y="583.2" text-anchor="middle" font-size="15" fill="#1f2328">E5 Quét QR,</text>
+<text x="484.0" y="602.2" text-anchor="middle" font-size="15" fill="#1f2328">nghe trên web</text>
+<ellipse cx="827.2" cy="155.0" rx="97.2" ry="38" fill="#eef3fa" stroke="#1f2328" stroke-width="1.5"/>
+<text x="827.2" y="150.5" text-anchor="middle" font-size="15" fill="#1f2328">E1 Quản lý điểm,</text>
+<text x="827.2" y="169.5" text-anchor="middle" font-size="15" fill="#1f2328">nội dung</text>
+<ellipse cx="827.2" cy="273.0" rx="96.0" ry="38" fill="#eef3fa" stroke="#1f2328" stroke-width="1.5"/>
+<text x="827.2" y="268.5" text-anchor="middle" font-size="15" fill="#1f2328">E2 Tour và</text>
+<text x="827.2" y="287.5" text-anchor="middle" font-size="15" fill="#1f2328">mã QR</text>
+<ellipse cx="827.2" cy="391.0" rx="96.0" ry="38" fill="#eef3fa" stroke="#1f2328" stroke-width="1.5"/>
+<text x="827.2" y="386.5" text-anchor="middle" font-size="15" fill="#1f2328">E8 Tài khoản,</text>
+<text x="827.2" y="405.5" text-anchor="middle" font-size="15" fill="#1f2328">bảo mật</text>
+<ellipse cx="827.2" cy="509.0" rx="96.0" ry="38" fill="#eef3fa" stroke="#1f2328" stroke-width="1.5"/>
+<text x="827.2" y="504.5" text-anchor="middle" font-size="15" fill="#1f2328">E7 Thống kê,</text>
+<text x="827.2" y="523.5" text-anchor="middle" font-size="15" fill="#1f2328">đang dùng</text>
+<ellipse cx="827.2" cy="627.0" rx="96.0" ry="38" fill="#eef3fa" stroke="#1f2328" stroke-width="1.5"/>
+<text x="827.2" y="622.5" text-anchor="middle" font-size="15" fill="#1f2328">E6 Thanh toán</text>
+<text x="827.2" y="641.5" text-anchor="middle" font-size="15" fill="#1f2328">điểm có phí</text>
+<g stroke="#5b6470" stroke-width="1.8" fill="none"><circle cx="120" cy="142.3" r="13" fill="#fff"/><line x1="120" y1="155.3" x2="120" y2="194.3"/><line x1="98" y1="168.3" x2="142" y2="168.3"/><line x1="120" y1="194.3" x2="104" y2="220.3"/><line x1="120" y1="194.3" x2="136" y2="220.3"/></g>
+<text x="120" y="244.3" text-anchor="middle" font-size="14" font-weight="600" fill="#5b6470">GPS điện thoại</text>
+<text x="120" y="262.3" text-anchor="middle" font-size="12" font-style="italic" fill="#5b6470">(tác nhân phụ)</text>
+<g stroke="#1f2328" stroke-width="1.8" fill="none"><circle cx="120" cy="398.0" r="13" fill="#fff"/><line x1="120" y1="411.0" x2="120" y2="450.0"/><line x1="98" y1="424.0" x2="142" y2="424.0"/><line x1="120" y1="450.0" x2="104" y2="476.0"/><line x1="120" y1="450.0" x2="136" y2="476.0"/></g>
+<text x="120" y="500.0" text-anchor="middle" font-size="14" font-weight="600" fill="#1f2328">Khách du lịch</text>
+<g stroke="#1f2328" stroke-width="1.8" fill="none"><circle cx="120" cy="548.0" r="13" fill="#fff"/><line x1="120" y1="561.0" x2="120" y2="600.0"/><line x1="98" y1="574.0" x2="142" y2="574.0"/><line x1="120" y1="600.0" x2="104" y2="626.0"/><line x1="120" y1="600.0" x2="136" y2="626.0"/></g>
+<text x="120" y="650.0" text-anchor="middle" font-size="14" font-weight="600" fill="#1f2328">Hành khách xe buýt</text>
+<g stroke="#5b6470" stroke-width="1.8" fill="none"><circle cx="1160" cy="84.0" r="13" fill="#fff"/><line x1="1160" y1="97.0" x2="1160" y2="136.0"/><line x1="1138" y1="110.0" x2="1182" y2="110.0"/><line x1="1160" y1="136.0" x2="1144" y2="162.0"/><line x1="1160" y1="136.0" x2="1176" y2="162.0"/></g>
+<text x="1160" y="186.0" text-anchor="middle" font-size="14" font-weight="600" fill="#5b6470">Dịch vụ dịch,</text>
+<text x="1160" y="204.0" text-anchor="middle" font-size="14" font-weight="600" fill="#5b6470">giọng đọc</text>
+<text x="1160" y="222.0" text-anchor="middle" font-size="12" font-style="italic" fill="#5b6470">(tác nhân phụ)</text>
+<g stroke="#1f2328" stroke-width="1.8" fill="none"><circle cx="1160" cy="290.5" r="13" fill="#fff"/><line x1="1160" y1="303.5" x2="1160" y2="342.5"/><line x1="1138" y1="316.5" x2="1182" y2="316.5"/><line x1="1160" y1="342.5" x2="1144" y2="368.5"/><line x1="1160" y1="342.5" x2="1176" y2="368.5"/></g>
+<text x="1160" y="392.5" text-anchor="middle" font-size="14" font-weight="600" fill="#1f2328">Quản trị viên</text>
+<g stroke="#1f2328" stroke-width="1.8" fill="none"><circle cx="1160" cy="440.5" r="13" fill="#fff"/><line x1="1160" y1="453.5" x2="1160" y2="492.5"/><line x1="1138" y1="466.5" x2="1182" y2="466.5"/><line x1="1160" y1="492.5" x2="1144" y2="518.5"/><line x1="1160" y1="492.5" x2="1176" y2="518.5"/></g>
+<text x="1160" y="542.5" text-anchor="middle" font-size="14" font-weight="600" fill="#1f2328">Lãnh đạo đơn vị</text>
+<g stroke="#5b6470" stroke-width="1.8" fill="none"><circle cx="1160" cy="590.5" r="13" fill="#fff"/><line x1="1160" y1="603.5" x2="1160" y2="642.5"/><line x1="1138" y1="616.5" x2="1182" y2="616.5"/><line x1="1160" y1="642.5" x2="1144" y2="668.5"/><line x1="1160" y1="642.5" x2="1176" y2="668.5"/></g>
+<text x="1160" y="692.5" text-anchor="middle" font-size="14" font-weight="600" fill="#5b6470">Ngân hàng</text>
+<text x="1160" y="710.5" text-anchor="middle" font-size="14" font-weight="600" fill="#5b6470">(SePay/Casso)</text>
+<text x="1160" y="728.5" text-anchor="middle" font-size="12" font-style="italic" fill="#5b6470">(tác nhân phụ)</text>
+</svg>
