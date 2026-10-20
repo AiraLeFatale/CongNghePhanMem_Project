@@ -11,3 +11,5 @@ mobile/android/
 !.env.example
 .DS_Store
 *.log
+
+echo "CLAUDE.md" >> "$(git rev-parse --git-dir)/info/exclude"
