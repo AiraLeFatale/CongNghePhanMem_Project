@@ -17,21 +17,34 @@ Có hai loại người dùng và cách tham gia khác nhau:
 ![Sơ đồ tham gia hệ thống](diagrams/van-hanh-01-tham-gia.png)
 
 ```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
 flowchart LR
     subgraph QTV["Quản trị viên (cần tài khoản)"]
         direction LR
-        A1["Nhóm kỹ thuật<br/>cài máy chủ"] --> A2["Tạo admin đầu tiên<br/>(lệnh seed)"] --> A3["Giao tên đăng nhập<br/>+ mật khẩu"] --> A4["Đăng nhập CMS"] --> A5["Đổi mật khẩu<br/>(≥ 8 ký tự)"] --> A6(["Vào trang Tổng quan"])
+        A1["Nhóm kỹ thuật<br/>cài máy chủ"]:::backend --> A2["Tạo admin đầu tiên<br/>(lệnh seed)"]:::backend --> A3["Giao tên đăng nhập<br/>+ mật khẩu"]:::actor --> A4["🖥️ Đăng nhập CMS&emsp;"]:::cms --> A5["Đổi mật khẩu<br/>(≥ 8 ký tự)"]:::cms --> A6(["Vào trang Tổng quan"]):::startend
     end
     subgraph DK["Du khách (không cần tài khoản)"]
         direction LR
-        B1["Cài app"] --> B2["Mở lần đầu khi có mạng<br/>(tải nội dung về máy)"] --> B3{"Cho phép<br/>vị trí?"}
-        B3 -->|Có| B4["Tự phát khi<br/>đi tới gần điểm"]
-        B3 -->|Không| B5["Nghe thủ công:<br/>quét QR, bấm bản đồ"]
-        B4 --> B6["Chọn ngôn ngữ<br/>(mặc định theo máy)"]
+        B1["📱 Cài app"]:::mobile --> B2["Mở lần đầu khi có mạng<br/>(tải nội dung về máy)"]:::mobile --> B3{"Cho phép<br/>vị trí?"}:::decision
+        B3 -->|Có| B4["🛰️ Tự phát khi<br/>đi tới gần điểm"]:::ok
+        B3 -->|Không| B5["Nghe thủ công:<br/>quét QR, bấm bản đồ"]:::warn
+        B4 --> B6["Chọn ngôn ngữ<br/>(mặc định theo máy)"]:::mobile
         B5 --> B6
-        B6 --> B7(["Bắt đầu nghe"])
+        B6 --> B7(["🎧 Bắt đầu nghe"]):::startend
     end
+    style QTV fill:#F8FAFC,stroke:#CBD5E1
+    style DK fill:#F8FAFC,stroke:#CBD5E1
+    classDef actor fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+    classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+    classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+    classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef decision fill:#FFF7ED,stroke:#EA580C,stroke-width:2px,color:#7C2D12
+    classDef startend fill:#1E3A8A,stroke:#1E3A8A,stroke-width:2px,color:#FFFFFF
+    classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
 ```
+
+*Hình: Hai cách tham gia hệ thống: quản trị viên cần tài khoản do nhóm kỹ thuật cấp, du khách chỉ cần cài app.*
 
 ### 1.1 Du khách, hành khách xe buýt
 
@@ -39,14 +52,56 @@ flowchart LR
 |---|---|---|
 | 1 | Cài app lên điện thoại | App chưa có trên Google Play, App Store. Khi demo, cài theo mục 1.3 |
 | 2 | Mở app lần đầu khi có mạng | App tải toàn bộ bài thuyết minh về máy, sau đó mất mạng vẫn nghe được. Mở khi chưa có mạng thì app báo chưa có dữ liệu, chỉ cần bật mạng một lần |
-| 3 | Cho phép truy cập vị trí | Đồng ý: app tự phát khi tới gần điểm. Từ chối: app giải thích lý do, có nút *Open Settings* và *Retry*; vẫn quét QR và bấm nghe trên bản đồ được |
+| 3 | Cho phép truy cập vị trí | Đồng ý: app tự phát khi tới gần điểm. Từ chối: app giải thích lý do, có nút *Mở Cài đặt* và *Thử lại*; vẫn quét QR và bấm nghe trên bản đồ được |
 | 4 | Kiểm tra ngôn ngữ | Mặc định theo ngôn ngữ điện thoại nếu hỗ trợ, không thì tiếng Việt. Đổi ở *Cài đặt → Ngôn ngữ thuyết minh* (Việt, Anh, Trung, Hàn, Nhật, Pháp) |
-| 5 | Bắt đầu nghe | Đi bộ qua các điểm để app tự phát; hoặc mở tab *Scan QR* quét mã ở trạm; hoặc mở tab *Tours*, chọn tour, bấm *Follow this tour* |
-| 6 | (Tuỳ chọn) Nghe khi tắt màn hình | Bật *Keep running in background*, cho vị trí ở chế độ *Luôn luôn*; Android nên tắt tối ưu pin cho app. Cần bản cài riêng, Expo Go không hỗ trợ |
+| 5 | Bắt đầu nghe | Đi bộ qua các điểm để app tự phát; hoặc mở tab *Quét QR* quét mã ở trạm; hoặc mở tab *Tour*, chọn tour, bấm *Đi theo tour này* |
+| 6 | (Tuỳ chọn) Nghe khi tắt màn hình | Bật *Tiếp tục khi chạy nền*, cho vị trí ở chế độ *Luôn luôn*; Android nên tắt tối ưu pin cho app. Cần bản cài riêng, Expo Go không hỗ trợ |
 
-**Quyền riêng tư:** app chỉ gửi lượt nghe ẩn danh (điểm nào, ngôn ngữ gì, nghe bao lâu, mở bằng cách nào) kèm một mã phiên ngẫu nhiên đổi mỗi lần mở app. Vị trí làm tròn khoảng 11 m. Tắt hẳn ở *Cài đặt → Send anonymous data*.
+**Quyền riêng tư:** app chỉ gửi lượt nghe ẩn danh (điểm nào, ngôn ngữ gì, nghe bao lâu, mở bằng cách nào) kèm một mã phiên ngẫu nhiên đổi mỗi lần mở app. Vị trí làm tròn khoảng 11 m. Tắt hẳn ở *Cài đặt → Gửi dữ liệu ẩn danh*.
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+journey
+    title Du khách bắt đầu dùng app
+    section Chuẩn bị
+      Cài app: 3: Du khách
+      Mở lần đầu khi có mạng: 4: Du khách, App
+      Cho phép vị trí: 3: Du khách
+      Kiểm tra ngôn ngữ: 4: Du khách
+    section Nghe
+      Đi tới gần điểm, tự phát: 5: Du khách, App
+      Quét QR ở trạm: 5: Du khách, App
+      Đi theo tour: 5: Du khách, App
+    section Tuỳ chọn
+      Bật chạy nền: 3: Du khách
+```
+
+*Hình: Hành trình du khách từ lúc cài app đến lúc nghe (điểm 1–5: mức thuận tiện).*
 
 ### 1.2 Quản trị viên nội dung
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+    subgraph KT["⚙️ Nhóm kỹ thuật"]
+        direction TB
+        K1["Cài Node ≥ 22.13<br/>npm ci --omit=dev"]:::backend --> K2["NODE_ENV&emsp;&emsp;<br/>JWT_SECRET&emsp;&emsp;"]:::backend --> K3["ADMIN_PASSWORD=…&emsp;&emsp;<br/>npm run seed (một lần)"]:::warn --> K4["Gửi tài khoản"]:::backend
+    end
+    subgraph QT["👤 Quản trị viên"]
+        direction TB
+        Q1["Đăng nhập"]:::cms --> Q2["Đổi mật khẩu<br/>≥ 8 ký tự"]:::cms --> Q3["Tổng quan<br/>Việc cần làm"]:::cms --> Q4["Làm việc<br/>theo mục 2"]:::cms --> Q5(["Đăng xuất"]):::startend
+    end
+    KT --> QT
+    QT -. "quên mật khẩu,<br/>thêm quản trị viên" .-> KT
+    style KT fill:#F8FAFC,stroke:#CBD5E1
+    style QT fill:#F8FAFC,stroke:#CBD5E1
+    classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+    classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef startend fill:#1E3A8A,stroke:#1E3A8A,stroke-width:2px,color:#FFFFFF
+    classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+```
+
+*Hình: Phân việc giữa nhóm kỹ thuật và quản trị viên khi tham gia hệ thống.*
 
 | Bước | Việc cần làm | Ghi chú |
 |---|---|---|
@@ -78,9 +133,28 @@ flowchart LR
 2. Chạy máy chủ trên laptop: `cd backend && npm install && npm run seed && npm start`
 3. Mở cửa sổ terminal khác: `cd mobile && npm install && npx expo start`
 4. Dùng Expo Go quét mã QR hiện trong terminal.
-5. App không kết nối được máy chủ thì vào *Cài đặt → Server*, nhập `http://<IP laptop>:4000`. Xem IP trên macOS bằng `ipconfig getifaddr en0`.
+5. App không kết nối được máy chủ thì vào *Cài đặt → Máy chủ*, nhập `http://<IP laptop>:4000`. Xem IP trên macOS bằng `ipconfig getifaddr en0`.
 
 Wi-Fi trường thường chặn các máy nói chuyện với nhau; gặp vậy thì phát hotspot từ điện thoại. Expo Go không chạy GPS nền, muốn có thì làm bản cài riêng (`04-installation.md` §3.4).
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+sequenceDiagram
+    participant L as Laptop (backend :4000)
+    participant M as Laptop (Metro / Expo)
+    participant P as Điện thoại (Expo Go)
+    L->>L: npm run seed, npm start
+    M->>M: npx expo start, hiện mã QR
+    P->>M: Quét mã QR, tải ứng dụng
+    P->>L: Đồng bộ nội dung qua IP LAN :4000
+    alt Không kết nối được
+        P->>P: Cài đặt → Máy chủ, nhập http://IP-laptop:4000
+        Note over L,P: Wi-Fi trường chặn → dùng hotspot điện thoại
+    end
+    L-->>P: Điểm, tour, mã QR
+```
+
+*Hình: Trình tự dựng demo trên lớp giữa laptop và điện thoại.*
 
 ---
 
@@ -91,37 +165,28 @@ Ba làn tương ứng ba bên: quản trị viên làm việc trên CMS, máy ch
 ![Sơ đồ vận hành](diagrams/van-hanh-02-so-do-lan.png)
 
 ```mermaid
-flowchart LR
-    subgraph L1["Quản trị viên (CMS)"]
-        direction LR
-        A1["Đăng nhập"] --> A2["Nhập điểm<br/>ghim, bán kính, bài tiếng Việt"] --> A3["Dịch tự động,<br/>tạo giọng đọc"] --> A4["Tạo tour,<br/>in mã QR dán ở trạm"]
-        A5["Xem thống kê<br/>biểu đồ, bản đồ nhiệt, Excel, PDF"]
-    end
-    subgraph L2["Máy chủ (tự động)"]
-        direction LR
-        B1["Kiểm tra tài khoản<br/>cấp phiên 8 giờ"]
-        B2["Lưu điểm<br/>báo lỗi nếu thiếu"]
-        B3["Dịch 5 ngôn ngữ,<br/>tạo file MP3"]
-        B4["Gửi bản nội dung mới"]
-        B5["Ghi lượt nghe ẩn danh"]
-        B6["Tổng hợp theo điểm,<br/>ngày, giờ, ngôn ngữ"]
-    end
-    subgraph L3["Du khách (app)"]
-        direction LR
-        C1["Mở app, tải về,<br/>lưu trong máy"] --> C2["Nghe thuyết minh<br/>vào vùng GPS hoặc quét QR"]
-    end
-
-    A1 --> B1
-    A2 --> B2
-    A3 --> B3
-    B3 -->|nội dung sẵn sàng| B4
-    C1 -->|app hỏi, 5 phút/lần| B4
-    B4 -->|gửi về| C1
-    C2 -->|gửi lượt nghe| B5
-    B5 --> B6
-    B6 -->|hiện lên CMS| A5
-    A5 -.->|điểm ít người nghe: sửa bài| A2
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+sequenceDiagram
+    participant A as Quản trị viên (CMS)
+    participant B as Máy chủ (tự động)
+    participant C as Du khách (app)
+    A->>B: Đăng nhập
+    B-->>A: Kiểm tra tài khoản, cấp phiên 8 giờ
+    A->>B: Nhập điểm: ghim, bán kính, bài tiếng Việt
+    B-->>A: Lưu điểm, báo lỗi nếu thiếu
+    A->>B: Dịch tự động, tạo giọng đọc
+    B->>B: Dịch 5 ngôn ngữ, tạo file MP3
+    A->>A: Tạo tour, in mã QR dán ở trạm
+    C->>B: Mở app, hỏi bản mới (5 phút/lần)
+    B-->>C: Gửi bản nội dung mới, app lưu trong máy
+    C->>C: Nghe thuyết minh khi vào vùng GPS hoặc quét QR
+    C->>B: Gửi lượt nghe
+    B->>B: Ghi lượt nghe ẩn danh, tổng hợp theo điểm, ngày, giờ, ngôn ngữ
+    B-->>A: Hiện lên CMS: biểu đồ, bản đồ nhiệt, Excel, PDF
+    Note over A,B: Vòng phản hồi: điểm ít người nghe thì quay lại sửa bài
 ```
+
+*Hình: Sơ đồ vận hành theo trình tự giữa ba bên: quản trị viên (CMS), máy chủ, du khách (app); ghi chú cuối là vòng phản hồi từ thống kê về sửa bài.*
 
 | Giai đoạn | Bước | Ai làm | Diễn giải |
 |---|---|---|---|
@@ -140,6 +205,23 @@ flowchart LR
 
 ## 3. Các mục trên thanh menu CMS
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart TB
+    M["🖥️ Thanh menu CMS&emsp;"]:::cms
+    M --> A["Tổng quan<br/>việc cần làm"]:::cms
+    M --> B["Điểm thuyết minh<br/>thêm, sửa, dịch, giọng đọc"]:::cms
+    M --> C["Mã QR&emsp;<br/>tạo, in bảng mã"]:::cms
+    M --> D["Tour tham quan<br/>ghép điểm thành lộ trình"]:::cms
+    M --> E["Thống kê<br/>biểu đồ, Excel, PDF&emsp;"]:::cms
+    A -. "bấm việc cần làm" .-> B
+    B -. "Tạo mã QR trong trang điểm" .-> C
+    B -. "điểm dùng trong tour" .-> D
+    classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+```
+
+*Hình: Năm mục trên thanh menu CMS và liên hệ giữa chúng.*
+
 | Mục | Dùng để | Thao tác chính |
 |---|---|---|
 | Tổng quan | Xem nhanh việc cần làm | Số điểm, tour, mã QR; số liệu 7 ngày; danh sách *Việc cần làm* (bấm vào là tới thẳng điểm cần sửa) |
@@ -149,6 +231,29 @@ flowchart LR
 | Thống kê | Biết điểm nào được nghe, nghe bao lâu | Chọn 7, 30 hoặc 90 ngày, lọc theo tour; xem biểu đồ, bản đồ nhiệt; xuất Excel hoặc PDF |
 
 ## 4. Câu hỏi thường gặp
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart TB
+    A(["🛰️ Vào vùng của điểm"]):::startend --> B{"Đang phát<br/>bài khác?"}:::decision
+    B -->|Có| X["Bỏ qua điểm mới<br/>bấm trên bản đồ để nghe"]:::warn
+    B -->|Không| C{"Nhiều điểm<br/>cùng lúc?"}:::decision
+    C -->|Có| D["Ưu tiên cao hơn,<br/>bằng nhau thì gần hơn"]:::mobile
+    C -->|Không| E{"Có bản ngôn ngữ<br/>đã chọn?"}:::decision
+    D --> E
+    E -->|Không| F["Phát bản tiếng Việt<br/>và báo người nghe"]:::warn
+    E -->|Có| G{"Có file audio?"}:::decision
+    F --> G
+    G -->|Có| H(["🎧 Phát file audio"]):::ok
+    G -->|Không| I(["🎧 Điện thoại đọc<br/>bằng giọng máy"]):::ok
+    classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+    classDef decision fill:#FFF7ED,stroke:#EA580C,stroke-width:2px,color:#7C2D12
+    classDef startend fill:#1E3A8A,stroke:#1E3A8A,stroke-width:2px,color:#FFFFFF
+    classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+```
+
+*Hình: Cách app chọn điểm và nguồn âm thanh, tóm tắt các câu hỏi thường gặp.*
 
 - **Sửa xong sao điện thoại chưa thấy?** App lấy bản mới khi mở, mỗi 5 phút một lần, hoặc khi có mạng trở lại.
 - **Chưa dịch ngôn ngữ đó thì sao?** App phát bản tiếng Việt và báo cho người nghe. Chưa có file audio thì điện thoại tự đọc bằng giọng máy.

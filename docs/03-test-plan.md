@@ -13,6 +13,21 @@
 
 Không kiểm thử: tải/hiệu năng ở quy mô production, kiểm thử xâm nhập, tính sẵn sàng của các endpoint dịch/TTS miễn phí của Google.
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+mindmap
+  root((Phạm vi<br/>kiểm thử))
+    Mục tiêu
+      FR-01 đến FR-39<br/>mỗi FR ít nhất 1 ca
+      Tự động hoá quy tắc<br/>nghiệp vụ backend
+      Kiểm chứng client trên<br/>thiết bị và POI thật
+    Không kiểm thử
+      Tải và hiệu năng<br/>quy mô production
+      Kiểm thử xâm nhập
+      Độ sẵn sàng endpoint<br/>dịch/TTS miễn phí của Google
+```
+*Hình: phạm vi và mục tiêu kiểm thử, kèm những gì nằm ngoài phạm vi*
+
 ## 2. Chiến lược
 
 | Mức | Đối tượng | Công cụ | Cách làm |
@@ -27,10 +42,47 @@ Không kiểm thử: tải/hiệu năng ở quy mô production, kiểm thử xâ
 | Kiểm thử thực địa (field test) | Ứng dụng di động trên điện thoại thật tại Khánh Hội, Vĩnh Hội, Xóm Chiếu | Danh sách kiểm tra thủ công (§6) | FT-01 đến FT-09 |
 | Nghiệm thu | Luồng cơ bản, luồng thay thế và luồng ngoại lệ của UC1–UC5 | Trình diễn với giảng viên | Dùng dữ liệu seed và chế độ mô phỏng vị trí |
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart BT
+  U["🧪 Kiểm thử đơn vị<br/>node:test · Jest jest-expo · Vitest<br/>hàm thuần backend, mobile, CMS"]:::ok
+  I["🔗 Tích hợp<br/>API Express thật + SQLite trong bộ nhớ<br/>mobile ↔ backend qua LIVE_API"]:::backend
+  E["🖥️ Hệ thống / E2E CMS<br/>Chrome headless · TC-73 đến TC-92"]:::cms
+  D["📱 Hệ thống trên thiết bị<br/>thủ công · ca Chờ thiết bị §5.2"]:::mobile
+  F["🛰️ Kiểm thử thực địa<br/>FT-01 đến FT-09 · Khánh Hội, Vĩnh Hội, Xóm Chiếu"]:::ext
+  A["👤 Nghiệm thu<br/>UC1–UC5 trình diễn với giảng viên"]:::actor
+  U --> I --> E --> D --> F --> A
+  classDef actor fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+  classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+  classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+  classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+  classDef ext fill:#FFE4E6,stroke:#E11D48,stroke-width:2px,color:#881337
+  classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+```
+*Hình: tháp kiểm thử, từ mức thấp (đơn vị, tự động, nhiều kiểm thử nhất) tới mức cao (nghiệm thu, thủ công, sát thực tế)*
+
 Điều kiện bắt đầu: kiểm thử backend đạt; đã nạp dữ liệu seed; các client build không lỗi.
 Điều kiện kết thúc: mọi kiểm thử tự động đều đạt; mọi ca phía client có độ ưu tiên M đều Đạt hoặc có lỗi đã được chấp nhận; hoàn thành danh sách kiểm tra thực địa tại ít nhất 3 điểm tham quan.
 
 Lỗi được ghi thành GitHub issue, kèm mã TC/FT, các bước, kết quả mong đợi và kết quả thực tế, thiết bị/hệ điều hành và mức độ nghiêm trọng (blocker, major, minor).
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+  S(["Bắt đầu"]):::startend --> C1{"Backend đạt?<br/>Đã nạp seed?<br/>Client build không lỗi?"}:::decision
+  C1 -- Có --> R["Chạy các mức kiểm thử"]:::neutral
+  R --> B{"Phát hiện lỗi?"}:::decision
+  B -- Có --> G["📝 GitHub issue<br/>mã TC/FT, các bước<br/>mong đợi / thực tế<br/>thiết bị, mức độ"]:::bad
+  G -- "sửa xong" --> R
+  B -- Không --> K{"Tự động đạt hết?<br/>Ca ưu tiên M Đạt?<br/>Thực địa ≥ 3 POI?"}:::decision
+  K -- Chưa --> R
+  K -- Có --> E(["Kết thúc kiểm thử"]):::startend
+  classDef decision fill:#FFF7ED,stroke:#EA580C,stroke-width:2px,color:#7C2D12
+  classDef startend fill:#1E3A8A,stroke:#1E3A8A,stroke-width:2px,color:#FFFFFF
+  classDef bad fill:#FEE2E2,stroke:#DC2626,stroke-width:2px,color:#7F1D1D
+  classDef neutral fill:#F8FAFC,stroke:#94A3B8,stroke-width:1.5px,color:#334155
+```
+*Hình: điều kiện bắt đầu, điều kiện kết thúc và vòng ghi nhận lỗi*
 
 ## 3. Môi trường kiểm thử
 
@@ -45,6 +97,46 @@ Lỗi được ghi thành GitHub issue, kèm mã TC/FT, các bước, kết qu�
 
 Lệnh: `cd backend && npm test`; `cd cms && npm test`; `cd mobile && npm test`; `cd mobile && LIVE_API=http://localhost:4000 npx jest backend.live` (backend đang chạy với dữ liệu seed).
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart TB
+  subgraph AUTO["Kiểm thử tự động · Node.js ≥ 22.13"]
+    direction TB
+    BT["⚙️ backend · npm test<br/>node:test"]:::backend
+    DB[("🗄️ SQLite :memory:<br/>seed: 8 POI, 2 tour, 5 QR")]:::data
+    FK["🌐 Dịch giả + TTS giả<br/>tắt giới hạn tần suất"]:::ext
+    CT["🖥️ cms · npm test<br/>Vitest, fetch giả lập"]:::cms
+    MT["📱 mobile · npm test<br/>jest-expo"]:::mobile
+    BT --> DB
+    BT --> FK
+  end
+  subgraph LIVE["Chạy với backend thật"]
+    direction LR
+    BE["⚙️ Backend :4000<br/>đã nạp seed"]:::backend
+    E2E["🖥️ Chrome headless<br/>E2E CMS"]:::cms
+    ML["📱 jest backend.live<br/>LIVE_API"]:::mobile
+    E2E --> BE
+    ML --> BE
+  end
+  subgraph DEV["Chưa có tại 18/10/2026"]
+    direction LR
+    PH["📱 Android + iOS có GPS<br/>Cần bổ sung model, HĐH"]:::warn
+    FD["📍 POI Quận 4<br/>toạ độ seed cần kiểm tra"]:::warn
+    PH --> FD
+  end
+  AUTO ~~~ LIVE ~~~ DEV
+  style AUTO fill:#F8FAFC,stroke:#CBD5E1
+  style LIVE fill:#F8FAFC,stroke:#CBD5E1
+  style DEV fill:#F8FAFC,stroke:#CBD5E1
+  classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+  classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+  classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+  classDef ext fill:#FFE4E6,stroke:#E11D48,stroke-width:2px,color:#881337
+  classDef data fill:#F1F5F9,stroke:#475569,stroke-width:2px,color:#0F172A
+  classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+```
+*Hình: ba nhóm môi trường kiểm thử: tự động, chạy với backend thật, và thiết bị/thực địa chưa có*
+
 ## 4. Kết quả kiểm thử tự động
 
 Tất cả chạy ngày 18/10/2026.
@@ -55,6 +147,18 @@ Tất cả chạy ngày 18/10/2026.
 | Đơn vị CMS (`cms/src/lib/*.test.ts`) | `npm test` | **36 đạt, 0 không đạt** (3 file) |
 | Đơn vị mobile (`mobile/src/__tests__`) | `npm test` | **62 đạt, 0 không đạt** (5 bộ, không gồm bộ live) |
 | Mobile với backend thật | `LIVE_API=… npx jest backend.live` | **5 đạt, 0 không đạt** (với backend vừa nạp lại seed) |
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+%%{init: {"themeVariables":{"pie4":"#2563EB"}}}%%
+pie showData
+  title 146 kiểm thử tự động · đạt 146, không đạt 0
+  "Backend" : 43
+  "Đơn vị CMS" : 36
+  "Đơn vị mobile" : 62
+  "Mobile với backend thật" : 5
+```
+*Hình: số kiểm thử tự động theo bộ, chạy ngày 18/10/2026; mọi bộ đều đạt 100%*
 
 Kiểm thử backend theo từng file:
 
@@ -70,7 +174,33 @@ Kiểm thử backend theo từng file:
 
 Các giá trị trạng thái: **Đạt**, **Không đạt**, **Đạt một phần**, **Chưa thực hiện**, **Chờ thiết bị** (cần điện thoại hoặc emulator), **Bị chặn**. Tên kiểm thử backend trong mã nguồn viết bằng tiếng Việt; bảng dưới đây ghi tiêu đề kèm tên file tham chiếu.
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+%%{init: {"themeVariables":{"pie4":"#2563EB"}}}%%
+pie showData
+  title Trạng thái 92 ca kiểm thử TC-01 đến TC-92
+  "Đạt" : 74
+  "Chờ thiết bị" : 13
+  "Chưa thực hiện" : 4
+  "Đạt một phần" : 1
+```
+*Hình: trạng thái các ca TC đếm từ bảng §5.1–§5.3; ngoài ra 9 ca thực địa FT-01 đến FT-09 ở §6 đều Chờ thiết bị*
+
 ### 5.1 Ca kiểm thử tự động phía backend
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+  BK["⚙️ backend/tests<br/>43 kiểm thử · 43 Đạt"]:::backend
+  BK --> A["auth.test.js · 6<br/>TC-01 đến TC-06<br/>đăng nhập, token, đổi mật khẩu"]:::ok
+  BK --> P["poi.test.js · 14<br/>TC-07 đến TC-20<br/>CRUD POI, kiểm tra nhập, audio, TTS, dịch"]:::ok
+  BK --> Q["qr-tour.test.js · 10<br/>TC-21 đến TC-30<br/>QR, tour, bản chụp /sync"]:::ok
+  BK --> N["analytics.test.js · 9<br/>TC-31 đến TC-38, TC-43<br/>nhật ký, làm tròn toạ độ, báo cáo"]:::ok
+  BK --> S["services.test.js · 4<br/>TC-39 đến TC-42<br/>splitText, bộ dịch, validatePoiInput"]:::ok
+  classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+  classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+```
+*Hình: 43 ca backend chia theo file kiểm thử, tất cả Đạt*
 
 | ID | Tiêu đề (file) | Các bước / đầu vào | Kết quả mong đợi | UC | FR | Trạng thái |
 |---|---|---|---|---|---|---|
@@ -122,6 +252,23 @@ Các giá trị trạng thái: **Đạt**, **Không đạt**, **Đạt một ph�
 
 Bằng chứng: **unit** = kiểm thử jest trong `mobile/src/__tests__/` (62 kiểm thử, chạy 18/10/2026); **live** = `backend.live.test.ts` chạy với backend thật đã nạp seed (5 kiểm thử). **Chờ thiết bị** = cần điện thoại, emulator hoặc simulator; ứng dụng chưa được chạy trên bất kỳ thiết bị nào.
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+  M["📱 28 ca mobile<br/>TC-44 đến TC-71"]:::mobile
+  M --> U["unit jest · 11 ca<br/>TC-45, TC-63<br/>TC-49 đến TC-57<br/>geofence, cooldown, ngôn ngữ, QR"]:::ok
+  M --> L["live backend · 3 ca<br/>TC-47, TC-61, TC-64"]:::ok
+  M --> UL["unit + live · 1 ca<br/>TC-58"]:::ok
+  M --> W["Chờ thiết bị · 13 ca<br/>TC-44, 46, 48, 59, 60, 62<br/>TC-65 đến TC-71<br/>quyền, GPS nền, camera, audio, bản đồ"]:::warn
+  U --> D(["15 ca Đạt"]):::ok
+  L --> D
+  UL --> D
+  classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+  classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+  classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+```
+*Hình: ca kiểm thử mobile theo loại bằng chứng: 15 Đạt nhờ unit/live, 13 cần thiết bị thật*
+
 | ID | Tiêu đề | Các bước | Kết quả mong đợi | UC | FR | Bằng chứng | Trạng thái |
 |---|---|---|---|---|---|---|---|
 | TC-44 | Từ chối quyền vị trí | Cài mới; từ chối quyền vị trí | Có lời giải thích kèm nút "Mở Cài đặt" và "Thử lại"; tắt thuyết minh tự động; vẫn dùng được QR và phát thủ công | UC1 E1 | FR-01 | – | Chờ thiết bị |
@@ -159,6 +306,25 @@ Các kiểm tra tĩnh cũng đạt ngày 18/10/2026 (do lập trình viên mobil
 
 Bằng chứng: **unit** = vitest trong `cms/src/lib/*.test.ts` (36 kiểm thử, chạy 18/10/2026); **browser E2E** = chạy kịch bản trên Chrome headless với backend thật có dữ liệu seed, do lập trình viên CMS thực hiện ngày 18/10/2026.
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+  C["🖥️ 21 ca CMS<br/>TC-72 đến TC-92"]:::cms
+  C --> U["unit vitest · 2 ca<br/>TC-72, TC-75"]:::ok
+  C --> E["browser E2E · 11 ca<br/>TC-73, 74, 76 đến 81, 83, 87, 91"]:::ok
+  C --> X["kết hợp E2E/unit/backend · 3 ca<br/>TC-84, TC-86, TC-88"]:::ok
+  C --> P["Đạt một phần · 1 ca<br/>TC-89 xuất PDF<br/>chưa thử hộp thoại in thật"]:::warn
+  C --> N["Chưa thực hiện · 4 ca<br/>TC-82 in QR · TC-85 xoá tour<br/>TC-90 đổi mật khẩu · TC-92 build production"]:::bad
+  U --> D(["16 ca Đạt"]):::ok
+  E --> D
+  X --> D
+  classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+  classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+  classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+  classDef bad fill:#FEE2E2,stroke:#DC2626,stroke-width:2px,color:#7F1D1D
+```
+*Hình: ca kiểm thử CMS theo bằng chứng và trạng thái*
+
 | ID | Tiêu đề | Các bước | Kết quả mong đợi | UC | FR | Bằng chứng | Trạng thái |
 |---|---|---|---|---|---|---|---|
 | TC-72 | Hành vi của API client | Kiểm thử đơn vị `lib/api.ts` | Gửi Bearer token; xử lý được JSON và multipart; 400 → `ApiError` kèm chi tiết theo trường; 401 từ API quản trị gọi `onUnauthorized`, 401 từ đăng nhập thì không; lỗi mạng được ánh xạ | UC3–UC5 | FR-20, FR-25 | unit (`api.test.ts`) | Đạt |
@@ -189,6 +355,46 @@ Những mục CMS chưa được kiểm chứng: hộp thoại in thật, đổi
 
 Chưa thực hiện lần kiểm thử thực địa nào. Mỗi lần chạy cần ghi ngày, thiết bị, hệ điều hành, thời tiết và người kiểm thử.
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart TB
+  S(["Bắt đầu lần chạy<br/>ghi ngày, thiết bị, HĐH, thời tiết, người kiểm thử"]):::startend
+  subgraph PREP["Chuẩn bị"]
+    direction LR
+    P1["📍 Kiểm tra toạ độ POI<br/>sửa trên CMS"]:::cms
+    P2["⚙️ Backend tới được<br/>đã đồng bộ nội dung"]:::backend
+    P3["🖨️ In QR trạm xe buýt<br/>khổ A5 trở lên"]:::cms
+    P4["🔋 Sạc đầy, ghi pin<br/>TẮT mô phỏng vị trí"]:::mobile
+
+    P1 ~~~ P2 ~~~ P3 ~~~ P4
+  end
+  subgraph RUN["Chạy FT-01 đến FT-09 trên điện thoại thật"]
+    direction LR
+    G1["🛰️ Quyền và GPS<br/>FT-01, FT-02, FT-03"]:::ext
+    G2["📍 Geofence<br/>FT-04 biên, FT-05 cooldown<br/>FT-08 chồng lấn"]:::ext
+    G3["📱 QR và ngoại tuyến<br/>FT-06, FT-07"]:::mobile
+    G4["🔋 Pin và dữ liệu<br/>FT-09"]:::mobile
+
+    G1 ~~~ G2 ~~~ G3 ~~~ G4
+  end
+  S --> PREP --> RUN --> K{"Đạt tiêu chí?"}:::decision
+  K -- Có --> OK["Ghi kết quả vào bảng"]:::ok
+  K -- Không --> IS["📝 GitHub issue kèm mã FT"]:::bad
+  OK --> E(["Đủ ≥ 3 điểm tham quan"]):::startend
+  IS --> E
+  style PREP fill:#F8FAFC,stroke:#CBD5E1
+  style RUN fill:#F8FAFC,stroke:#CBD5E1
+  classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+  classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+  classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+  classDef ext fill:#FFE4E6,stroke:#E11D48,stroke-width:2px,color:#881337
+  classDef decision fill:#FFF7ED,stroke:#EA580C,stroke-width:2px,color:#7C2D12
+  classDef startend fill:#1E3A8A,stroke:#1E3A8A,stroke-width:2px,color:#FFFFFF
+  classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+  classDef bad fill:#FEE2E2,stroke:#DC2626,stroke-width:2px,color:#7F1D1D
+```
+*Hình: quy trình một lần kiểm thử thực địa; hiện cả 9 hạng mục FT đều Chờ thiết bị*
+
 Chuẩn bị:
 - [ ] Kiểm tra toạ độ từng điểm tham quan seed trên bản đồ (giá trị seed chỉ gần đúng) và sửa lại trên CMS.
 - [ ] Backend production hoặc trong mạng LAN mà điện thoại truy cập được; nội dung đã đồng bộ trên mọi thiết bị kiểm thử.
@@ -209,4 +415,19 @@ Chuẩn bị:
 | FT-09 | Mức dùng pin và dữ liệu | Chạy ứng dụng trong 1 giờ đi bộ | Ghi mức sụt pin và lượng dữ liệu di động đã dùng; không bị crash | NFR (tính dễ dùng) | Chờ thiết bị |
 
 ## 7. Tóm tắt truy vết
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+  FR["📄 FR-01 đến FR-39<br/>01-SRS §4<br/>mỗi FR ≥ 1 ca"]:::neutral
+  FR --> BE["⚙️ Hành vi máy chủ<br/>43 kiểm thử backend · Đạt"]:::ok
+  FR --> ML["📱 Logic mobile<br/>geofence, cooldown, ngôn ngữ<br/>QR, đồng bộ, nhật ký<br/>unit + live · Đạt"]:::ok
+  FR --> MD["📱 Cần chạy trên thiết bị<br/>quyền, GPS, định vị nền, camera<br/>audio/TTS, bản đồ, SQLite máy"]:::warn
+  FR --> CM["🖥️ CMS<br/>unit + browser E2E · Đạt"]:::ok
+  FR --> CX["🖥️ CMS chưa kiểm chứng<br/>hộp thoại in<br/>đổi mật khẩu qua UI<br/>trình đọc màn hình<br/>build production"]:::warn
+  classDef neutral fill:#F8FAFC,stroke:#94A3B8,stroke-width:1.5px,color:#334155
+  classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+  classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+```
+*Hình: truy vết yêu cầu tới bằng chứng kiểm thử; xanh là đã Đạt, vàng là Chờ thiết bị hoặc chưa kiểm chứng*
 Mọi FR trong `01-SRS.md` §4 đều có ít nhất một ca kiểm thử. Hành vi phía máy chủ được bao phủ bởi 43 kiểm thử backend đều đạt. Logic mobile (geofence, thời gian chờ phát lại, thuyết minh, ngôn ngữ dự phòng, phân tích QR, quyết định đồng bộ, chính sách ghi nhật ký) được bao phủ bởi các kiểm thử unit và live đều đạt; mọi thứ cần môi trường chạy trên thiết bị (quyền, GPS, định vị nền, camera, phát audio/TTS, bản đồ, SQLite trên thiết bị) đều ở trạng thái Chờ thiết bị. Hành vi CMS được bao phủ bởi kiểm thử đơn vị và một lần chạy browser E2E, trừ các mục liệt kê ở cuối §5.3.
