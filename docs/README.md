@@ -4,7 +4,7 @@ Bộ tài liệu công nghệ phần mềm của đồ án. Các sơ đồ viế
 
 | # | Tài liệu | Nội dung |
 |---|---|---|
-| 0 | [00-PRD.md](00-PRD.md) | Tài liệu yêu cầu sản phẩm (PRD): bài toán, người dùng, mục tiêu, chỉ số thành công, tính năng theo mức ưu tiên, rủi ro, kế hoạch phát hành, câu hỏi còn mở |
+| 0 | [00-PRD.md](00-PRD.md) | Tài liệu PRD theo đề môn học: Product Backlog 8 epic, 24 user story (general – specific – diagram, tiêu chí chấp nhận, MoSCoW, điểm), component diagram, deployment diagram, ERD và lược đồ quan hệ |
 | 1 | [01-SRS.md](01-SRS.md) | Đặc tả yêu cầu phần mềm (SRS): phạm vi, tác nhân (actor), sơ đồ ca sử dụng (use case), yêu cầu chức năng (functional requirement) FR-01 đến FR-39 truy vết (traceability) tới UC1–UC5, yêu cầu phi chức năng (non-functional requirement), quy tắc nghiệp vụ (business rule), ràng buộc, giả định, ma trận truy vết |
 | 2 | [02-design.md](02-design.md) | Thiết kế phần mềm: kiến trúc, các lớp và mô-đun backend, thiết kế mô-đun mobile và CMS, sơ đồ lớp, sơ đồ hoạt động (UC1–UC5), sơ đồ tuần tự, sơ đồ trạng thái của bộ máy thuyết minh (narration engine), ERD theo schema thực tế, sơ đồ triển khai (deployment), các quyết định thiết kế |
 | 3 | [03-test-plan.md](03-test-plan.md) | Chiến lược kiểm thử, môi trường, 92 ca kiểm thử (test case) kèm trạng thái (backend 43/43, CMS 36/36 kiểm thử đơn vị + E2E trên trình duyệt, mobile 62/62 kiểm thử đơn vị + 5/5 kiểm thử với backend thật, tất cả Đạt ngày 18/10/2026; các ca cần chạy ứng dụng trên thiết bị đang Chờ thiết bị), danh sách kiểm tra cho kiểm thử thực địa (field test) |
