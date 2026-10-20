@@ -1,127 +1,127 @@
-# Project Management
+# Quản lý dự án
 
-**Project:** Multilingual Automatic Narration System
-**Document version:** 1.0 (18/10/2026)
+**Dự án:** Hệ thống thuyết minh tự động đa ngôn ngữ
+**Phiên bản tài liệu:** 1.0 (18/10/2026)
 
-## 1. Process model
-The team uses an **iterative and incremental, use-case-driven** process:
+## 1. Mô hình quy trình
+Nhóm áp dụng quy trình **lặp và tăng trưởng, hướng ca sử dụng (use case)**:
 
-1. **Inception**: scope and architecture sketches (README diagrams), focused use cases UC1–UC5.
-2. **Elaboration**: SRS, data model, API contract, design of the geofence and narration engines.
-3. **Construction** in increments, each ending with working, tested software:
-   - Increment 1: backend (data, CMS API, sync, QR, logs, analytics) with automated tests.
-   - Increment 2: CMS web (POI, translation, audio, QR, tours, analytics).
-   - Increment 3: mobile app (sync, geofence, narration, QR, offline logs, simulation mode).
-4. **Transition**: field tests at real POIs, defect fixing, documentation, demo.
+1. **Khởi đầu (Inception)**: xác định phạm vi và phác thảo kiến trúc (các sơ đồ trong README), các ca sử dụng trọng tâm UC1–UC5.
+2. **Làm rõ (Elaboration)**: SRS, mô hình dữ liệu, hợp đồng API, thiết kế bộ máy geofence (geofence engine) và bộ máy thuyết minh (narration engine).
+3. **Xây dựng (Construction)** theo từng bản tăng trưởng (increment); mỗi bản kết thúc bằng phần mềm chạy được và đã kiểm thử:
+   - Bản tăng trưởng 1: backend (dữ liệu, API cho CMS, đồng bộ (sync), QR, nhật ký, thống kê (analytics)) kèm kiểm thử tự động.
+   - Bản tăng trưởng 2: CMS web (POI, bản dịch, audio, QR, tour, thống kê).
+   - Bản tăng trưởng 3: ứng dụng di động (đồng bộ, geofence, thuyết minh, QR, nhật ký ngoại tuyến (offline), chế độ mô phỏng vị trí).
+4. **Chuyển giao (Transition)**: kiểm thử thực địa (field test) tại các điểm tham quan (POI) thật, sửa lỗi, hoàn thiện tài liệu, demo.
 
-Rationale: requirements are known at use-case level, but GPS behaviour and free-service limits can only be learned by building and testing; increments let the riskiest part (on-device geofencing) be tested early on real devices while the backend contract stays stable.
+Lý do lựa chọn: yêu cầu đã rõ ở mức ca sử dụng, nhưng hành vi của GPS và giới hạn của các dịch vụ miễn phí chỉ biết được khi xây dựng và kiểm thử. Phát triển theo bản tăng trưởng cho phép kiểm thử sớm phần rủi ro nhất (geofence trên thiết bị) trên máy thật, trong khi hợp đồng API của backend vẫn giữ ổn định.
 
-Practices: Git/GitHub repository, one branch per feature with review before merge, the API contract (`docs/api.md`) as the agreement between backend and clients, automated backend tests run before each merge.
+Thực hành: kho mã Git/GitHub, mỗi tính năng một nhánh và được review trước khi gộp, hợp đồng API (`docs/api.md`) là thoả thuận giữa backend và các client, kiểm thử tự động của backend chạy trước mỗi lần gộp.
 
-## 2. Work breakdown structure
+## 2. Cấu trúc phân rã công việc (WBS)
 
 ```text
-1  Project management
-   1.1 Planning, schedule, risk tracking
-   1.2 Weekly meetings and progress reports
-2  Requirements
-   2.1 Architecture sketches (README)
-   2.2 Focused use cases UC1–UC5
-   2.3 SRS (FR/NFR, business rules, traceability)
-3  Design
-   3.1 Architecture and deployment
-   3.2 Database (ERD, schema)
-   3.3 REST API contract
-   3.4 Geofence and narration engine design
-   3.5 UI design (CMS screens, app screens)
+1  Quản lý dự án
+   1.1 Lập kế hoạch, lịch trình, theo dõi rủi ro
+   1.2 Họp hằng tuần và báo cáo tiến độ
+2  Yêu cầu
+   2.1 Phác thảo kiến trúc (README)
+   2.2 Các ca sử dụng trọng tâm UC1–UC5
+   2.3 SRS (FR/NFR, quy tắc nghiệp vụ, truy vết)
+3  Thiết kế
+   3.1 Kiến trúc và triển khai
+   3.2 Cơ sở dữ liệu (ERD, schema)
+   3.3 Hợp đồng REST API
+   3.4 Thiết kế bộ máy geofence và bộ máy thuyết minh
+   3.5 Thiết kế giao diện (màn hình CMS, màn hình ứng dụng)
 4  Backend
-   4.1 Data layer (schema, repositories, seed data)
-   4.2 Services (POI, tour, QR, sync, logs, analytics, auth)
-   4.3 Translate and TTS providers
-   4.4 REST controllers, security middleware
-   4.5 Automated tests
+   4.1 Lớp dữ liệu (schema, repository, dữ liệu mẫu)
+   4.2 Service (POI, tour, QR, đồng bộ, nhật ký, thống kê, xác thực)
+   4.3 Nhà cung cấp dịch và TTS
+   4.4 REST controller, middleware bảo mật
+   4.5 Kiểm thử tự động
 5  CMS web
-   5.1 Login and API client
-   5.2 POI manager with map picker
-   5.3 Translation tabs, auto-translate, TTS, audio upload
-   5.4 QR generator and print
-   5.5 Tour manager with map polyline
-   5.6 Analytics dashboard, heatmap, Excel/PDF export
-6  Mobile app
-   6.1 Offline content layer and sync
-   6.2 Location service (foreground and background)
-   6.3 Geofence engine
-   6.4 Narration engine (audio, on-device TTS, cooldown)
-   6.5 QR scanner
-   6.6 Log queue and upload
-   6.7 UI: map, list, tours, settings; simulation mode
-7  Testing
-   7.1 Test plan and test cases
-   7.2 Unit and API tests
-   7.3 System tests (CMS, app)
-   7.4 Field tests at POIs and bus stops
-8  Deployment and documentation
-   8.1 Server deployment (HTTPS, backups)
-   8.2 Installation guide, user guide
-   8.3 Final report and demo
+   5.1 Đăng nhập và API client
+   5.2 Quản lý POI có chọn vị trí trên bản đồ
+   5.3 Tab bản dịch, dịch tự động, TTS, tải lên audio
+   5.4 Tạo và in mã QR
+   5.5 Quản lý tour có đường lộ trình trên bản đồ
+   5.6 Bảng thống kê, bản đồ nhiệt, xuất Excel/PDF
+6  Ứng dụng di động
+   6.1 Lớp nội dung ngoại tuyến và đồng bộ
+   6.2 Dịch vụ vị trí (tiền cảnh và nền)
+   6.3 Bộ máy geofence
+   6.4 Bộ máy thuyết minh (audio, TTS trên máy, thời gian chờ phát lại)
+   6.5 Trình quét QR
+   6.6 Hàng đợi nhật ký và gửi lên máy chủ
+   6.7 Giao diện: bản đồ, danh sách, tour, cài đặt; chế độ mô phỏng vị trí
+7  Kiểm thử
+   7.1 Kế hoạch kiểm thử và ca kiểm thử
+   7.2 Kiểm thử đơn vị và kiểm thử API
+   7.3 Kiểm thử hệ thống (CMS, ứng dụng)
+   7.4 Kiểm thử thực địa tại POI và trạm xe buýt
+8  Triển khai và tài liệu
+   8.1 Triển khai lên máy chủ (HTTPS, sao lưu)
+   8.2 Hướng dẫn cài đặt, hướng dẫn sử dụng
+   8.3 Báo cáo cuối kỳ và demo
 ```
 
-## 3. Timeline and milestones
+## 3. Tiến độ và các mốc
 
-| Date | Milestone | Status |
+| Ngày | Mốc (milestone) | Trạng thái |
 |---|---|---|
-| 17/09/2026 | Team repository created | Done |
-| 20/09/2026 | Focused Use Cases v1.0 (UC1–UC5) | Done |
-| 22/09–28/09/2026 | Architecture diagrams and ERD in README | Done |
-| by 18/10/2026 | Backend increment: 3-layer API, SQLite schema, seed data, 43 automated tests passing | Done |
-| 18/10/2026 | SRS, design, test plan, installation and user guide (this document set), reconciled with the code | Done |
-| by 18/10/2026 | CMS increment: all pages implemented, 36 unit tests passing, browser E2E run against the live backend | Done (print dialog, password change UI and production build still to verify) |
-| by 18/10/2026 | Mobile increment: all modules implemented, 62 unit + 5 live-backend tests passing, type check, expo-doctor and bundle export clean | Done in code; not yet run on a device |
-| TBD | Device testing of the app (Pending (device) cases in the test plan) on Android and iOS | Not started |
-| TBD | Field tests FT-01 to FT-09 at real POIs and bus stops | Not started |
-| TBD | Deployment to a server with HTTPS | Not started |
-| TBD | Final report and demo | Not started |
+| 17/09/2026 | Tạo kho mã của nhóm | Hoàn thành |
+| 20/09/2026 | Focused Use Cases v1.0 (UC1–UC5) | Hoàn thành |
+| 22/09–28/09/2026 | Sơ đồ kiến trúc và ERD trong README | Hoàn thành |
+| đến 18/10/2026 | Bản tăng trưởng backend: API 3 lớp, schema SQLite, dữ liệu mẫu, 43 kiểm thử tự động Đạt | Hoàn thành |
+| 18/10/2026 | SRS, thiết kế, kế hoạch kiểm thử (test plan), hướng dẫn cài đặt và hướng dẫn sử dụng (bộ tài liệu này), đã đối chiếu với code | Hoàn thành |
+| đến 18/10/2026 | Bản tăng trưởng CMS: đủ các trang, 36 kiểm thử đơn vị Đạt, chạy E2E trên trình duyệt với backend thật | Hoàn thành (còn phải kiểm tra hộp thoại in, giao diện đổi mật khẩu và bản build production) |
+| đến 18/10/2026 | Bản tăng trưởng mobile: đủ các mô-đun, 62 kiểm thử đơn vị + 5 kiểm thử với backend thật Đạt, kiểm tra kiểu, expo-doctor và xuất bundle không lỗi | Hoàn thành về code; chưa chạy trên thiết bị |
+| Chưa xác định | Kiểm thử ứng dụng trên thiết bị (các ca Chờ thiết bị trong kế hoạch kiểm thử) trên Android và iOS | Chưa bắt đầu |
+| Chưa xác định | Kiểm thử thực địa FT-01 đến FT-09 tại POI và trạm xe buýt thật | Chưa bắt đầu |
+| Chưa xác định | Triển khai lên máy chủ có HTTPS | Chưa bắt đầu |
+| Chưa xác định | Báo cáo cuối kỳ và demo | Chưa bắt đầu |
 
-TBD dates are to be set by the team against the capstone submission deadline.
+Các ngày "Chưa xác định" sẽ do nhóm ấn định dựa theo hạn nộp đồ án.
 
 ```mermaid
 gantt
-    title Narration System: recorded milestones
+    title Hệ thống thuyết minh - các mốc đã ghi nhận
     dateFormat YYYY-MM-DD
     axisFormat %d/%m
-    section Requirements
-    Repository created             :milestone, m1, 2026-09-17, 0d
-    Focused use cases v1.0         :milestone, m2, 2026-09-20, 0d
-    README architecture and ERD    :done, r3, 2026-09-22, 2026-09-28
-    section Construction
-    Backend, CMS and app code complete :milestone, m3, 2026-10-18, 0d
-    section Documentation
-    Documentation set v1.0         :milestone, m4, 2026-10-18, 0d
+    section Yêu cầu
+    Tạo kho mã                     :milestone, m1, 2026-09-17, 0d
+    Focused Use Cases v1.0         :milestone, m2, 2026-09-20, 0d
+    Kiến trúc và ERD trong README  :done, r3, 2026-09-22, 2026-09-28
+    section Xây dựng
+    Hoàn thành code backend, CMS và ứng dụng :milestone, m3, 2026-10-18, 0d
+    section Tài liệu
+    Bộ tài liệu v1.0               :milestone, m4, 2026-10-18, 0d
 ```
 
-Only dates recorded in the repository history or in the documents are shown; the backend start date is not recorded in the shared repository and is therefore omitted.
+Biểu đồ chỉ thể hiện các ngày có ghi nhận trong lịch sử kho mã hoặc trong tài liệu. Ngày bắt đầu làm backend không được ghi nhận trong kho mã chung nên không đưa vào.
 
-## 4. Roles
+## 4. Vai trò
 
-| Role | Responsibilities | Member |
+| Vai trò | Trách nhiệm | Thành viên |
 |---|---|---|
-| Project lead / analyst | Schedule, use cases, SRS, communication with the lecturer | TODO: name |
-| Backend developer | API, database, tests, deployment | TODO: name |
-| CMS developer | Admin web application | TODO: name |
-| Mobile developer | App, geofence and narration engines | TODO: name |
-| Tester / documentation | Test plan execution, field tests, user guide | TODO: name |
+| Trưởng nhóm / phân tích | Lịch trình, ca sử dụng, SRS, liên lạc với giảng viên | Cần bổ sung: tên |
+| Lập trình viên backend | API, cơ sở dữ liệu, kiểm thử, triển khai | Cần bổ sung: tên |
+| Lập trình viên CMS | Ứng dụng web quản trị | Cần bổ sung: tên |
+| Lập trình viên mobile | Ứng dụng, bộ máy geofence và bộ máy thuyết minh | Cần bổ sung: tên |
+| Kiểm thử / tài liệu | Thực hiện kế hoạch kiểm thử, kiểm thử thực địa, hướng dẫn sử dụng | Cần bổ sung: tên |
 
-One person may hold several roles.
+Một người có thể đảm nhận nhiều vai trò.
 
-## 5. Risks and mitigations
+## 5. Rủi ro và biện pháp giảm thiểu
 
-| ID | Risk | Likelihood | Impact | Mitigation | Owner |
+| ID | Rủi ro (risk) | Khả năng xảy ra | Mức ảnh hưởng | Biện pháp giảm thiểu (mitigation) | Phụ trách |
 |---|---|---|---|---|---|
-| R1 | **GPS accuracy** in dense streets and near tall buildings causes late, missed or false triggers | High | High | Ignore fixes with accuracy over 60 m; exit hysteresis at 1.2 × radius; cooldown; radius and priority tuned per POI in the CMS after field tests; QR codes and manual play from the list as alternatives | Mobile dev |
-| R2 | **Background location limits** of iOS/Android (battery optimisation, Doze, permission "always" refused; not available in Expo Go) stop narration when the screen is off | High | High | `expo-task-manager` background updates with a foreground-service notification on Android, in a development/store build; explain the "always" permission; keep foreground mode as the guaranteed path; document device-specific behaviour from FT-03 | Mobile dev |
-| R3 | **Free translate/TTS endpoints** (unofficial Google endpoints) are rate-limited, change or are blocked | Medium | Medium | Called only from the CMS when an admin requests it, never by the app; provider is configurable (`libretranslate`, `none`); audio is generated once and stored; on-device TTS fallback in the app; errors reported as 502 without blocking saves | Backend dev |
-| R4 | **Privacy**: location data could identify visitors | Medium | High | No accounts; random session ID per launch; server-side rounding to 4 decimals; aggregated heatmap; routes without session IDs; no device identifiers collected; retention policy to be agreed with the content owner | Project lead |
-| R5 | Inaccurate POI coordinates or machine-translated text reach visitors | Medium | Medium | Verify coordinates on site before go-live; review translations before saving; Vietnamese mandatory as fallback | Content admin |
-| R6 | Offline devices miss content updates | Medium | Low | Version check at launch and on reconnect; content keeps working offline with the last version | Mobile dev |
-| R7 | App not yet verified on a device; runtime issues (map WebView, camera, audio session, permissions) found late | Medium | High | Run the Pending (device) cases on an emulator and one real phone first; simulation mode and manual QR entry allow a UC1/UC2 demo without field conditions | Mobile dev |
-| R8 | Single-server SQLite data loss | Low | High | Daily online backups of database and uploads, off-server copy, restore test (see `04-installation.md` §4.3) | Backend dev |
+| R1 | **Độ chính xác GPS** ở phố đông và gần nhà cao tầng gây kích hoạt (trigger) muộn, bỏ sót hoặc kích hoạt sai | Cao | Cao | Bỏ qua các lần định vị có độ chính xác kém hơn 60 m; ngưỡng trễ khi ra vùng là 1,2 × bán kính (radius); thời gian chờ phát lại (cooldown); tinh chỉnh bán kính và độ ưu tiên (priority) cho từng POI trong CMS sau kiểm thử thực địa; dùng mã QR và phát thủ công từ danh sách làm phương án thay thế | Lập trình viên mobile |
+| R2 | **Giới hạn định vị nền (background location)** của iOS/Android (tối ưu pin, Doze, người dùng từ chối quyền "luôn luôn"; không có trong Expo Go) làm dừng thuyết minh khi tắt màn hình | Cao | Cao | Dùng `expo-task-manager` cập nhật vị trí nền kèm thông báo dịch vụ tiền cảnh trên Android, trong bản development/store build; giải thích lý do cần quyền "luôn luôn"; giữ chế độ tiền cảnh làm phương án chắc chắn chạy được; ghi lại hành vi theo từng thiết bị từ FT-03 | Lập trình viên mobile |
+| R3 | **Endpoint dịch/TTS miễn phí** (endpoint không chính thức của Google) bị giới hạn tần suất, thay đổi hoặc bị chặn | Trung bình | Trung bình | Chỉ gọi từ CMS khi quản trị viên yêu cầu, ứng dụng không bao giờ gọi; nhà cung cấp có thể cấu hình (`libretranslate`, `none`); audio chỉ tạo một lần và lưu lại; ứng dụng có TTS trên máy làm phương án dự phòng; lỗi trả về 502 nhưng không chặn việc lưu | Lập trình viên backend |
+| R4 | **Quyền riêng tư**: dữ liệu vị trí có thể làm lộ danh tính khách tham quan | Trung bình | Cao | Không có tài khoản người dùng; session ID ngẫu nhiên cho mỗi lần mở ứng dụng; máy chủ làm tròn toạ độ còn 4 chữ số thập phân; bản đồ nhiệt (heatmap) chỉ hiển thị dữ liệu gộp; lộ trình không kèm session ID; không thu thập định danh thiết bị; chính sách lưu giữ dữ liệu sẽ thống nhất với bên sở hữu nội dung | Trưởng nhóm |
+| R5 | Toạ độ POI sai hoặc văn bản dịch máy đến tay khách tham quan | Trung bình | Trung bình | Kiểm tra toạ độ tại chỗ trước khi đưa vào sử dụng; duyệt bản dịch trước khi lưu; tiếng Việt là bắt buộc để làm bản dự phòng | Quản trị viên nội dung |
+| R6 | Thiết bị ngoại tuyến không nhận được cập nhật nội dung | Trung bình | Thấp | Kiểm tra phiên bản khi mở ứng dụng và khi có mạng lại; nội dung vẫn dùng được ngoại tuyến với phiên bản gần nhất | Lập trình viên mobile |
+| R7 | Ứng dụng chưa được kiểm chứng trên thiết bị; lỗi lúc chạy (WebView bản đồ, camera, phiên audio, quyền truy cập) phát hiện muộn | Trung bình | Cao | Chạy các ca Chờ thiết bị trên emulator và một điện thoại thật trước; chế độ mô phỏng vị trí và nhập mã QR thủ công cho phép demo UC1/UC2 mà không cần điều kiện thực địa | Lập trình viên mobile |
+| R8 | Mất dữ liệu SQLite do chỉ có một máy chủ | Thấp | Cao | Sao lưu trực tuyến cơ sở dữ liệu và thư mục uploads hằng ngày, có bản sao ngoài máy chủ, thử khôi phục (xem `04-installation.md` §4.3) | Lập trình viên backend |

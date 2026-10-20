@@ -1,42 +1,42 @@
-# API Reference (3-layer backend)
+# Tài liệu tham chiếu API (backend 3 lớp)
 
-Base URL: `http://<server>:4000/api`. All responses are JSON. Errors have the form:
+URL gốc: `http://<server>:4000/api`. Mọi phản hồi đều ở dạng JSON. Lỗi có dạng:
 
 ```json
-{ "error": { "code": "VALIDATION_ERROR", "message": "Human-readable message (Vietnamese)", "details": { "radius_m": "Activation radius must be greater than 0" } } }
+{ "error": { "code": "VALIDATION_ERROR", "message": "Thông điệp dễ đọc (tiếng Việt)", "details": { "radius_m": "Bán kính kích hoạt phải lớn hơn 0" } } }
 ```
 
-`message` and `details` values are returned in Vietnamese by the server; clients should branch on `code` and on the field names in `details`, not on message text.
+Máy chủ trả giá trị `message` và `details` bằng tiếng Việt; client nên rẽ nhánh theo `code` và theo tên trường trong `details`, không dựa vào nội dung thông điệp.
 
-| Code | HTTP | Meaning |
+| Mã | HTTP | Ý nghĩa |
 |---|---|---|
-| `VALIDATION_ERROR` | 400 | Input failed validation; `details` is keyed by field name |
-| `BAD_JSON` | 400 | Request body is not valid JSON |
-| `UPLOAD_ERROR` | 400 | Multipart upload failed (e.g. file larger than 15 MB) |
-| `UNAUTHORIZED` | 401 | Missing, invalid or expired token; wrong credentials |
-| `NOT_FOUND` | 404 | Unknown resource, route or uploaded file |
-| `TOO_LARGE` | 413 | JSON body larger than 1 MB |
-| `RATE_LIMIT` | 429 | Too many login attempts. The log endpoints also answer 429 when their limit is exceeded (default limiter body, not this JSON shape) |
-| `UPSTREAM_ERROR` | 502 | External translation/TTS service failed or is unreachable |
-| `INTERNAL` | 500 | Unexpected server error |
+| `VALIDATION_ERROR` | 400 | Dữ liệu đầu vào không hợp lệ; `details` có khoá là tên trường |
+| `BAD_JSON` | 400 | Thân yêu cầu không phải JSON hợp lệ |
+| `UPLOAD_ERROR` | 400 | Tải lên multipart thất bại (ví dụ file lớn hơn 15 MB) |
+| `UNAUTHORIZED` | 401 | Thiếu token, token không hợp lệ hoặc đã hết hạn; sai thông tin đăng nhập |
+| `NOT_FOUND` | 404 | Không tìm thấy tài nguyên, route hoặc file đã tải lên |
+| `TOO_LARGE` | 413 | Thân JSON lớn hơn 1 MB |
+| `RATE_LIMIT` | 429 | Đăng nhập sai quá nhiều lần. Các endpoint ghi nhật ký cũng trả 429 khi vượt giới hạn (với thân phản hồi mặc định của bộ giới hạn, không theo dạng JSON này) |
+| `UPSTREAM_ERROR` | 502 | Dịch vụ dịch/TTS bên ngoài lỗi hoặc không truy cập được |
+| `INTERNAL` | 500 | Lỗi máy chủ ngoài dự kiến |
 
-Audio and image files are served at `http://<server>:4000/uploads/<file name>`. The `audio_url` and `image_url` fields store the relative path `/uploads/...`; clients prepend the server origin.
+File audio và ảnh được phục vụ tại `http://<server>:4000/uploads/<tên file>`. Các trường `audio_url` và `image_url` lưu đường dẫn tương đối `/uploads/...`; client tự ghép origin của máy chủ vào phía trước.
 
-Supported languages: `vi` (default), `en`, `zh`, `ko`, `ja`, `fr`.
+Ngôn ngữ hỗ trợ: `vi` (mặc định), `en`, `zh`, `ko`, `ja`, `fr`.
 
-## 1. Public API (mobile app, anonymous)
+## 1. API công khai (ứng dụng di động, ẩn danh)
 
-| Method | Path | Description |
+| Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
 | GET | `/health` | `{status:"ok", time}` |
 | GET | `/languages` | `{default:"vi", languages:[{code,name}]}` |
-| GET | `/sync/version` | `{version: 12}`. The number increases every time an administrator changes content |
-| GET | `/sync` | Full content snapshot for offline storage (see below) |
-| GET | `/qr/:payload` | Resolve a QR code → `{qr:{id,label}, poi:{...,translations}}`; 404 if the code is unknown. `payload` accepts `NARR:<code>`, `<code>` or a URL ending in `/q/<code>` (apply `encodeURIComponent`) |
-| POST | `/logs/usage` | Record playback events. Body is one object or an array (≤ 500 items) |
-| POST | `/logs/location` | Record anonymous location samples. Body is one object or an array (≤ 500 items) |
+| GET | `/sync/version` | `{version: 12}`. Số này tăng mỗi khi quản trị viên thay đổi nội dung |
+| GET | `/sync` | Toàn bộ ảnh chụp nội dung để lưu ngoại tuyến (offline) (xem bên dưới) |
+| GET | `/qr/:payload` | Tra một mã QR → `{qr:{id,label}, poi:{...,translations}}`; 404 nếu không biết mã. `payload` nhận `NARR:<code>`, `<code>` hoặc URL kết thúc bằng `/q/<code>` (áp dụng `encodeURIComponent`) |
+| POST | `/logs/usage` | Ghi sự kiện phát thuyết minh. Thân là một đối tượng hoặc một mảng (≤ 500 phần tử) |
+| POST | `/logs/location` | Ghi mẫu vị trí ẩn danh. Thân là một đối tượng hoặc một mảng (≤ 500 phần tử) |
 
-The two log endpoints are rate-limited to 120 requests per minute per IP.
+Hai endpoint ghi nhật ký bị giới hạn 120 yêu cầu mỗi phút cho mỗi IP.
 
 `GET /sync`:
 ```json
@@ -52,59 +52,59 @@ The two log endpoints are rate-limited to 120 requests per minute per IP.
   "tours": [{ "id": 1, "name": "Di sản ven sông Quận 4", "description": "...", "updated_at": "...", "poi_ids": [5, 1, 6, 4] }]
 }
 ```
-POIs are ordered by `priority` descending; `poi_ids` in a tour are in visiting order. `qrcodes` lists every QR payload with its POI, so the app can resolve printed codes offline; `GET /qr/:payload` remains as an online fallback.
+Các điểm tham quan (POI) được sắp theo `priority` giảm dần; `poi_ids` trong một tour theo đúng thứ tự tham quan. `qrcodes` liệt kê mọi payload QR cùng POI tương ứng, để ứng dụng tra được mã in sẵn khi ngoại tuyến; `GET /qr/:payload` vẫn được giữ làm phương án dự phòng khi có mạng.
 
-`POST /logs/usage` (each item):
+`POST /logs/usage` (mỗi phần tử):
 ```json
 { "poi_id": 1, "session_id": "a1b2c3d4e5f6a7b8", "trigger_method": "geofence|qr|manual", "language_code": "vi", "played_at": "ISO-8601", "listen_seconds": 42 }
 ```
-`POST /logs/location` (each item): `{ "session_id": "...", "latitude": 10.76, "longitude": 106.70, "recorded_at": "ISO-8601" }`
+`POST /logs/location` (mỗi phần tử): `{ "session_id": "...", "latitude": 10.76, "longitude": 106.70, "recorded_at": "ISO-8601" }`
 
-- `session_id`: random string of 8–64 characters `[A-Za-z0-9_-]`, generated by the app on every launch and not linked to any identity.
-- `language_code` must be a supported language.
-- `played_at` / `recorded_at` are optional; the server time is used when missing or invalid.
-- `listen_seconds` is rounded and clamped to 0..3600.
-- The server rounds coordinates to 4 decimal places (~11 m) before storing them.
-- A batch is inserted in one transaction. Usage records whose POI no longer exists (deleted after the app logged offline) are skipped and counted in `skipped`; if no record in the batch refers to an existing POI, the request fails with 400. Any other invalid item rejects the whole batch with 400 (the message names the item index).
+- `session_id`: chuỗi ngẫu nhiên 8–64 ký tự `[A-Za-z0-9_-]`, do ứng dụng tạo ở mỗi lần khởi động và không gắn với danh tính nào.
+- `language_code` phải là một ngôn ngữ được hỗ trợ.
+- `played_at` / `recorded_at` không bắt buộc; nếu thiếu hoặc không hợp lệ, máy chủ dùng giờ của máy chủ.
+- `listen_seconds` được làm tròn và giới hạn trong khoảng 0..3600.
+- Máy chủ làm tròn toạ độ tới 4 chữ số thập phân (~11 m) trước khi lưu.
+- Một lô được chèn trong một giao dịch. Bản ghi sử dụng có POI không còn tồn tại (bị xoá sau khi ứng dụng ghi nhật ký lúc ngoại tuyến) bị bỏ qua và được đếm vào `skipped`; nếu không bản ghi nào trong lô trỏ tới POI còn tồn tại, yêu cầu thất bại với mã 400. Mọi phần tử không hợp lệ khác làm cả lô bị từ chối với mã 400 (thông điệp nêu chỉ số của phần tử).
 
-Response: `201 {inserted, skipped}` for usage, `201 {inserted}` for locations.
+Phản hồi: `201 {inserted, skipped}` cho nhật ký sử dụng, `201 {inserted}` cho vị trí.
 
-## 2. CMS login
+## 2. Đăng nhập CMS
 
-`POST /auth/login` `{username, password}` → `{token, user:{id,username,full_name}}`. Limited to 20 attempts per 15 minutes per IP.
+`POST /auth/login` `{username, password}` → `{token, user:{id,username,full_name}}`. Giới hạn 20 lần thử mỗi 15 phút cho mỗi IP.
 
-All `/admin/*` endpoints require the header `Authorization: Bearer <token>`. Tokens expire after 8 hours by default (`JWT_EXPIRES_IN`); an expired token yields 401 and the CMS returns to the login page.
+Mọi endpoint `/admin/*` yêu cầu header `Authorization: Bearer <token>`. Mặc định token hết hạn sau 8 giờ (`JWT_EXPIRES_IN`); token hết hạn trả về 401 và CMS quay về trang đăng nhập.
 
-## 3. Admin API (`/admin`)
+## 3. API quản trị (`/admin`)
 
-| Method | Path | Description |
+| Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
-| GET | `/admin/me` | Currently logged-in administrator |
-| POST | `/admin/me/password` | `{current_password,new_password}` (new password ≥ 8 characters) → 204. Errors are 400 with `details.current_password` or `details.new_password` |
-| GET | `/admin/pois?q=` | `{items:[{id,name,address,latitude,longitude,radius_m,priority,image_url,created_at,updated_at,languages:["vi","en"],audio_languages:["vi"],qr_count}]}`. `q` searches name and address |
-| POST | `/admin/pois` | Create a POI (body below) → 201 + full POI |
-| GET | `/admin/pois/:id` | POI + `translations[]` + `qrcodes[]` (each with `content` = `NARR:<payload>`) |
-| PUT | `/admin/pois/:id` | Update a POI (same body). Languages not included in the body are deleted, together with their audio. A replaced or cleared `image_url` file under `/uploads` is deleted |
-| DELETE | `/admin/pois/:id` | 204. Also deletes its translations, audio files, image file and QR codes, and removes it from tours. Existing usage logs keep `poi_id = NULL` |
-| POST | `/admin/pois/:id/audio/:lang` | multipart, field `audio` (mp3/m4a/aac/wav/ogg/webm, ≤ 15 MB) → POI. Replaces any previous audio for that language |
-| DELETE | `/admin/pois/:id/audio/:lang` | Remove audio → POI |
-| POST | `/admin/pois/:id/tts/:lang` | Generate an MP3 from the SAVED `narration_text` of that language (or from body `{text}`) → POI with `audio_source:"tts"` |
+| GET | `/admin/me` | Quản trị viên đang đăng nhập |
+| POST | `/admin/me/password` | `{current_password,new_password}` (mật khẩu mới ≥ 8 ký tự) → 204. Lỗi trả 400 kèm `details.current_password` hoặc `details.new_password` |
+| GET | `/admin/pois?q=` | `{items:[{id,name,address,latitude,longitude,radius_m,priority,image_url,created_at,updated_at,languages:["vi","en"],audio_languages:["vi"],qr_count}]}`. `q` tìm theo tên và địa chỉ |
+| POST | `/admin/pois` | Tạo POI (thân yêu cầu ở bên dưới) → 201 + POI đầy đủ |
+| GET | `/admin/pois/:id` | POI + `translations[]` + `qrcodes[]` (mỗi mã có `content` = `NARR:<payload>`) |
+| PUT | `/admin/pois/:id` | Cập nhật POI (cùng dạng thân yêu cầu). Ngôn ngữ không có trong thân yêu cầu sẽ bị xoá cùng audio của nó. File `image_url` nằm trong `/uploads` bị thay thế hoặc bị xoá trống sẽ bị xoá |
+| DELETE | `/admin/pois/:id` | 204. Xoá luôn các bản dịch, file audio, file ảnh và mã QR của POI, và gỡ POI khỏi các tour. Nhật ký sử dụng đã có được giữ lại với `poi_id = NULL` |
+| POST | `/admin/pois/:id/audio/:lang` | multipart, trường `audio` (mp3/m4a/aac/wav/ogg/webm, ≤ 15 MB) → POI. Thay thế audio cũ của ngôn ngữ đó (nếu có) |
+| DELETE | `/admin/pois/:id/audio/:lang` | Gỡ audio → POI |
+| POST | `/admin/pois/:id/tts/:lang` | Tạo file MP3 từ `narration_text` ĐÃ LƯU của ngôn ngữ đó (hoặc từ thân yêu cầu `{text}`) → POI với `audio_source:"tts"` |
 | GET | `/admin/pois/:id/qrcodes` | `{items:[{id,poi_id,payload,label,content,created_at}]}` |
-| POST | `/admin/pois/:id/qrcodes` | `{label?}` → 201 QR. `content` is the string to encode in the printed QR (`NARR:<payload>`) |
-| GET | `/admin/qrcodes` | All QR codes with `poi_name` |
+| POST | `/admin/pois/:id/qrcodes` | `{label?}` → 201 QR. `content` là chuỗi cần mã hoá vào mã QR in ra (`NARR:<payload>`) |
+| GET | `/admin/qrcodes` | Mọi mã QR kèm `poi_name` |
 | DELETE | `/admin/qrcodes/:id` | 204 |
-| POST | `/admin/images` | multipart, field `image` (jpg/png/webp) → 201 `{url}` to use as `image_url` |
-| POST | `/admin/translate` | `{text, source, target}` (text ≤ 5000 characters) → `{text, provider}` |
+| POST | `/admin/images` | multipart, trường `image` (jpg/png/webp) → 201 `{url}` để dùng làm `image_url` |
+| POST | `/admin/translate` | `{text, source, target}` (văn bản ≤ 5000 ký tự) → `{text, provider}` |
 | GET | `/admin/tours` | `{items:[{id,name,description,poi_count,created_at,updated_at}]}` |
-| POST | `/admin/tours` | `{name, description?, poi_ids:[3,1,2]}` (array order = visiting order, ≥ 1 POI, no duplicates, all POIs must exist) → 201 |
+| POST | `/admin/tours` | `{name, description?, poi_ids:[3,1,2]}` (thứ tự mảng = thứ tự tham quan, ≥ 1 POI, không trùng lặp, mọi POI phải tồn tại) → 201 |
 | GET | `/admin/tours/:id` | `{id,name,description,created_at,updated_at,pois:[{id,name,latitude,longitude,visit_order}]}` |
-| PUT | `/admin/tours/:id` | Same body as POST |
+| PUT | `/admin/tours/:id` | Cùng dạng thân yêu cầu với POST |
 | DELETE | `/admin/tours/:id` | 204 |
-| GET | `/admin/analytics?from=YYYY-MM-DD&to=YYYY-MM-DD&tour_id=` | Analytics report (below). All parameters optional |
+| GET | `/admin/analytics?from=YYYY-MM-DD&to=YYYY-MM-DD&tour_id=` | Báo cáo thống kê (analytics) (xem bên dưới). Mọi tham số đều không bắt buộc |
 
-Every successful create/update/delete of a POI, translation, audio, tour or QR code increments `content_version`.
+Mỗi thao tác tạo/cập nhật/xoá thành công đối với POI, bản dịch, audio, tour hoặc mã QR đều làm tăng `content_version`.
 
-POI create/update body:
+Thân yêu cầu tạo/cập nhật POI:
 ```json
 {
   "name": "Bến Nhà Rồng", "address": "1 Nguyễn Tất Thành", "latitude": 10.7681, "longitude": 106.7068,
@@ -115,9 +115,9 @@ POI create/update body:
   ]
 }
 ```
-Validation rules (UC3 E1): name required; latitude −90..90; longitude −180..180; `0 < radius_m ≤ 5000` (rounded to an integer); `priority` integer 0..100 (default 1); each `language_code` supported and not duplicated; a Vietnamese (`vi`) `narration_text` is mandatory. Translation rows with neither title nor text are ignored. Errors return `details` keyed by field: `name`, `latitude`, `longitude`, `radius_m`, `priority`, `translations`, `translations.<i>.language_code`.
+Quy tắc kiểm tra dữ liệu (UC3 E1): bắt buộc có tên; vĩ độ −90..90; kinh độ −180..180; `0 < radius_m ≤ 5000` (làm tròn thành số nguyên); `priority` là số nguyên 0..100 (mặc định 1); mỗi `language_code` phải được hỗ trợ và không trùng lặp; bắt buộc có `narration_text` tiếng Việt (`vi`). Các dòng bản dịch không có cả tiêu đề lẫn nội dung sẽ bị bỏ qua. Lỗi trả về `details` có khoá theo trường: `name`, `latitude`, `longitude`, `radius_m`, `priority`, `translations`, `translations.<i>.language_code`.
 
-Analytics report `GET /admin/analytics`:
+Báo cáo thống kê `GET /admin/analytics`:
 ```json
 {
   "filters": { "from": "...", "to": "...", "tour_id": null },
@@ -132,8 +132,8 @@ Analytics report `GET /admin/analytics`:
   "routes": [{ "route": 1, "points": [[10.76, 106.70], [10.761, 106.701]] }]
 }
 ```
-- `to` given as a date (`YYYY-MM-DD`) includes that whole day. `from` must be earlier than `to`; an invalid date or unknown `tour_id` returns 400.
-- With `tour_id`, playback statistics count only POIs in that tour; heatmap and routes use the bounding box of the tour's POIs padded by about 300 m (location samples are not linked to POIs).
-- `per_poi` is sorted by plays (descending), i.e. the top most-listened locations.
-- `heatmap` aggregates samples into ~11 m cells (at most 5000 cells). `routes` returns up to 30 recent sessions with at least two samples, numbered sequentially; `session_id` is never returned.
-- `has_data=false` → the CMS shows "No data available" (UC5 E1). Dates and hours in `daily`/`hourly` are in UTC.
+- `to` truyền dạng ngày (`YYYY-MM-DD`) thì bao gồm trọn ngày đó. `from` phải sớm hơn `to`; ngày không hợp lệ hoặc `tour_id` không tồn tại trả về 400.
+- Khi có `tour_id`, thống kê lượt phát chỉ tính các POI thuộc tour đó; bản đồ nhiệt (heatmap) và lộ trình dùng khung bao các POI của tour, nới rộng khoảng 300 m (mẫu vị trí không gắn với POI).
+- `per_poi` được sắp theo số lượt phát (giảm dần), tức là danh sách các điểm được nghe nhiều nhất.
+- `heatmap` gộp các mẫu vào ô ~11 m (tối đa 5000 ô). `routes` trả về tối đa 30 phiên gần nhất có ít nhất hai mẫu, được đánh số tuần tự; không bao giờ trả về `session_id`.
+- `has_data=false` → CMS hiển thị "Không có dữ liệu" (UC5 E1). Ngày và giờ trong `daily`/`hourly` tính theo UTC.
