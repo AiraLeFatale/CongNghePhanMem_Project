@@ -1,64 +1,64 @@
-# Test Plan and Test Cases
+# Kế hoạch kiểm thử và ca kiểm thử
 
-**Project:** Multilingual Automatic Narration System
-**Document version:** 1.0 (18/10/2026)
-**Related documents:** `01-SRS.md` (FR/NFR IDs), `02-design.md`
+**Dự án:** Hệ thống thuyết minh tự động đa ngôn ngữ
+**Phiên bản tài liệu:** 1.0 (18/10/2026)
+**Tài liệu liên quan:** `01-SRS.md` (mã FR/NFR), `02-design.md`
 
 ---
 
-## 1. Scope and objectives
-- Verify that every functional requirement FR-01 to FR-39 is covered by at least one test case.
-- Automate all backend business rules (validation, sync versioning, QR resolution, anonymisation, analytics).
-- Verify the client behaviour that cannot be automated (GPS, background execution, camera, audio) on real devices at real POIs.
+## 1. Phạm vi và mục tiêu
+- Kiểm chứng rằng mọi yêu cầu chức năng từ FR-01 đến FR-39 đều được ít nhất một ca kiểm thử (test case) bao phủ.
+- Tự động hoá toàn bộ quy tắc nghiệp vụ phía backend (kiểm tra dữ liệu nhập, đánh phiên bản đồng bộ, phân giải QR, ẩn danh hoá, thống kê).
+- Kiểm chứng trên thiết bị thật, tại các điểm tham quan (POI) thật, những hành vi phía client không tự động hoá được (GPS, chạy nền, camera, audio).
 
-Not tested: load/performance at production scale, penetration testing, availability of the free Google translate/TTS endpoints.
+Không kiểm thử: tải/hiệu năng ở quy mô production, kiểm thử xâm nhập, tính sẵn sàng của các endpoint dịch/TTS miễn phí của Google.
 
-## 2. Strategy
+## 2. Chiến lược
 
-| Level | Target | Tool | Approach |
+| Mức | Đối tượng | Công cụ | Cách làm |
 |---|---|---|---|
-| Unit | Backend pure functions: `splitText`, `extractPayload`, `validatePoiInput`, translator adapter | `node:test`, `node:assert` | Direct calls; network replaced by an injected `fetchImpl` |
-| Unit | Mobile pure modules: geofence, cooldown, narration, language, QR parsing, sync logic, analytics policy | Jest (`jest-expo`) | Synthetic fixes, fake clock, injected audio/speech adapters; no device needed |
-| Unit | CMS libraries: API client, validation, formatting, Excel export | Vitest | Mocked `fetch`; no browser needed |
-| Integration (mobile ↔ backend) | Sync, QR resolution, log validation, simulated tour walk | Jest `backend.live.test.ts` with `LIVE_API` | Read-only calls against a running seeded backend |
-| Integration (API) | All REST endpoints through the real Express app | `node:test` + `fetch` | Each test file starts the app on a random port with an in-memory SQLite DB seeded with the sample data; translate/TTS replaced by fakes (`tests/helpers.js`) |
-| System / E2E | CMS against a running backend | Scripted headless Chrome run | TC-73 to TC-92 |
-| System (device) | Mobile app on emulator/simulator or phone against the backend | Manual | Cases marked "Pending (device)" in §5.2 |
-| Field test | Mobile app on real phones in Khanh Hoi, Vinh Hoi, Xom Chieu | Manual checklist (§6) | FT-01 to FT-09 |
-| Acceptance | UC1–UC5 basic, alternative and exception paths | Demo with the lecturer | Uses seed data and simulation mode |
+| Kiểm thử đơn vị (unit test) | Các hàm thuần của backend: `splitText`, `extractPayload`, `validatePoiInput`, adapter dịch | `node:test`, `node:assert` | Gọi trực tiếp; mạng được thay bằng `fetchImpl` tiêm vào |
+| Kiểm thử đơn vị | Các module thuần của mobile: geofence, thời gian chờ phát lại (cooldown), thuyết minh (narration), ngôn ngữ, phân tích QR, logic đồng bộ, chính sách thống kê | Jest (`jest-expo`) | Vị trí tổng hợp, đồng hồ giả, adapter audio/giọng nói tiêm vào; không cần thiết bị |
+| Kiểm thử đơn vị | Thư viện CMS: API client, kiểm tra dữ liệu nhập, định dạng, xuất Excel | Vitest | `fetch` giả lập; không cần trình duyệt |
+| Tích hợp (mobile ↔ backend) | Đồng bộ, phân giải QR, kiểm tra nhật ký, đi bộ mô phỏng theo tour | Jest `backend.live.test.ts` với `LIVE_API` | Chỉ gọi đọc tới một backend đang chạy đã nạp dữ liệu seed |
+| Tích hợp (API) | Mọi endpoint REST qua ứng dụng Express thật | `node:test` + `fetch` | Mỗi file kiểm thử khởi động ứng dụng trên một cổng ngẫu nhiên với cơ sở dữ liệu SQLite trong bộ nhớ đã nạp dữ liệu mẫu; dịch/TTS được thay bằng bản giả (`tests/helpers.js`) |
+| Hệ thống / E2E | CMS chạy với một backend đang chạy | Chạy kịch bản trên Chrome headless | TC-73 đến TC-92 |
+| Hệ thống (thiết bị) | Ứng dụng di động trên emulator/simulator hoặc điện thoại, nối với backend | Thủ công | Các ca đánh dấu "Chờ thiết bị" ở §5.2 |
+| Kiểm thử thực địa (field test) | Ứng dụng di động trên điện thoại thật tại Khánh Hội, Vĩnh Hội, Xóm Chiếu | Danh sách kiểm tra thủ công (§6) | FT-01 đến FT-09 |
+| Nghiệm thu | Luồng cơ bản, luồng thay thế và luồng ngoại lệ của UC1–UC5 | Trình diễn với giảng viên | Dùng dữ liệu seed và chế độ mô phỏng vị trí |
 
-Entry criteria: backend tests pass; seed data loaded; clients build without errors.
-Exit criteria: all automated tests pass; all M-priority client cases pass or have an accepted defect; field checklist completed at least at 3 POIs.
+Điều kiện bắt đầu: kiểm thử backend đạt; đã nạp dữ liệu seed; các client build không lỗi.
+Điều kiện kết thúc: mọi kiểm thử tự động đều đạt; mọi ca phía client có độ ưu tiên M đều Đạt hoặc có lỗi đã được chấp nhận; hoàn thành danh sách kiểm tra thực địa tại ít nhất 3 điểm tham quan.
 
-Defects are recorded as GitHub issues with the TC/FT ID, steps, expected and actual result, device/OS and severity (blocker, major, minor).
+Lỗi được ghi thành GitHub issue, kèm mã TC/FT, các bước, kết quả mong đợi và kết quả thực tế, thiết bị/hệ điều hành và mức độ nghiêm trọng (blocker, major, minor).
 
-## 3. Test environment
+## 3. Môi trường kiểm thử
 
-| Item | Value |
+| Hạng mục | Giá trị |
 |---|---|
-| Backend runtime | Node.js ≥ 22.13 (results below obtained with Node v26.11.1 on macOS) |
-| Database for automated tests | SQLite `:memory:`, seeded by `db/seed.js` (8 POIs, 2 tours, 5 QR codes, admin `admin` / `admin123`) |
-| External services in automated tests | Fake translator (`[src->dst] text`) and fake TTS (fixed bytes); rate limits disabled |
-| CMS | Unit: Vitest on Node; E2E: headless Chrome against the live seeded backend (TODO: record browser version) |
-| Mobile | Unit and live tests on Node (jest-expo). Device testing: at least one Android and one iOS device with GPS (TODO: record models and OS versions); no device or emulator was available on 18/10/2026 |
-| Field area | District 4 POIs from the seed data. Seed coordinates are approximate and must be verified on a map before field tests |
+| Runtime backend | Node.js ≥ 22.13 (kết quả bên dưới chạy bằng Node v26.11.1 trên macOS) |
+| Cơ sở dữ liệu cho kiểm thử tự động | SQLite `:memory:`, nạp bằng `db/seed.js` (8 điểm tham quan, 2 tour, 5 mã QR, quản trị viên `admin` / `admin123`) |
+| Dịch vụ bên ngoài trong kiểm thử tự động | Bộ dịch giả (`[src->dst] text`) và TTS giả (byte cố định); tắt giới hạn tần suất |
+| CMS | Đơn vị: Vitest trên Node; E2E: Chrome headless chạy với backend thật đã nạp seed (Cần bổ sung: ghi phiên bản trình duyệt) |
+| Mobile | Kiểm thử đơn vị và kiểm thử live trên Node (jest-expo). Kiểm thử trên thiết bị: ít nhất một máy Android và một máy iOS có GPS (Cần bổ sung: ghi model và phiên bản hệ điều hành); ngày 18/10/2026 chưa có thiết bị hay emulator nào |
+| Khu vực thực địa | Các điểm tham quan Quận 4 trong dữ liệu seed. Toạ độ seed chỉ gần đúng và phải được kiểm tra trên bản đồ trước khi kiểm thử thực địa |
 
-Commands: `cd backend && npm test`; `cd cms && npm test`; `cd mobile && npm test`; `cd mobile && LIVE_API=http://localhost:4000 npx jest backend.live` (backend running with seed data).
+Lệnh: `cd backend && npm test`; `cd cms && npm test`; `cd mobile && npm test`; `cd mobile && LIVE_API=http://localhost:4000 npx jest backend.live` (backend đang chạy với dữ liệu seed).
 
-## 4. Automated test results
+## 4. Kết quả kiểm thử tự động
 
-All runs on 18/10/2026.
+Tất cả chạy ngày 18/10/2026.
 
-| Suite | Command | Result |
+| Bộ kiểm thử | Lệnh | Kết quả |
 |---|---|---|
-| Backend (`backend/tests`) | `npm test` | **43 passed, 0 failed** (≈ 1.1 s) |
-| CMS unit (`cms/src/lib/*.test.ts`) | `npm test` | **36 passed, 0 failed** (3 files) |
-| Mobile unit (`mobile/src/__tests__`) | `npm test` | **62 passed, 0 failed** (5 suites, live suite excluded) |
-| Mobile live-backend | `LIVE_API=… npx jest backend.live` | **5 passed, 0 failed** (against a freshly seeded backend) |
+| Backend (`backend/tests`) | `npm test` | **43 đạt, 0 không đạt** (≈ 1,1 giây) |
+| Đơn vị CMS (`cms/src/lib/*.test.ts`) | `npm test` | **36 đạt, 0 không đạt** (3 file) |
+| Đơn vị mobile (`mobile/src/__tests__`) | `npm test` | **62 đạt, 0 không đạt** (5 bộ, không gồm bộ live) |
+| Mobile với backend thật | `LIVE_API=… npx jest backend.live` | **5 đạt, 0 không đạt** (với backend vừa nạp lại seed) |
 
-Backend tests per file:
+Kiểm thử backend theo từng file:
 
-| Test file | Tests | Passed |
+| File kiểm thử | Số kiểm thử | Đạt |
 |---|---|---|
 | `tests/auth.test.js` | 6 | 6 |
 | `tests/poi.test.js` | 14 | 14 |
@@ -66,147 +66,147 @@ Backend tests per file:
 | `tests/analytics.test.js` | 9 | 9 |
 | `tests/services.test.js` | 4 | 4 |
 
-## 5. Test cases
+## 5. Ca kiểm thử
 
-Status values: **Pass**, **Fail**, **Partial**, **Pending** (not yet executed), **Pending (device)** (requires a phone or emulator), **Blocked**. Backend test names in the source code are in Vietnamese; the English title is given here with the file reference.
+Các giá trị trạng thái: **Đạt**, **Không đạt**, **Đạt một phần**, **Chưa thực hiện**, **Chờ thiết bị** (cần điện thoại hoặc emulator), **Bị chặn**. Tên kiểm thử backend trong mã nguồn viết bằng tiếng Việt; bảng dưới đây ghi tiêu đề kèm tên file tham chiếu.
 
-### 5.1 Backend automated test cases
+### 5.1 Ca kiểm thử tự động phía backend
 
-| ID | Title (file) | Steps / input | Expected result | UC | FR | Status |
+| ID | Tiêu đề (file) | Các bước / đầu vào | Kết quả mong đợi | UC | FR | Trạng thái |
 |---|---|---|---|---|---|---|
-| TC-01 | Login with valid credentials (auth) | POST `/auth/login` admin/admin123 | 200, token returned, user has no `password_hash` | UC3 | FR-20 | Pass |
-| TC-02 | Login with wrong password (auth) | POST `/auth/login` admin/wrong | 401 | UC3 | FR-20 | Pass |
-| TC-03 | Login with missing fields (auth) | POST `/auth/login` `{}` | 400 | UC3 | FR-20 | Pass |
-| TC-04 | Admin API without token (auth) | GET `/admin/pois` without header | 401 | UC3 | FR-20 | Pass |
-| TC-05 | Admin API with forged token (auth) | GET `/admin/pois` with `Bearer abc.def.ghi` | 401 | UC3 | FR-20 | Pass |
-| TC-06 | Change password (auth) | Wrong current password; new password of 4 chars; valid change; login with new password | 400, 400, 204, 200 | UC3 | FR-20 | Pass |
-| TC-07 | List sample POIs (poi) | GET `/admin/pois` | 200, 8 items, languages include `vi` | UC3 | FR-21 | Pass |
-| TC-08 | Search POI by name (poi) | GET `/admin/pois?q=Vĩnh Khánh` | Exactly 1 item | UC3 | FR-21 | Pass |
-| TC-09 | Create valid POI bumps sync version (poi) | Read `/sync/version`; POST valid POI; read version again | 201, 1 translation; new version > old | UC3 | FR-22, FR-28, FR-03 | Pass |
-| TC-10 | Reject radius 0, missing latitude, no content (poi) | POST with `radius_m:0, latitude:'', translations:[]` | 400 with `details.radius_m`, `details.latitude`, `details.translations` | UC3 E1 | FR-25 | Pass |
-| TC-11 | Reject out-of-range coordinates (poi) | POST with lat 91, lng 200 | 400 with `details.latitude` and `details.longitude` | UC3 E1 | FR-25 | Pass |
-| TC-12 | Reject POI without default language (poi) | POST with English text only | 400 | UC3 E1 | FR-25 | Pass |
-| TC-13 | Reject unsupported or duplicate language (poi) | POST with `xx`; POST with `vi` twice | 400, 400 | UC3 E1 | FR-25 | Pass |
-| TC-14 | Edit POI and drop a language (poi) | Create POI with vi+en; PUT with new name, radius 75, vi only | 200, name and radius updated, translations = [vi] | UC3 | FR-22 | Pass |
-| TC-15 | Delete POI (poi) | DELETE; GET; DELETE again | 204, 404, 404 | UC3 A1 | FR-26 | Pass |
-| TC-16 | Invalid id parameter (poi) | GET `/admin/pois/abc` | 400 | UC3 | FR-25 | Pass |
-| TC-17 | Upload audio, serve it, remove it (poi) | POST multipart `audio` (audio/mpeg) to POI 1 `vi`; GET file URL; DELETE audio | 200, `audio_url` `/uploads/audio-*.mp3`, `audio_source` upload; file 200; `audio_url` null after delete | UC3 | FR-24 | Pass |
-| TC-18 | Reject non-audio upload (poi) | POST multipart `application/x-php` | 400 | UC3 | FR-24, NFR-10 | Pass |
-| TC-19 | Generate TTS audio from saved text (poi) | POST `/admin/pois/2/tts/en` | 200, `en` translation has `audio_source` tts | UC3 | FR-24 | Pass |
-| TC-20 | Auto-translate (poi) | POST `/admin/translate` vi→en "Xin chào"; then empty text | 200 with translated text; 400 | UC3 | FR-23 | Pass |
-| TC-21 | Create QR for POI and resolve it (qr-tour) | POST `/admin/pois/3/qrcodes`; GET `/qr/<content>` without auth | 201, content starts with `NARR:`; 200, `poi.id` = 3 with translations | UC2, UC3 A2 | FR-14, FR-27 | Pass |
-| TC-22 | Unknown QR code (qr-tour) | GET `/qr/NARR:khongtontai` | 404 | UC2 E1 | FR-16 | Pass |
-| TC-23 | Payload extraction from URL and prefix (qr-tour) | `extractPayload('https://example.com/q/abcDEF123')`, `extractPayload('NARR:xyz12345')` | `abcDEF123`, `xyz12345` | UC2 | FR-14 | Pass |
-| TC-24 | Delete QR code (qr-tour) | Create QR; DELETE; resolve payload | 204; 404 | UC3 A2 | FR-27 | Pass |
-| TC-25 | Create tour in given order (qr-tour) | POST tour `poi_ids [3,1,2]` | 201, POIs [3,1,2], visit_order [1,2,3] | UC4 | FR-29, FR-30 | Pass |
-| TC-26 | Reject empty tour (qr-tour) | POST tour `poi_ids []` | 400 with `details.poi_ids` | UC4 E1 | FR-31 | Pass |
-| TC-27 | Reject duplicate or unknown POI in tour (qr-tour) | `poi_ids [1,1]`; `poi_ids [999]` | 400, 400 | UC4 E1 | FR-31 | Pass |
-| TC-28 | Edit and delete tour (qr-tour) | Create; PUT name B, `[2,1]`; DELETE; GET | Updated order [2,1]; 204; 404 | UC4 A1 | FR-30, FR-32 | Pass |
-| TC-29 | Sync snapshot content (qr-tour) | GET `/sync` without auth | version ≥ 1, ≥ 8 POIs with translations, ≥ 2 tours with `poi_ids`, ≥ 5 `qrcodes` with payload and `poi_id`, default language `vi` | UC1, UC2, UC4 | FR-02, FR-14, FR-33 | Pass |
-| TC-30 | Deleting a POI removes it from tours (qr-tour) | Create POI; tour [1, new]; delete POI; GET tour | Tour POIs = [1] | UC3 A1 | FR-26 | Pass |
-| TC-31 | Record usage log, single and batch (analytics) | POST one object; POST array of 2 (qr, manual) | 201; `inserted` = 2 | UC1, UC2 | FR-10, FR-18 | Pass |
-| TC-32 | Reject invalid usage log (analytics) | Single record with unknown POI; session id `x`; method `bay` | 400 each | UC1 | FR-10 | Pass |
-| TC-33 | Location samples are rounded (analytics) | POST lat 10.761234567, lng 106.703987654 | 201; stored 10.7612, 106.704 | UC5 | FR-34, NFR-07 | Pass |
-| TC-34 | Analytics report (analytics) | GET `/admin/analytics?from=2020-01-01` after TC-31 to TC-33 | `has_data` true; plays 3; sessions 1; top POI 2 with 2 plays, avg 25 s; heatmap not empty; 1 route without `session_id` | UC5 | FR-36, NFR-07 | Pass |
-| TC-35 | Filter report by tour (analytics) | GET `?tour_id=2&from=2020-01-01` | plays = 2 (only POIs of tour 2) | UC5 | FR-35, FR-36 | Pass |
-| TC-36 | No data in date range (analytics) | GET `?from=2000-01-01&to=2000-01-31` | 200, `has_data` false, plays 0 | UC5 E1 | FR-37 | Pass |
-| TC-37 | Invalid filters (analytics) | `from=abc`; `from` after `to`; `tour_id=999` | 400 each | UC5 | FR-35 | Pass |
-| TC-38 | Demo data feeds charts (analytics) | Start server with `--demo` seed; GET report | plays > 300; daily series > 10 days | UC5 | FR-36 | Pass |
-| TC-39 | TTS text chunking (services) | `splitText` on long Vietnamese text + 400-char word | Every chunk ≤ 180 chars; no characters lost | UC3 | FR-24 | Pass |
-| TC-40 | Translator joins segments, maps `zh` (services) | Fake fetch returns two segments | URL contains `tl=zh-CN`; result `你好世界` | UC3 | FR-23 | Pass |
-| TC-41 | Translator network failure (services) | Fake fetch throws | Rejects with status 502 | UC3 | FR-23 | Pass |
-| TC-42 | `validatePoiInput` normalisation (services) | Name with spaces, string numbers, radius 30.6, empty `en` row | Name trimmed; radius 31; priority 1; 1 translation kept | UC3 | FR-25 | Pass |
-| TC-43 | Batch containing a deleted POI is partially accepted (analytics) | POST batch: one record with POI 999, one valid record | 201, `{inserted: 1, skipped: 1}` | UC1, UC5 | FR-10 | Pass |
+| TC-01 | Đăng nhập với thông tin hợp lệ (auth) | POST `/auth/login` admin/admin123 | 200, trả về token, user không có `password_hash` | UC3 | FR-20 | Đạt |
+| TC-02 | Đăng nhập sai mật khẩu (auth) | POST `/auth/login` admin/wrong | 401 | UC3 | FR-20 | Đạt |
+| TC-03 | Đăng nhập thiếu trường (auth) | POST `/auth/login` `{}` | 400 | UC3 | FR-20 | Đạt |
+| TC-04 | Gọi API quản trị không có token (auth) | GET `/admin/pois` không có header | 401 | UC3 | FR-20 | Đạt |
+| TC-05 | Gọi API quản trị với token giả mạo (auth) | GET `/admin/pois` với `Bearer abc.def.ghi` | 401 | UC3 | FR-20 | Đạt |
+| TC-06 | Đổi mật khẩu (auth) | Sai mật khẩu hiện tại; mật khẩu mới 4 ký tự; đổi hợp lệ; đăng nhập bằng mật khẩu mới | 400, 400, 204, 200 | UC3 | FR-20 | Đạt |
+| TC-07 | Liệt kê điểm tham quan mẫu (poi) | GET `/admin/pois` | 200, 8 phần tử, ngôn ngữ có `vi` | UC3 | FR-21 | Đạt |
+| TC-08 | Tìm điểm tham quan theo tên (poi) | GET `/admin/pois?q=Vĩnh Khánh` | Đúng 1 phần tử | UC3 | FR-21 | Đạt |
+| TC-09 | Tạo điểm tham quan hợp lệ làm tăng phiên bản đồng bộ (poi) | Đọc `/sync/version`; POST điểm hợp lệ; đọc lại phiên bản | 201, 1 bản dịch; phiên bản mới > phiên bản cũ | UC3 | FR-22, FR-28, FR-03 | Đạt |
+| TC-10 | Từ chối bán kính 0, thiếu vĩ độ, không có nội dung (poi) | POST với `radius_m:0, latitude:'', translations:[]` | 400 kèm `details.radius_m`, `details.latitude`, `details.translations` | UC3 E1 | FR-25 | Đạt |
+| TC-11 | Từ chối toạ độ ngoài phạm vi (poi) | POST với lat 91, lng 200 | 400 kèm `details.latitude` và `details.longitude` | UC3 E1 | FR-25 | Đạt |
+| TC-12 | Từ chối điểm tham quan không có ngôn ngữ mặc định (poi) | POST chỉ có văn bản tiếng Anh | 400 | UC3 E1 | FR-25 | Đạt |
+| TC-13 | Từ chối ngôn ngữ không hỗ trợ hoặc trùng lặp (poi) | POST với `xx`; POST với `vi` hai lần | 400, 400 | UC3 E1 | FR-25 | Đạt |
+| TC-14 | Sửa điểm tham quan và bỏ một ngôn ngữ (poi) | Tạo điểm có vi+en; PUT với tên mới, bán kính 75, chỉ vi | 200, tên và bán kính được cập nhật, translations = [vi] | UC3 | FR-22 | Đạt |
+| TC-15 | Xoá điểm tham quan (poi) | DELETE; GET; DELETE lần nữa | 204, 404, 404 | UC3 A1 | FR-26 | Đạt |
+| TC-16 | Tham số id không hợp lệ (poi) | GET `/admin/pois/abc` | 400 | UC3 | FR-25 | Đạt |
+| TC-17 | Tải lên audio, phục vụ file, xoá audio (poi) | POST multipart `audio` (audio/mpeg) cho POI 1 `vi`; GET URL file; DELETE audio | 200, `audio_url` `/uploads/audio-*.mp3`, `audio_source` upload; file trả 200; `audio_url` null sau khi xoá | UC3 | FR-24 | Đạt |
+| TC-18 | Từ chối file tải lên không phải audio (poi) | POST multipart `application/x-php` | 400 | UC3 | FR-24, NFR-10 | Đạt |
+| TC-19 | Tạo audio TTS từ văn bản đã lưu (poi) | POST `/admin/pois/2/tts/en` | 200, bản dịch `en` có `audio_source` tts | UC3 | FR-24 | Đạt |
+| TC-20 | Dịch tự động (poi) | POST `/admin/translate` vi→en "Xin chào"; sau đó văn bản rỗng | 200 kèm văn bản đã dịch; 400 | UC3 | FR-23 | Đạt |
+| TC-21 | Tạo QR cho điểm tham quan và phân giải (qr-tour) | POST `/admin/pois/3/qrcodes`; GET `/qr/<content>` không xác thực | 201, nội dung bắt đầu bằng `NARR:`; 200, `poi.id` = 3 kèm bản dịch | UC2, UC3 A2 | FR-14, FR-27 | Đạt |
+| TC-22 | Mã QR không tồn tại (qr-tour) | GET `/qr/NARR:khongtontai` | 404 | UC2 E1 | FR-16 | Đạt |
+| TC-23 | Tách payload từ URL và tiền tố (qr-tour) | `extractPayload('https://example.com/q/abcDEF123')`, `extractPayload('NARR:xyz12345')` | `abcDEF123`, `xyz12345` | UC2 | FR-14 | Đạt |
+| TC-24 | Xoá mã QR (qr-tour) | Tạo QR; DELETE; phân giải payload | 204; 404 | UC3 A2 | FR-27 | Đạt |
+| TC-25 | Tạo tour theo thứ tự cho trước (qr-tour) | POST tour `poi_ids [3,1,2]` | 201, POI [3,1,2], visit_order [1,2,3] | UC4 | FR-29, FR-30 | Đạt |
+| TC-26 | Từ chối tour rỗng (qr-tour) | POST tour `poi_ids []` | 400 kèm `details.poi_ids` | UC4 E1 | FR-31 | Đạt |
+| TC-27 | Từ chối điểm trùng lặp hoặc không tồn tại trong tour (qr-tour) | `poi_ids [1,1]`; `poi_ids [999]` | 400, 400 | UC4 E1 | FR-31 | Đạt |
+| TC-28 | Sửa và xoá tour (qr-tour) | Tạo; PUT tên B, `[2,1]`; DELETE; GET | Thứ tự cập nhật [2,1]; 204; 404 | UC4 A1 | FR-30, FR-32 | Đạt |
+| TC-29 | Nội dung bản chụp đồng bộ (qr-tour) | GET `/sync` không xác thực | version ≥ 1, ≥ 8 POI kèm bản dịch, ≥ 2 tour có `poi_ids`, ≥ 5 `qrcodes` có payload và `poi_id`, ngôn ngữ mặc định `vi` | UC1, UC2, UC4 | FR-02, FR-14, FR-33 | Đạt |
+| TC-30 | Xoá điểm tham quan thì điểm đó bị gỡ khỏi tour (qr-tour) | Tạo POI; tour [1, mới]; xoá POI; GET tour | POI của tour = [1] | UC3 A1 | FR-26 | Đạt |
+| TC-31 | Ghi nhật ký sử dụng, đơn lẻ và theo lô (analytics) | POST một object; POST mảng 2 phần tử (qr, manual) | 201; `inserted` = 2 | UC1, UC2 | FR-10, FR-18 | Đạt |
+| TC-32 | Từ chối nhật ký sử dụng không hợp lệ (analytics) | Bản ghi đơn có POI không tồn tại; session id `x`; method `bay` | 400 cho mỗi trường hợp | UC1 | FR-10 | Đạt |
+| TC-33 | Mẫu vị trí được làm tròn (analytics) | POST lat 10.761234567, lng 106.703987654 | 201; lưu thành 10.7612, 106.704 | UC5 | FR-34, NFR-07 | Đạt |
+| TC-34 | Báo cáo thống kê (analytics) | GET `/admin/analytics?from=2020-01-01` sau TC-31 đến TC-33 | `has_data` true; 3 lượt phát; 1 phiên; POI đứng đầu là 2 với 2 lượt phát, trung bình 25 giây; bản đồ nhiệt (heatmap) không rỗng; 1 lộ trình không có `session_id` | UC5 | FR-36, NFR-07 | Đạt |
+| TC-35 | Lọc báo cáo theo tour (analytics) | GET `?tour_id=2&from=2020-01-01` | Lượt phát = 2 (chỉ các POI của tour 2) | UC5 | FR-35, FR-36 | Đạt |
+| TC-36 | Không có dữ liệu trong khoảng ngày (analytics) | GET `?from=2000-01-01&to=2000-01-31` | 200, `has_data` false, 0 lượt phát | UC5 E1 | FR-37 | Đạt |
+| TC-37 | Bộ lọc không hợp lệ (analytics) | `from=abc`; `from` sau `to`; `tour_id=999` | 400 cho mỗi trường hợp | UC5 | FR-35 | Đạt |
+| TC-38 | Dữ liệu demo cung cấp cho biểu đồ (analytics) | Khởi động máy chủ với seed `--demo`; GET báo cáo | Lượt phát > 300; chuỗi theo ngày > 10 ngày | UC5 | FR-36 | Đạt |
+| TC-39 | Chia nhỏ văn bản cho TTS (services) | `splitText` với văn bản tiếng Việt dài + một từ 400 ký tự | Mọi đoạn ≤ 180 ký tự; không mất ký tự nào | UC3 | FR-24 | Đạt |
+| TC-40 | Bộ dịch ghép các đoạn, ánh xạ `zh` (services) | Fetch giả trả về hai đoạn | URL chứa `tl=zh-CN`; kết quả `你好世界` | UC3 | FR-23 | Đạt |
+| TC-41 | Bộ dịch lỗi mạng (services) | Fetch giả ném lỗi | Bị từ chối với mã trạng thái 502 | UC3 | FR-23 | Đạt |
+| TC-42 | Chuẩn hoá trong `validatePoiInput` (services) | Tên có khoảng trắng, số ở dạng chuỗi, bán kính 30.6, dòng `en` rỗng | Tên được cắt khoảng trắng; bán kính 31; độ ưu tiên 1; giữ 1 bản dịch | UC3 | FR-25 | Đạt |
+| TC-43 | Lô có điểm tham quan đã xoá được chấp nhận một phần (analytics) | POST lô: một bản ghi có POI 999, một bản ghi hợp lệ | 201, `{inserted: 1, skipped: 1}` | UC1, UC5 | FR-10 | Đạt |
 
-### 5.2 Mobile app test cases
+### 5.2 Ca kiểm thử ứng dụng di động
 
-Evidence: **unit** = jest test in `mobile/src/__tests__/` (62 tests, run 18/10/2026); **live** = `backend.live.test.ts` against a running seeded backend (5 tests). **Pending (device)** = needs a phone, emulator or simulator; the app has not yet been run on any device.
+Bằng chứng: **unit** = kiểm thử jest trong `mobile/src/__tests__/` (62 kiểm thử, chạy 18/10/2026); **live** = `backend.live.test.ts` chạy với backend thật đã nạp seed (5 kiểm thử). **Chờ thiết bị** = cần điện thoại, emulator hoặc simulator; ứng dụng chưa được chạy trên bất kỳ thiết bị nào.
 
-| ID | Title | Steps | Expected result | UC | FR | Evidence | Status |
+| ID | Tiêu đề | Các bước | Kết quả mong đợi | UC | FR | Bằng chứng | Trạng thái |
 |---|---|---|---|---|---|---|---|
-| TC-44 | Location permission denied | Fresh install; deny location | Explanation with "Open Settings" and "Retry"; automatic narration off; QR and manual play usable | UC1 E1 | FR-01 | – | Pending (device) |
-| TC-45 | Sync decision and bundle validation | `planSync`, `validateBundle`, `diffBundles` with synthetic data | Download when no data, different version or old local format; skip when equal; malformed POIs and dangling tour/QR references removed; bundle without `qrcodes` accepted | UC1 | FR-02, FR-03 | unit (`sync-qr.test.ts`) | Pass |
-| TC-46 | First sync on device | Fresh install, online; open app | Snapshot stored in SQLite; POIs on map; Settings shows content version | UC1 | FR-02 | – | Pending (device) |
-| TC-47 | Version check matches server | Live: `/api/sync/version` vs `/api/sync` | Same version number | UC1 | FR-03 | live | Pass |
-| TC-48 | Background location | Dev build; enable "Keep running in background"; grant "Always"; lock screen and move | Updates continue; narration on entry; Android shows foreground-service notification | UC1 | FR-04 | – | Pending (device) |
-| TC-49 | Geofence entry once per visit | Fixes approaching a POI, then inside; exactly at radius | One trigger; distance = radius counts as inside | UC1 | FR-05 | unit (`geofence.test.ts`) | Pass |
-| TC-50 | Accuracy filter | Fix inside radius with accuracy 80 m; accuracy unknown | First ignored; null accuracy processed | UC1 | FR-05 | unit | Pass |
-| TC-51 | Priority, distance, tie-break | Overlapping POIs with different and equal priorities; leave the high-priority POI while still inside a lower one | Highest priority; then nearest; then lower id; lower POI triggered after leaving the higher | UC1 | FR-06 | unit | Pass |
-| TC-52 | Exit hysteresis and boundary jitter | Oscillate around the boundary; exit beyond 1.2 × radius and re-enter | No repeated trigger while oscillating; new visit triggers again after a real exit | UC1 | FR-07 | unit | Pass |
-| TC-53 | Discard while playing | Geofence trigger during playback | Rejected as `busy`, not queued | UC1 A1 | FR-08 | unit (`cooldown.test.ts`) | Pass |
-| TC-54 | Cooldown window | Play POI A; trigger A inside and after the window; other POI; configured minutes; invalid value | Rejected inside window, allowed after; other POI unaffected; invalid value falls back to 10 min | UC1 A1 | FR-08 | unit | Pass |
-| TC-55 | Source selection and audio failure | POI with downloaded file; with server URL online; offline without file; audio error | Local file; else server URL; else TTS in the right language; audio error switches to TTS with exactly one log | UC1 | FR-09, FR-10 | unit | Pass |
-| TC-56 | Language fallback | Selected language missing; empty translation; only audio; no Vietnamese | Vietnamese used and flagged; empty rows ignored; audio-only valid; otherwise any language with content; TTS locale exists for all 6 languages | UC1, UC2 A1 | FR-09 | unit (`language.test.ts`) | Pass |
-| TC-57 | Manual and QR interrupt | Manual play during a narration | Previous narration stopped and logged; new one plays without cooldown | UC2 | FR-15 | unit | Pass |
-| TC-58 | Anonymous logging policy | Location samples at intervals/distances; session ID format; batching | First sample kept; ~30 s when still; ≥ 25 m but ≥ 5 s apart when moving; session ID matches server rule; batches ≤ size; server rejects bad session ID | UC5 | FR-10, FR-34 | unit, live | Pass |
-| TC-59 | Offline log queue upload | Airplane mode; play 3 narrations; reconnect | Records queued, uploaded within ~60 s, removed after 201, visible in CMS | UC1, UC5 | FR-10, FR-34 | – | Pending (device) |
-| TC-60 | No data and offline | Fresh install in airplane mode | "You are offline and no data is stored on this device…" | UC1 E2 | FR-11 | – | Pending (device) |
-| TC-61 | Simulated tour walk triggers POIs in order | Live: run the simulation path for every seeded tour through the geofence engine | Every stop triggered in tour order | UC1 | FR-12 | live | Pass |
-| TC-62 | Simulation mode on screen | Settings → Location simulation; tap map inside a circle; "Simulate walking this tour" | Narration starts; marker walks the tour and pauses while playing | UC1 | FR-12 | – | Pending (device) |
-| TC-63 | QR payload parsing | `NARR:<code>`, URL `.../q/<code>`, bare code, garbage | Code extracted; garbage rejected (E1); API path URL-encoded | UC2 | FR-14, FR-16 | unit | Pass |
-| TC-64 | QR codes resolve consistently | Live: resolve every synced QR via `/api/qr`; invalid code | Same POI as the snapshot; 404 for invalid | UC2 | FR-14, FR-16 | live | Pass |
-| TC-65 | Camera scanning | Scan tab; allow camera; scan printed code; also "Enter code manually" | Code decoded and resolved | UC2 | FR-13 | – | Pending (device) |
-| TC-66 | QR plays immediately in selected language | Select English; GPS off; scan seeded code | English narration starts at once; log method `qr` | UC2, A1 | FR-15, FR-18 | – | Pending (device) |
-| TC-67 | Invalid QR on screen | Scan a QR with arbitrary text | "Invalid QR code" | UC2 E1 | FR-16 | – | Pending (device) |
-| TC-68 | Offline QR | Airplane mode after sync: scan a synced code; scan an unknown code | Synced code plays ("Using saved data (offline)"); unknown code shows the offline message (E2) | UC2 E2 | FR-14, FR-17 | – | Pending (device) |
-| TC-69 | Language setting | Change narration language; restart app | Setting persisted in SQLite; UI switches Vietnamese/English | UC2 A1 | FR-19 | – | Pending (device) |
-| TC-70 | Tours in the app | Tours tab → tour → "Follow this tour" | Stops in order with next-stop distance; completion message | UC4 | FR-33 | – | Pending (device) |
-| TC-71 | Map rendering | Map tab online and offline | Leaflet map with POI circles and legend; offline: circles without background tiles | UC1 | FR-04 | unit (HTML syntax only) | Pending (device) |
+| TC-44 | Từ chối quyền vị trí | Cài mới; từ chối quyền vị trí | Có lời giải thích kèm nút "Mở Cài đặt" và "Thử lại"; tắt thuyết minh tự động; vẫn dùng được QR và phát thủ công | UC1 E1 | FR-01 | – | Chờ thiết bị |
+| TC-45 | Quyết định đồng bộ và kiểm tra gói dữ liệu | `planSync`, `validateBundle`, `diffBundles` với dữ liệu tổng hợp | Tải về khi chưa có dữ liệu, khác phiên bản hoặc định dạng cục bộ cũ; bỏ qua khi bằng nhau; loại bỏ POI sai định dạng và tham chiếu tour/QR treo; chấp nhận gói không có `qrcodes` | UC1 | FR-02, FR-03 | unit (`sync-qr.test.ts`) | Đạt |
+| TC-46 | Đồng bộ lần đầu trên thiết bị | Cài mới, có mạng; mở ứng dụng | Bản chụp được lưu vào SQLite; POI hiện trên bản đồ; màn hình Cài đặt hiển thị phiên bản nội dung | UC1 | FR-02 | – | Chờ thiết bị |
+| TC-47 | Kiểm tra phiên bản khớp máy chủ | Live: `/api/sync/version` so với `/api/sync` | Cùng số phiên bản | UC1 | FR-03 | live | Đạt |
+| TC-48 | Định vị nền | Bản dev build; bật "Tiếp tục khi chạy nền"; cấp quyền "Luôn luôn"; khoá màn hình và di chuyển | Vị trí tiếp tục cập nhật; thuyết minh khi đi vào vùng; Android hiển thị thông báo foreground service | UC1 | FR-04 | – | Chờ thiết bị |
+| TC-49 | Đi vào vùng kích hoạt một lần mỗi lượt ghé | Các vị trí tiến lại gần POI, rồi vào bên trong; đúng bằng bán kính | Kích hoạt một lần; khoảng cách = bán kính được tính là bên trong | UC1 | FR-05 | unit (`geofence.test.ts`) | Đạt |
+| TC-50 | Lọc theo độ chính xác | Vị trí trong bán kính với độ chính xác 80 m; độ chính xác không xác định | Vị trí thứ nhất bị bỏ qua; độ chính xác null vẫn được xử lý | UC1 | FR-05 | unit | Đạt |
+| TC-51 | Độ ưu tiên, khoảng cách, phá thế hoà | Các POI chồng lấn có độ ưu tiên khác nhau và bằng nhau; rời POI ưu tiên cao trong khi vẫn ở trong POI ưu tiên thấp hơn | Chọn độ ưu tiên cao nhất; rồi gần nhất; rồi id nhỏ hơn; POI thấp hơn được kích hoạt sau khi rời POI cao hơn | UC1 | FR-06 | unit | Đạt |
+| TC-52 | Trễ khi ra và dao động tại biên | Dao động quanh biên; ra ngoài quá 1.2 × bán kính rồi vào lại | Không kích hoạt lặp khi dao động; lượt ghé mới kích hoạt lại sau khi thật sự ra ngoài | UC1 | FR-07 | unit | Đạt |
+| TC-53 | Huỷ bỏ khi đang phát | Kích hoạt geofence trong lúc đang phát | Bị từ chối với lý do `busy`, không xếp hàng | UC1 A1 | FR-08 | unit (`cooldown.test.ts`) | Đạt |
+| TC-54 | Khoảng thời gian chờ phát lại | Phát POI A; kích hoạt A trong và sau khoảng chờ; POI khác; số phút cấu hình; giá trị không hợp lệ | Bị từ chối trong khoảng chờ, được phép sau đó; POI khác không bị ảnh hưởng; giá trị không hợp lệ trở về 10 phút | UC1 A1 | FR-08 | unit | Đạt |
+| TC-55 | Chọn nguồn phát và lỗi audio | POI có file đã tải; có URL máy chủ khi online; offline không có file; lỗi audio | File cục bộ; nếu không thì URL máy chủ; nếu không thì TTS đúng ngôn ngữ; lỗi audio chuyển sang TTS và ghi đúng một nhật ký | UC1 | FR-09, FR-10 | unit | Đạt |
+| TC-56 | Ngôn ngữ dự phòng | Thiếu ngôn ngữ được chọn; bản dịch rỗng; chỉ có audio; không có tiếng Việt | Dùng tiếng Việt và có đánh dấu; bỏ qua dòng rỗng; chỉ có audio vẫn hợp lệ; nếu không thì dùng bất kỳ ngôn ngữ nào có nội dung; có locale TTS cho cả 6 ngôn ngữ | UC1, UC2 A1 | FR-09 | unit (`language.test.ts`) | Đạt |
+| TC-57 | Phát thủ công và QR ngắt thuyết minh đang phát | Phát thủ công trong lúc đang thuyết minh | Thuyết minh trước bị dừng và được ghi nhật ký; thuyết minh mới phát không qua thời gian chờ phát lại | UC2 | FR-15 | unit | Đạt |
+| TC-58 | Chính sách ghi nhật ký ẩn danh | Mẫu vị trí theo khoảng thời gian/khoảng cách; định dạng session ID; chia lô | Giữ mẫu đầu tiên; ~30 giây khi đứng yên; ≥ 25 m nhưng cách nhau ≥ 5 giây khi di chuyển; session ID khớp quy tắc của máy chủ; lô ≤ kích thước quy định; máy chủ từ chối session ID sai | UC5 | FR-10, FR-34 | unit, live | Đạt |
+| TC-59 | Gửi hàng đợi nhật ký ngoại tuyến | Chế độ máy bay; phát 3 thuyết minh; kết nối lại | Bản ghi được xếp hàng, gửi lên trong ~60 giây, bị xoá sau khi nhận 201, hiển thị trên CMS | UC1, UC5 | FR-10, FR-34 | – | Chờ thiết bị |
+| TC-60 | Không có dữ liệu và ngoại tuyến | Cài mới khi đang bật chế độ máy bay | "Bạn đang ngoại tuyến và máy chưa có dữ liệu…" | UC1 E2 | FR-11 | – | Chờ thiết bị |
+| TC-61 | Đi bộ mô phỏng theo tour kích hoạt POI đúng thứ tự | Live: chạy lộ trình mô phỏng của mọi tour trong seed qua bộ máy geofence | Mọi điểm dừng được kích hoạt theo thứ tự của tour | UC1 | FR-12 | live | Đạt |
+| TC-62 | Chế độ mô phỏng vị trí trên màn hình | Cài đặt → Mô phỏng vị trí; chạm vào bản đồ bên trong một vòng tròn; "Mô phỏng đi bộ theo tour" | Thuyết minh bắt đầu; điểm đánh dấu đi theo tour và tạm dừng khi đang phát | UC1 | FR-12 | – | Chờ thiết bị |
+| TC-63 | Phân tích payload QR | `NARR:<code>`, URL `.../q/<code>`, mã trần, chuỗi rác | Tách được mã; chuỗi rác bị từ chối (E1); đường dẫn API được mã hoá URL | UC2 | FR-14, FR-16 | unit | Đạt |
+| TC-64 | Mã QR phân giải nhất quán | Live: phân giải mọi QR đã đồng bộ qua `/api/qr`; mã không hợp lệ | Cùng POI với bản chụp; 404 với mã không hợp lệ | UC2 | FR-14, FR-16 | live | Đạt |
+| TC-65 | Quét bằng camera | Tab Quét QR; cho phép camera; quét mã đã in; thử cả "Nhập mã thủ công" | Mã được giải và phân giải | UC2 | FR-13 | – | Chờ thiết bị |
+| TC-66 | QR phát ngay bằng ngôn ngữ được chọn | Chọn tiếng Anh; tắt GPS; quét mã trong seed | Thuyết minh tiếng Anh bắt đầu ngay; nhật ký có method `qr` | UC2, A1 | FR-15, FR-18 | – | Chờ thiết bị |
+| TC-67 | QR không hợp lệ trên màn hình | Quét một QR chứa văn bản bất kỳ | "Mã QR không hợp lệ" | UC2 E1 | FR-16 | – | Chờ thiết bị |
+| TC-68 | QR khi ngoại tuyến | Bật chế độ máy bay sau khi đồng bộ: quét một mã đã đồng bộ; quét một mã chưa biết | Mã đã đồng bộ được phát ("Dùng dữ liệu đã lưu (ngoại tuyến)"); mã chưa biết hiển thị thông báo ngoại tuyến (E2) | UC2 E2 | FR-14, FR-17 | – | Chờ thiết bị |
+| TC-69 | Cài đặt ngôn ngữ | Đổi ngôn ngữ thuyết minh; khởi động lại ứng dụng | Cài đặt được lưu trong SQLite; giao diện chuyển tiếng Việt/tiếng Anh | UC2 A1 | FR-19 | – | Chờ thiết bị |
+| TC-70 | Tour trong ứng dụng | Tab Tour → chọn tour → "Đi theo tour này" | Các điểm dừng theo thứ tự kèm khoảng cách tới điểm kế tiếp; thông báo hoàn thành | UC4 | FR-33 | – | Chờ thiết bị |
+| TC-71 | Hiển thị bản đồ | Tab Bản đồ khi có mạng và ngoại tuyến | Bản đồ Leaflet có vòng tròn POI và chú giải; ngoại tuyến: có vòng tròn nhưng không có lớp nền bản đồ | UC1 | FR-04 | unit (chỉ cú pháp HTML) | Chờ thiết bị |
 
-Static checks also passed on 18/10/2026 (reported by the mobile developer): `tsc --noEmit` clean, `expo-doctor` 20/20, `expo export` for Android and iOS succeeded.
+Các kiểm tra tĩnh cũng đạt ngày 18/10/2026 (do lập trình viên mobile báo cáo): `tsc --noEmit` không lỗi, `expo-doctor` 20/20, `expo export` cho Android và iOS thành công.
 
-### 5.3 CMS test cases
+### 5.3 Ca kiểm thử CMS
 
-Evidence: **unit** = vitest in `cms/src/lib/*.test.ts` (36 tests, run 18/10/2026); **browser E2E** = scripted run in headless Chrome against the live backend with seed data, carried out by the CMS developer on 18/10/2026.
+Bằng chứng: **unit** = vitest trong `cms/src/lib/*.test.ts` (36 kiểm thử, chạy 18/10/2026); **browser E2E** = chạy kịch bản trên Chrome headless với backend thật có dữ liệu seed, do lập trình viên CMS thực hiện ngày 18/10/2026.
 
-| ID | Title | Steps | Expected result | UC | FR | Evidence | Status |
+| ID | Tiêu đề | Các bước | Kết quả mong đợi | UC | FR | Bằng chứng | Trạng thái |
 |---|---|---|---|---|---|---|---|
-| TC-72 | API client behaviour | Unit tests of `lib/api.ts` | Bearer token sent; JSON and multipart handled; 400 → `ApiError` with field details; 401 from admin API calls `onUnauthorized`, 401 from login does not; network error mapped | UC3–UC5 | FR-20, FR-25 | unit (`api.test.ts`) | Pass |
-| TC-73 | Login, logout, redirect on 401 | Log in; open protected page with invalid token | Dashboard after login; redirect to `/login?next=…` and back after login | UC3 | FR-20 | browser E2E | Pass |
-| TC-74 | POI create/edit with map | "Add POI"; click map, drag pin; fill fields; save; edit | Coordinates from map; POI saved, listed and editable | UC3 | FR-21, FR-22 | browser E2E | Pass |
-| TC-75 | Client-side validation and server errors | Unit tests of `lib/validation.ts` | Range errors for coordinates, radius, priority; Vietnamese text required; server `details` mapped to fields | UC3 E1 | FR-25 | unit (`validation.test.ts`) | Pass |
-| TC-76 | Auto-translate | "Translate from Vietnamese" and "Translate all empty languages" | Tabs filled with live machine translation, editable | UC3 | FR-23 | browser E2E | Pass |
-| TC-77 | Audio upload, TTS, remove | Upload file; "Create voice"; preview; remove audio | Audio playable; source shown; removal reflected | UC3 | FR-24 | browser E2E | Pass |
-| TC-78 | Image upload | Upload image in POI form; save | Image shown and stored in `image_url` | UC3 | FR-22 | browser E2E | Pass |
-| TC-79 | Delete POI with confirmation | Delete; cancel; delete and confirm | Cancel keeps POI; confirm removes it | UC3 A1 | FR-26 | browser E2E (POI CRUD) | Pass |
-| TC-80 | Unsaved-changes warning | Edit form; navigate away | Confirmation dialog shown | UC3 | NFR-13 | browser E2E | Pass |
-| TC-81 | QR create and download | In POI page create QR with label; download PNG | QR listed with label; PNG downloaded | UC3 A2 | FR-27 | browser E2E | Pass |
-| TC-82 | QR print sheet | QR page; select codes; "Print QR sheet"; print | A4 sheet, 4 codes per page with labels | UC3 A2 | FR-27 | – (print dialog not verified) | Pending |
-| TC-83 | Tour create and reorder | New tour; add POIs; reorder by drag and by keyboard; save | Numbered polyline follows order; saved order matches | UC4 | FR-29, FR-30 | browser E2E | Pass |
-| TC-84 | Empty tour blocked | Save tour without POIs | Error shown, not saved | UC4 E1 | FR-31 | unit + backend TC-26 | Pass |
-| TC-85 | Delete tour with confirmation | Delete tour; confirm | Removed only after confirmation | UC4 A1 | FR-32 | – | Pending |
-| TC-86 | Analytics dashboard | Seed `--demo`; open Analytics; change date presets and tour filter; toggle routes | KPIs, charts, heatmap and routes update; hourly chart in Vietnam time | UC5 | FR-35 to FR-37 | browser E2E; unit (`format.test.ts`) | Pass |
-| TC-87 | No-data state | Filter an empty date range | "No data" message (UC5 E1) | UC5 E1 | FR-37 | browser E2E | Pass |
-| TC-88 | Excel export | "Export Excel" | Multi-sheet .xlsx downloaded | UC5 A1 | FR-38 | browser E2E; unit (`reportSheets`) | Pass |
-| TC-89 | PDF export | "Export PDF" → report page → "Print / Save as PDF" | Print-optimised report renders; browser saves PDF | UC5 A1 | FR-38 | browser E2E (report page only) | Partial: page Pass, real print dialog Pending |
-| TC-90 | Change password in CMS | Account → change password with wrong and valid current password | Field errors for wrong input; success message; new password works | UC3 | FR-20 | unit (form rule); backend TC-06 | Pending |
-| TC-91 | Responsive layout | 375 px wide viewport on all pages | No horizontal page scroll; menu collapses | – | NFR-12 | browser E2E | Pass |
-| TC-92 | Production build behind proxy | `npm run build` with `VITE_API_URL`; serve `dist/` behind reverse proxy | Pages load; API and `/uploads` reach the backend | – | – | – | Pending |
+| TC-72 | Hành vi của API client | Kiểm thử đơn vị `lib/api.ts` | Gửi Bearer token; xử lý được JSON và multipart; 400 → `ApiError` kèm chi tiết theo trường; 401 từ API quản trị gọi `onUnauthorized`, 401 từ đăng nhập thì không; lỗi mạng được ánh xạ | UC3–UC5 | FR-20, FR-25 | unit (`api.test.ts`) | Đạt |
+| TC-73 | Đăng nhập, đăng xuất, chuyển hướng khi 401 | Đăng nhập; mở trang được bảo vệ với token không hợp lệ | Vào trang Tổng quan sau khi đăng nhập; chuyển hướng tới `/login?next=…` rồi quay lại sau khi đăng nhập | UC3 | FR-20 | browser E2E | Đạt |
+| TC-74 | Tạo/sửa điểm tham quan với bản đồ | "Thêm điểm"; nhấp bản đồ, kéo ghim; điền các trường; lưu; sửa | Toạ độ lấy từ bản đồ; điểm được lưu, hiển thị trong danh sách và sửa được | UC3 | FR-21, FR-22 | browser E2E | Đạt |
+| TC-75 | Kiểm tra phía client và lỗi từ máy chủ | Kiểm thử đơn vị `lib/validation.ts` | Báo lỗi phạm vi cho toạ độ, bán kính, độ ưu tiên; bắt buộc văn bản tiếng Việt; `details` từ máy chủ được ánh xạ vào các trường | UC3 E1 | FR-25 | unit (`validation.test.ts`) | Đạt |
+| TC-76 | Dịch tự động | "Dịch tự động từ tiếng Việt" và "Dịch tất cả ngôn ngữ còn trống" | Các tab được điền bằng bản dịch máy thật, sửa được | UC3 | FR-23 | browser E2E | Đạt |
+| TC-77 | Tải lên audio, TTS, xoá | Tải file lên; "Tạo giọng đọc (TTS)"; nghe thử; xoá audio | Audio phát được; hiển thị nguồn audio; việc xoá được phản ánh | UC3 | FR-24 | browser E2E | Đạt |
+| TC-78 | Tải lên ảnh | Tải ảnh lên trong biểu mẫu điểm tham quan; lưu | Ảnh hiển thị và được lưu vào `image_url` | UC3 | FR-22 | browser E2E | Đạt |
+| TC-79 | Xoá điểm tham quan có xác nhận | Xoá; huỷ; xoá và xác nhận | Huỷ thì giữ điểm; xác nhận thì xoá | UC3 A1 | FR-26 | browser E2E (CRUD điểm tham quan) | Đạt |
+| TC-80 | Cảnh báo thay đổi chưa lưu | Sửa biểu mẫu; rời trang | Hiển thị hộp thoại xác nhận | UC3 | NFR-13 | browser E2E | Đạt |
+| TC-81 | Tạo và tải về QR | Trong trang điểm tham quan, tạo QR có nhãn; tải PNG | QR hiển thị trong danh sách kèm nhãn; tải được PNG | UC3 A2 | FR-27 | browser E2E | Đạt |
+| TC-82 | Trang in QR | Trang Mã QR; chọn các mã; "In bảng mã"; in | Trang A4, 4 mã mỗi trang kèm nhãn | UC3 A2 | FR-27 | – (chưa kiểm chứng hộp thoại in) | Chưa thực hiện |
+| TC-83 | Tạo tour và sắp xếp lại | Tour mới; thêm điểm; sắp xếp lại bằng kéo thả và bằng bàn phím; lưu | Đường nối có đánh số theo đúng thứ tự; thứ tự đã lưu khớp | UC4 | FR-29, FR-30 | browser E2E | Đạt |
+| TC-84 | Chặn tour rỗng | Lưu tour không có điểm nào | Hiển thị lỗi, không lưu | UC4 E1 | FR-31 | unit + backend TC-26 | Đạt |
+| TC-85 | Xoá tour có xác nhận | Xoá tour; xác nhận | Chỉ bị xoá sau khi xác nhận | UC4 A1 | FR-32 | – | Chưa thực hiện |
+| TC-86 | Bảng điều khiển thống kê | Seed `--demo`; mở Thống kê; đổi mốc ngày định sẵn và bộ lọc tour; bật/tắt lộ trình | KPI, biểu đồ, bản đồ nhiệt và lộ trình được cập nhật; biểu đồ theo giờ dùng giờ Việt Nam | UC5 | FR-35 đến FR-37 | browser E2E; unit (`format.test.ts`) | Đạt |
+| TC-87 | Trạng thái không có dữ liệu | Lọc một khoảng ngày trống | Thông báo "Không có dữ liệu" (UC5 E1) | UC5 E1 | FR-37 | browser E2E | Đạt |
+| TC-88 | Xuất Excel | "Xuất Excel" | Tải về file .xlsx nhiều sheet | UC5 A1 | FR-38 | browser E2E; unit (`reportSheets`) | Đạt |
+| TC-89 | Xuất PDF | "Xuất PDF" → trang báo cáo → "In / Lưu PDF" | Trang báo cáo tối ưu cho in hiển thị đúng; trình duyệt lưu được PDF | UC5 A1 | FR-38 | browser E2E (chỉ trang báo cáo) | Đạt một phần: trang báo cáo Đạt, hộp thoại in thật Chưa thực hiện |
+| TC-90 | Đổi mật khẩu trên CMS | Tài khoản → đổi mật khẩu với mật khẩu hiện tại sai và đúng | Lỗi theo trường khi nhập sai; thông báo thành công; mật khẩu mới dùng được | UC3 | FR-20 | unit (quy tắc biểu mẫu); backend TC-06 | Chưa thực hiện |
+| TC-91 | Bố cục responsive | Khung nhìn rộng 375 px trên mọi trang | Trang không cuộn ngang; menu thu gọn | – | NFR-12 | browser E2E | Đạt |
+| TC-92 | Bản build production sau proxy | `npm run build` với `VITE_API_URL`; phục vụ `dist/` sau reverse proxy | Các trang tải được; API và `/uploads` tới được backend | – | – | – | Chưa thực hiện |
 
-Not yet verified for the CMS: real print dialog, successful password change through the UI, screen-reader use, production build behind `VITE_API_URL`.
+Những mục CMS chưa được kiểm chứng: hộp thoại in thật, đổi mật khẩu thành công qua giao diện, dùng với trình đọc màn hình, bản build production với `VITE_API_URL`.
 
-## 6. Manual field-test checklist (GPS at real POIs)
+## 6. Danh sách kiểm tra thực địa thủ công (GPS tại điểm tham quan thật)
 
-No field test has been carried out yet. Record date, device, OS, weather and tester for each run.
+Chưa thực hiện lần kiểm thử thực địa nào. Mỗi lần chạy cần ghi ngày, thiết bị, hệ điều hành, thời tiết và người kiểm thử.
 
-Preparation:
-- [ ] Verify each seed POI coordinate on a map (seed values are approximate) and correct it in the CMS.
-- [ ] Production or LAN backend reachable from phones; content synced on every test device.
-- [ ] Print the bus-stop QR codes from the CMS (A5 or larger) and take them to the stops.
-- [ ] Charge devices; note battery level at start.
-- [ ] Simulation mode OFF.
+Chuẩn bị:
+- [ ] Kiểm tra toạ độ từng điểm tham quan seed trên bản đồ (giá trị seed chỉ gần đúng) và sửa lại trên CMS.
+- [ ] Backend production hoặc trong mạng LAN mà điện thoại truy cập được; nội dung đã đồng bộ trên mọi thiết bị kiểm thử.
+- [ ] In mã QR trạm xe buýt từ CMS (khổ A5 trở lên) và mang ra các trạm.
+- [ ] Sạc đầy thiết bị; ghi mức pin lúc bắt đầu.
+- [ ] TẮT chế độ mô phỏng vị trí.
 
-| ID | Check | Procedure | Pass criterion | FR / NFR | Result |
+| ID | Hạng mục kiểm tra | Cách thực hiện | Tiêu chí đạt | FR / NFR | Kết quả |
 |---|---|---|---|---|---|
-| FT-01 | Permissions on real devices | Fresh install on Android and iOS; grant "while using" then "always" location; camera | Prompts appear with clear purpose text; app works in both modes | FR-01, FR-04, FR-13 | Pending (device) |
-| FT-02 | Entry trigger distance | Walk towards each of at least 3 POIs from 200 m away at normal pace; note GPS distance when narration starts | Narration starts within radius and within 2 s of the app detecting entry; record actual trigger distance | FR-05, NFR-01, NFR-02 | Pending (device) |
-| FT-03 | Background and locked screen | Repeat FT-02 with app in background and screen locked | Narration still plays (record OS-specific limits if not) | FR-04 | Pending (device) |
-| FT-04 | Boundary jitter | Stand at the radius boundary for 3 minutes | At most one narration | FR-07 | Pending (device) |
-| FT-05 | Cooldown | Leave a POI and come back within 10 minutes; again after 10 minutes | No replay; then replay | FR-08 | Pending (device) |
-| FT-06 | QR at bus stops | Scan the installed codes at Khanh Hoi, Vinh Hoi and Xom Chieu stops in daylight and in the evening | Narration starts immediately; method recorded as `qr` | FR-15, FR-18 | Pending (device) |
-| FT-07 | Offline operation | Sync, enable airplane mode, walk to two POIs, then reconnect | Narration works offline; logs appear in CMS after reconnect | NFR-04, FR-10 | Pending (device) |
-| FT-08 | Overlapping POIs | Walk where two geofences overlap (e.g. Vinh Khanh food street and Vinh Hoi bus stop, if overlapping after coordinate check) | Higher-priority POI plays; the other is not queued | FR-06, FR-08 | Pending (device) |
-| FT-09 | Battery and data use | Run the app for 1 hour of walking | Record battery drop and mobile data used; no crash | NFR (usability) | Pending (device) |
+| FT-01 | Quyền trên thiết bị thật | Cài mới trên Android và iOS; cấp quyền vị trí "khi đang dùng" rồi "luôn luôn"; camera | Hộp thoại xin quyền hiện ra với mô tả mục đích rõ ràng; ứng dụng hoạt động ở cả hai chế độ | FR-01, FR-04, FR-13 | Chờ thiết bị |
+| FT-02 | Khoảng cách kích hoạt khi đi vào | Đi bộ với tốc độ bình thường tới ít nhất 3 điểm tham quan, bắt đầu từ cách 200 m; ghi khoảng cách GPS lúc thuyết minh bắt đầu | Thuyết minh bắt đầu trong bán kính và trong vòng 2 giây kể từ khi ứng dụng phát hiện đi vào; ghi lại khoảng cách kích hoạt thực tế | FR-05, NFR-01, NFR-02 | Chờ thiết bị |
+| FT-03 | Chạy nền và khoá màn hình | Lặp lại FT-02 khi ứng dụng chạy nền và màn hình đã khoá | Thuyết minh vẫn phát (nếu không, ghi lại giới hạn riêng của hệ điều hành) | FR-04 | Chờ thiết bị |
+| FT-04 | Dao động tại biên | Đứng tại biên bán kính trong 3 phút | Nhiều nhất một lần thuyết minh | FR-07 | Chờ thiết bị |
+| FT-05 | Thời gian chờ phát lại | Rời một điểm tham quan rồi quay lại trong vòng 10 phút; quay lại lần nữa sau 10 phút | Không phát lại; sau đó phát lại | FR-08 | Chờ thiết bị |
+| FT-06 | QR tại trạm xe buýt | Quét các mã đã lắp tại trạm Khánh Hội, Vĩnh Hội và Xóm Chiếu vào ban ngày và buổi tối | Thuyết minh bắt đầu ngay; cách kích hoạt được ghi là `qr` | FR-15, FR-18 | Chờ thiết bị |
+| FT-07 | Hoạt động ngoại tuyến | Đồng bộ, bật chế độ máy bay, đi bộ tới hai điểm tham quan, rồi kết nối lại | Thuyết minh hoạt động khi ngoại tuyến; nhật ký xuất hiện trên CMS sau khi kết nối lại | NFR-04, FR-10 | Chờ thiết bị |
+| FT-08 | Điểm tham quan chồng lấn | Đi tới nơi hai vùng kích hoạt chồng lên nhau (ví dụ phố ẩm thực Vĩnh Khánh và trạm xe buýt Vĩnh Hội, nếu vẫn chồng lấn sau khi kiểm tra toạ độ) | Điểm có độ ưu tiên cao hơn được phát; điểm còn lại không bị xếp hàng | FR-06, FR-08 | Chờ thiết bị |
+| FT-09 | Mức dùng pin và dữ liệu | Chạy ứng dụng trong 1 giờ đi bộ | Ghi mức sụt pin và lượng dữ liệu di động đã dùng; không bị crash | NFR (tính dễ dùng) | Chờ thiết bị |
 
-## 7. Traceability summary
-Every FR in `01-SRS.md` §4 has at least one test case. Server-side behaviour is covered by the 43 passing backend tests. Mobile logic (geofence, cooldown, narration, language fallback, QR parsing, sync decisions, logging policy) is covered by passing unit and live tests; everything that needs the device runtime (permissions, GPS, background location, camera, audio/TTS output, map, on-device SQLite) is Pending (device). CMS behaviour is covered by unit tests and a browser E2E run, except the items listed at the end of §5.3.
+## 7. Tóm tắt truy vết
+Mọi FR trong `01-SRS.md` §4 đều có ít nhất một ca kiểm thử. Hành vi phía máy chủ được bao phủ bởi 43 kiểm thử backend đều đạt. Logic mobile (geofence, thời gian chờ phát lại, thuyết minh, ngôn ngữ dự phòng, phân tích QR, quyết định đồng bộ, chính sách ghi nhật ký) được bao phủ bởi các kiểm thử unit và live đều đạt; mọi thứ cần môi trường chạy trên thiết bị (quyền, GPS, định vị nền, camera, phát audio/TTS, bản đồ, SQLite trên thiết bị) đều ở trạng thái Chờ thiết bị. Hành vi CMS được bao phủ bởi kiểm thử đơn vị và một lần chạy browser E2E, trừ các mục liệt kê ở cuối §5.3.
