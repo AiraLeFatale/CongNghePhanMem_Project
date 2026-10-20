@@ -104,6 +104,10 @@ flowchart LR
     EXPORT -. "extend (A1)" .-> UC5
 ```
 
+Bản vẽ cùng nội dung theo ký hiệu UML (hình người, hình elip), dùng cho báo cáo:
+
+![Sơ đồ ca sử dụng UML](diagrams/srs-00-so-do-use-case-uml.png)
+
 Mũi tên nét đứt theo quy ước UML: ca sử dụng được bao hàm (include) được ca cơ sở trỏ tới; ca sử dụng mở rộng (extend) trỏ tới ca cơ sở mà nó mở rộng. "Kiểm soát chống lặp / thời gian chờ phát lại" là điểm mở rộng được khai báo trong UC1.
 
 ### 2.4 Chức năng sản phẩm (tóm tắt)
