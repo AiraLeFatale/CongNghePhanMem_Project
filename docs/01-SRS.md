@@ -17,6 +17,27 @@
 ### 1.1 Mục đích
 Tài liệu này đặc tả các yêu cầu chức năng (functional requirement) và yêu cầu phi chức năng (non-functional requirement) của Hệ thống thuyết minh tự động đa ngôn ngữ. Đây là tài liệu tham chiếu cho thiết kế (`02-design.md`), kiểm thử (`03-test-plan.md`) và nghiệm thu đồ án. Người đọc: giảng viên/người phản biện, nhóm phát triển và đơn vị sở hữu nội dung.
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+    UCS["Đặc tả ca sử dụng<br/>UC1–UC5"]:::neutral --> SRS(["📄 01-SRS<br/>Đặc tả yêu cầu"]):::startend
+    CODE["⚙️ Mã nguồn backend"]:::backend --> SRS
+    SRS --> DES["02-design<br/>Thiết kế"]:::neutral
+    SRS --> TEST["03-test-plan<br/>Kiểm thử"]:::neutral
+    SRS --> NT["Nghiệm thu đồ án"]:::ok
+    R1["👤 Giảng viên /<br/>người phản biện"]:::actor -. "đọc" .-> SRS
+    R2["👤 Nhóm phát triển"]:::actor -. "đọc" .-> SRS
+    R3["👤 Đơn vị sở hữu<br/>nội dung"]:::actor -. "đọc" .-> SRS
+    classDef actor fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+    classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef neutral fill:#F8FAFC,stroke:#94A3B8,stroke-width:1.5px,color:#334155
+    classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef startend fill:#1E3A8A,stroke:#1E3A8A,stroke-width:2px,color:#FFFFFF
+```
+
+*Hình: Vị trí của SRS: đầu vào, tài liệu dùng SRS làm căn cứ và người đọc*
+
+
 ### 1.2 Phạm vi
 Hệ thống phát thuyết minh (narration) theo vị trí về các điểm tham quan (point of interest, POI) cho khách du lịch (tourist) và hành khách xe buýt (bus passenger) tại các phường Khánh Hội, Vĩnh Hội và Xóm Chiếu (TP. Hồ Chí Minh). Hệ thống gồm:
 
@@ -25,6 +46,31 @@ Hệ thống phát thuyết minh (narration) theo vị trí về các điểm th
 - **Backend API** (Node.js, Express, SQLite): lưu nội dung, cung cấp bản chụp đồng bộ có đánh số phiên bản, phân giải mã QR, nhận nhật ký ẩn danh và tính toán báo cáo.
 
 Ngoài phạm vi: tài khoản người dùng cho khách du lịch, thanh toán, dẫn đường từng chặng, theo dõi xe buýt theo thời gian thực, quy trình kiểm duyệt nội dung với nhiều vai trò phê duyệt.
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+mindmap
+  root((Thuyết minh tự động<br/>đa ngôn ngữ))
+    Trong phạm vi
+      📱 Ứng dụng di động
+        Geofence tự phát + quét QR
+        Ngoại tuyến sau đồng bộ
+      🖥️ CMS web
+        POI, thuyết minh, audio, QR, tour
+        Thống kê sử dụng ẩn danh
+      ⚙️ Backend API
+        Đồng bộ có phiên bản, phân giải QR
+        Nhận nhật ký, tính báo cáo
+    Ngoài phạm vi
+      Tài khoản khách du lịch
+      Thanh toán
+      Dẫn đường từng chặng
+      Theo dõi xe buýt thời gian thực
+      Kiểm duyệt nhiều vai trò
+```
+
+*Hình: Phạm vi hệ thống: ba thành phần trong phạm vi và các hạng mục bị loại trừ*
+
 
 ### 1.3 Định nghĩa và từ viết tắt
 
@@ -52,7 +98,69 @@ Ngoài phạm vi: tài khoản người dùng cho khách du lịch, thanh toán,
 ### 2.1 Bối cảnh sản phẩm
 Một hệ thống mới, độc lập, gồm ba thành phần triển khai riêng (ứng dụng di động, CMS web, backend API) cùng hai dịch vụ miễn phí bên ngoài: Google Translate (endpoint không chính thức `translate_a/single`, hoặc tuỳ chọn LibreTranslate) và Google Translate TTS (`translate_tts`). Xem sơ đồ thành phần trong `02-design.md` §1.
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+    TOUR["👤 Khách du lịch /<br/>hành khách xe buýt"]:::actor --> APP["📱 Ứng dụng di động<br/>Expo / React Native"]:::mobile
+    GPS["🛰️ GPS / định vị<br/>hệ điều hành"]:::ext --> APP
+    ADMIN["👤 Quản trị viên"]:::actor --> CMS["🖥️ CMS web<br/>React"]:::cms
+    APP -- "REST /api<br/>công khai" --> API["⚙️ Backend API<br/>Node.js + Express"]:::backend
+    CMS -- "REST /api/admin<br/>JWT" --> API
+    API --> DB[("🗄️ SQLite<br/>một file")]:::data
+    API --> GT["🌐 Google Translate<br/>hoặc LibreTranslate"]:::ext
+    API --> TTS["🌐 Google Translate TTS"]:::ext
+    classDef actor fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+    classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+    classDef data fill:#F1F5F9,stroke:#475569,stroke-width:2px,color:#0F172A
+    classDef ext fill:#FFE4E6,stroke:#E11D48,stroke-width:2px,color:#881337
+    classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+```
+
+*Hình: Bối cảnh sản phẩm: ba thành phần triển khai riêng và hai dịch vụ miễn phí bên ngoài*
+
+
 ### 2.2 Bên liên quan và tác nhân
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+    subgraph CHINH["Tác nhân chính"]
+        T["👤 Khách du lịch"]:::actor
+        P["👤 Hành khách xe buýt"]:::actor
+        CA["👤 QTV nội dung"]:::actor
+        RA["👤 QTV / đại diện<br/>cơ quan quản lý"]:::actor
+    end
+    U1(["UC1 Geofence"]):::mobile
+    U2(["UC2 Quét QR"]):::mobile
+    U3(["UC3 Quản lý POI"]):::cms
+    U4(["UC4 Quản lý tour"]):::cms
+    U5(["UC5 Thống kê"]):::cms
+    subgraph PHU["Tác nhân phụ"]
+        G["🛰️ GPS / định vị HĐH"]:::ext
+        X["🌐 Dịch vụ dịch và TTS"]:::ext
+    end
+    subgraph BLQ["Bên liên quan"]
+        W["Phường / cơ quan du lịch"]:::neutral
+        GV["Giảng viên<br/>đánh giá đồ án"]:::neutral
+    end
+    T --> U1
+    P --> U2
+    CA --> U3
+    CA --> U4
+    RA --> U5
+    U1 --- G
+    U3 --- X
+    U5 -. "số liệu cho" .-> W
+    classDef actor fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+    classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+    classDef ext fill:#FFE4E6,stroke:#E11D48,stroke-width:2px,color:#881337
+    classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+    classDef neutral fill:#F8FAFC,stroke:#94A3B8,stroke-width:1.5px,color:#334155
+```
+
+*Hình: Tác nhân chính, tác nhân phụ, bên liên quan và ca sử dụng tương ứng*
+
 
 | Tác nhân / bên liên quan (stakeholder) | Loại | Mô tả | Ca sử dụng |
 |---|---|---|---|
@@ -68,32 +176,31 @@ Một hệ thống mới, độc lập, gồm ba thành phần triển khai riê
 ### 2.3 Sơ đồ ca sử dụng (use case)
 
 ```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
 flowchart LR
-    TOURIST["Khách du lịch"]
-    PASSENGER["Hành khách xe buýt"]
-    CADMIN["Quản trị viên nội dung"]
-    RADMIN["Quản trị viên / đại diện"]
-    GPS["GPS / định vị hệ điều hành"]
-    EXT["Dịch vụ dịch và TTS"]
+    TOURIST["👤 Khách du lịch"]:::actor
+    PASSENGER["👤 Hành khách xe buýt"]:::actor
+    CADMIN["👤 Quản trị viên nội dung"]:::actor
+    RADMIN["👤 Quản trị viên / đại diện"]:::actor
 
-    subgraph SYS["Hệ thống thuyết minh tự động đa ngôn ngữ"]
-        UC1(["UC1 Kích hoạt thuyết minh qua geofence"])
-        UC2(["UC2 Kích hoạt nội dung qua quét QR"])
-        UC3(["UC3 Quản lý điểm tham quan và nội dung thuyết minh"])
-        UC4(["UC4 Quản lý tour"])
-        UC5(["UC5 Xem thống kê sử dụng"])
-        LOGIN(["Xác thực đăng nhập"])
-        COOL(["Kiểm soát chống lặp / thời gian chờ phát lại"])
-        QRGEN(["Tạo / liên kết mã QR"])
-        EXPORT(["Xuất báo cáo PDF / Excel"])
-    end
+    UC1(["UC1 Kích hoạt thuyết minh qua geofence"]):::mobile
+    UC2(["UC2 Kích hoạt nội dung qua quét QR"]):::mobile
+    UC3(["UC3 Quản lý điểm tham quan và nội dung thuyết minh"]):::cms
+    UC4(["UC4 Quản lý tour"]):::cms
+    UC5(["UC5 Xem thống kê sử dụng"]):::cms
+    LOGIN(["Xác thực đăng nhập"]):::neutral
+    COOL(["Kiểm soát chống lặp / thời gian chờ phát lại"]):::neutral
+    QRGEN(["Tạo / liên kết mã QR"]):::neutral
+    EXPORT(["Xuất báo cáo PDF / Excel"]):::neutral
+    GPS["🛰️ GPS / định vị<br/>hệ điều hành"]:::ext
+    EXT["🌐 Dịch vụ dịch và TTS"]:::ext
 
     TOURIST --- UC1
-    GPS --- UC1
     PASSENGER --- UC2
     CADMIN --- UC3
     CADMIN --- UC4
     RADMIN --- UC5
+    UC1 --- GPS
     UC3 --- EXT
 
     COOL -. "extend" .-> UC1
@@ -102,7 +209,14 @@ flowchart LR
     UC5 -. "include" .-> LOGIN
     QRGEN -. "extend (A2)" .-> UC3
     EXPORT -. "extend (A1)" .-> UC5
+    classDef actor fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+    classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+    classDef ext fill:#FFE4E6,stroke:#E11D48,stroke-width:2px,color:#881337
+    classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+    classDef neutral fill:#F8FAFC,stroke:#94A3B8,stroke-width:1.5px,color:#334155
 ```
+
+*Hình: Sơ đồ ca sử dụng dạng flowchart: tác nhân, năm ca sử dụng chính và các quan hệ include/extend*
 
 Bản vẽ cùng nội dung theo ký hiệu UML (hình người, hình elip), dùng cho báo cáo:
 
@@ -111,6 +225,25 @@ Bản vẽ cùng nội dung theo ký hiệu UML (hình người, hình elip), d�
 Mũi tên nét đứt theo quy ước UML: ca sử dụng được bao hàm (include) được ca cơ sở trỏ tới; ca sử dụng mở rộng (extend) trỏ tới ca cơ sở mà nó mở rộng. "Kiểm soát chống lặp / thời gian chờ phát lại" là điểm mở rộng được khai báo trong UC1.
 
 ### 2.4 Chức năng sản phẩm (tóm tắt)
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+    F5["🖥️ (5) Quản lý POI, bản dịch,<br/>audio, QR, tour"]:::cms --> API["⚙️ Backend API"]:::backend
+    API --> F1["📱 (1) Đồng bộ +<br/>lưu ngoại tuyến"]:::mobile
+    F1 --> F2["🛰️ (2) Theo dõi vị trí,<br/>kích hoạt geofence"]:::mobile
+    F1 --> F3["📍 (3) Quét QR<br/>tại trạm xe buýt"]:::mobile
+    F2 --> F4["🎧 (4) Phát thuyết minh<br/>audio hoặc TTS"]:::mobile
+    F3 --> F4
+    F4 -. "nhật ký ẩn danh" .-> API
+    API --> F6["🖥️ (6) Thống kê +<br/>xuất báo cáo"]:::cms
+    classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+    classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+```
+
+*Hình: Sáu chức năng chính nối thành một vòng: quản lý nội dung, đồng bộ, kích hoạt, phát, thống kê*
+
 1. Đồng bộ (sync) nội dung điểm tham quan và tour xuống thiết bị và lưu lại để dùng ngoại tuyến.
 2. Theo dõi vị trí ở chế độ nền và kích hoạt (trigger) thuyết minh khi đi vào vùng kích hoạt.
 3. Quét mã QR tại trạm xe buýt và phát ngay thuyết minh được liên kết.
@@ -119,10 +252,52 @@ Mũi tên nét đứt theo quy ước UML: ca sử dụng được bao hàm (inc
 6. Thu thập dữ liệu sử dụng và vị trí ẩn danh, trình bày thống kê (analytics) và cho phép xuất báo cáo.
 
 ### 2.5 Đặc điểm người dùng
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+mindmap
+  root((Người dùng))
+    👤 Khách du lịch / hành khách
+      Không cần đào tạo
+      Có thể là khách nước ngoài
+      Dùng một tay khi di chuyển
+      Kết nối dữ liệu hạn chế
+    👤 Quản trị viên
+      Nhân viên văn phòng
+      Quen biểu mẫu web và bản đồ
+      Không phải lập trình viên
+```
+
+*Hình: Đặc điểm hai nhóm người dùng*
+
 - Khách du lịch và hành khách: không cần đào tạo; có thể là khách nước ngoài; dùng ứng dụng bằng một tay khi đang di chuyển; kết nối dữ liệu hạn chế.
 - Quản trị viên: nhân viên văn phòng quen dùng biểu mẫu web và bản đồ; không phải lập trình viên.
 
 ### 2.6 Ràng buộc
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+mindmap
+  root((Ràng buộc))
+    C-01 Backend
+      Node.js ≥ 22.13, Express 5
+      Một file SQLite
+    C-02 Di động
+      Expo SDK 58, RN 0.88
+      Định vị nền cần dev build hoặc store
+    C-03 CMS web
+      Vite 8 + React 19
+      Dùng được từ 375 px
+    C-04 Dịch vụ ngoài
+      Chỉ dịch vụ miễn phí
+    C-05 Ngôn ngữ
+      vi, en, zh, ko, ja, fr
+    C-06 Thời gian
+      Theo lịch đồ án
+```
+
+*Hình: Sáu ràng buộc kỹ thuật và quản lý của hệ thống*
+
 - C-01 Backend: Node.js ≥ 22.13 (có sẵn `node:sqlite`), Express 5, một file cơ sở dữ liệu SQLite duy nhất.
 - C-02 Di động: Expo SDK 58 (React Native 0.88, TypeScript, Expo Router); định vị nền (background location) cần bản development build hoặc bản phát hành trên store (không chạy được trên Expo Go) và chịu ràng buộc chính sách của iOS/Android.
 - C-03 CMS: Vite 8 + React 19 + TypeScript, chạy trên trình duyệt hiện đại (dùng được ở độ rộng tối thiểu 375 px).
@@ -131,6 +306,37 @@ Mũi tên nét đứt theo quy ước UML: ca sử dụng được bao hàm (inc
 - C-06 Thời gian phát triển kết thúc theo lịch đồ án (xem `06-project-management.md`).
 
 ### 2.7 Giả định và phụ thuộc
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+    A1["A-01 POI, thuyết minh, QR<br/>được tạo trước"]:::neutral
+    A2["A-02 QR được in và<br/>lắp tại trạm"]:::neutral
+    A3["A-03 Có GPS, camera,<br/>được cấp quyền"]:::neutral
+    A4["A-04 Có bộ máy TTS<br/>trên thiết bị"]:::neutral
+    A5["A-05 Có mạng ít nhất<br/>một lần"]:::neutral
+    A6["A-06 Toạ độ seed<br/>chỉ gần đúng"]:::warn
+    GEO["🛰️ UC1 Geofence"]:::mobile
+    QR["📍 UC2 Quét QR"]:::mobile
+    PLAY["🎧 Phát bằng TTS"]:::mobile
+    SYNC["📱 Đồng bộ lần đầu"]:::mobile
+    CHECK["Kiểm tra trên bản đồ<br/>trước khi dùng thật"]:::decision
+    A1 --> GEO
+    A1 --> QR
+    A2 --> QR
+    A3 --> GEO
+    A3 --> QR
+    A4 --> PLAY
+    A5 --> SYNC
+    A6 --> CHECK
+    classDef decision fill:#FFF7ED,stroke:#EA580C,stroke-width:2px,color:#7C2D12
+    classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+    classDef neutral fill:#F8FAFC,stroke:#94A3B8,stroke-width:1.5px,color:#334155
+    classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+```
+
+*Hình: Mỗi giả định và phần chức năng phụ thuộc vào nó*
+
 - A-01 Điểm tham quan, thuyết minh và mã QR được quản trị viên tạo trước khi dùng thực tế (giả định của UC1/UC2).
 - A-02 Mã QR do cơ quan quản lý in và lắp đặt tại trạm xe buýt; việc lắp đặt vật lý nằm ngoài phạm vi phần mềm.
 - A-03 Thiết bị có GPS và camera; người dùng cấp quyền.
@@ -144,9 +350,102 @@ Mũi tên nét đứt theo quy ước UML: ca sử dụng được bao hàm (inc
 
 Độ ưu tiên (priority): **M** = bắt buộc (must), **S** = nên có (should), **C** = có thể có (could). Tất cả yêu cầu đã được cài đặt trong mã nguồn tính đến 18/10/2026; trạng thái kiểm chứng được ghi theo từng ca kiểm thử trong `03-test-plan.md` (hành vi của ứng dụng di động trên thiết bị thật chưa được kiểm chứng).
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+mindmap
+  root((Yêu cầu cụ thể))
+    3.1 Chức năng: 39 FR
+      UC1 Geofence: FR-01–12
+      UC2 Quét QR: FR-13–19
+      UC3 Quản lý POI: FR-20 – 28
+      UC4 Quản lý tour: FR-29 – 33
+      UC5 Thống kê: FR-34–39
+    3.2 Phi chức năng: 18 NFR
+      Hiệu năng, ngoại tuyến, tin cậy
+      Riêng tư, bảo mật
+      Dễ dùng, đa ngôn ngữ
+      Bảo trì, khả chuyển
+    3.3 Quy tắc nghiệp vụ: 7 BR
+```
+
+*Hình: Cấu trúc mục 3: yêu cầu chức năng theo ca sử dụng, phi chức năng theo nhóm và quy tắc nghiệp vụ*
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+pie showData
+    title Yêu cầu chức năng theo độ ưu tiên
+    "M - bắt buộc" : 36
+    "S - nên có (FR-12, 33, 38)" : 3
+```
+
+*Hình: Độ ưu tiên của 39 yêu cầu chức năng; không có yêu cầu mức C*
+
+
 ### 3.1 Yêu cầu chức năng
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+pie showData
+    title Số yêu cầu chức năng theo ca sử dụng
+    "UC1 Geofence" : 12
+    "UC2 Quét QR" : 7
+    "UC3 Quản lý POI" : 9
+    "UC4 Quản lý tour" : 5
+    "UC5 Thống kê" : 6
+```
+
+*Hình: Phân bố 39 yêu cầu chức năng FR-01 đến FR-39 theo năm ca sử dụng*
+
+
 #### UC1: Kích hoạt thuyết minh tự động qua geofence
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+    EV(["Khởi động, mỗi 5 phút,<br/>về foreground, có mạng lại"]):::startend --> V["⚙️ GET /sync/version"]:::backend
+    V --> CMP{"Khác phiên bản cục bộ<br/>hoặc chưa có dữ liệu?"}:::decision
+    CMP -- "Không" --> KEEP["Giữ dữ liệu hiện có"]:::neutral
+    CMP -- "Có" --> SNAP["⚙️ GET /sync<br/>bản chụp đầy đủ"]:::backend
+    SNAP -- "Lỗi" --> KEEP
+    SNAP -- "Thành công" --> DB[("🗄️ SQLite cục bộ<br/>POI, bản dịch, QR, tour")]:::data
+    classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef data fill:#F1F5F9,stroke:#475569,stroke-width:2px,color:#0F172A
+    classDef decision fill:#FFF7ED,stroke:#EA580C,stroke-width:2px,color:#7C2D12
+    classDef neutral fill:#F8FAFC,stroke:#94A3B8,stroke-width:1.5px,color:#334155
+    classDef startend fill:#1E3A8A,stroke:#1E3A8A,stroke-width:2px,color:#FFFFFF
+```
+
+*Hình: Đồng bộ nội dung xuống thiết bị (FR-02, FR-03)*
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart TD
+    S(["📱 Mở ứng dụng"]):::startend --> PERM{"Được cấp<br/>quyền vị trí?"}:::decision
+    PERM -- "Không" --> E1["Giải thích, nút Mở Cài đặt<br/>/ Thử lại; vẫn quét QR,<br/>phát thủ công (FR-01)"]:::warn
+    PERM -- "Có" --> SYNC{"Đã từng<br/>đồng bộ?"}:::decision
+    SYNC -- "Chưa, đang ngoại tuyến" --> E2["Báo chưa thể thuyết minh,<br/>gợi ý kết nối mạng (FR-11)"]:::bad
+    SYNC -- "Rồi" --> LOC["🛰️ Cập nhật vị trí; bỏ nếu<br/>sai số > ~60 m<br/>(FR-04, FR-05)"]:::ext
+    LOC --> IN{"Khoảng cách haversine<br/>≤ radius_m?"}:::decision
+    IN -- "Không" --> LOC
+    IN -- "Có" --> PICK["Chọn priority cao nhất,<br/>rồi điểm gần nhất (FR-06)"]:::mobile
+    PICK --> CD{"Đang phát hoặc trong<br/>cooldown 10 phút?"}:::decision
+    CD -- "Có" --> DROP["Huỷ kích hoạt,<br/>không xếp hàng (FR-08)"]:::bad
+    CD -- "Không" --> PLAY["🎧 Audio đã tải → audio<br/>máy chủ → TTS; thiếu ngôn<br/>ngữ → tiếng Việt (FR-09)"]:::ok
+    PLAY --> LOG["Ghi nhật ký cục bộ, gửi lô<br/>POST /logs/usage (FR-10)"]:::backend
+    LOG --> EXIT["Ra khỏi vùng khi<br/>> radius_m × 1.2:<br/>hết lượt ghé (FR-07)"]:::neutral
+    classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef bad fill:#FEE2E2,stroke:#DC2626,stroke-width:2px,color:#7F1D1D
+    classDef decision fill:#FFF7ED,stroke:#EA580C,stroke-width:2px,color:#7C2D12
+    classDef ext fill:#FFE4E6,stroke:#E11D48,stroke-width:2px,color:#881337
+    classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+    classDef neutral fill:#F8FAFC,stroke:#94A3B8,stroke-width:1.5px,color:#334155
+    classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef startend fill:#1E3A8A,stroke:#1E3A8A,stroke-width:2px,color:#FFFFFF
+    classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+```
+
+*Hình: Luồng kích hoạt thuyết minh qua geofence và các nhánh ngoại lệ của UC1 (FR-01 đến FR-11)*
+
 
 | ID | Yêu cầu | Độ ưu tiên |
 |---|---|---|
@@ -165,6 +464,32 @@ Mũi tên nét đứt theo quy ước UML: ca sử dụng được bao hàm (inc
 
 #### UC2: Kích hoạt nội dung qua quét mã QR
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart TD
+    S(["📍 Quét bằng camera<br/>hoặc nhập mã (FR-13)"]):::startend --> PARSE{"Dạng NARR:code, code<br/>hoặc URL .../q/code?"}:::decision
+    PARSE -- "Sai" --> BAD["Mã QR không hợp lệ (FR-16)"]:::bad
+    PARSE -- "Đúng" --> L1{"Có trong bản chụp<br/>đã đồng bộ?"}:::decision
+    L1 -- "Không" --> L2{"Đã phân giải<br/>trước đây?"}:::decision
+    L2 -- "Không" --> NET{"Có mạng?"}:::decision
+    NET -- "Không" --> E2["Chưa phát được,<br/>thử lại khi có mạng (FR-17)"]:::warn
+    NET -- "Có" --> API["⚙️ GET /qr/:payload"]:::backend
+    API -- "404" --> BAD
+    L1 -- "Có" --> PLAY["🎧 Phát ngay, không chờ GPS,<br/>ngắt bài đang phát, ngôn<br/>ngữ đã chọn (FR-15, FR-19)"]:::ok
+    L2 -- "Có" --> PLAY
+    API -- "200" --> PLAY
+    PLAY --> LOG["Nhật ký với<br/>trigger_method = qr (FR-18)"]:::backend
+    classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef bad fill:#FEE2E2,stroke:#DC2626,stroke-width:2px,color:#7F1D1D
+    classDef decision fill:#FFF7ED,stroke:#EA580C,stroke-width:2px,color:#7C2D12
+    classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef startend fill:#1E3A8A,stroke:#1E3A8A,stroke-width:2px,color:#FFFFFF
+    classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+```
+
+*Hình: Thứ tự phân giải mã QR: bản chụp ngoại tuyến, bộ nhớ đệm, rồi máy chủ (FR-13 đến FR-18)*
+
+
 | ID | Yêu cầu | Độ ưu tiên |
 |---|---|---|
 | FR-13 | Ứng dụng phải có trình quét QR dùng camera, sau khi xin quyền camera, kèm ô nhập mã thủ công cho thiết bị không dùng được camera. | M |
@@ -176,6 +501,34 @@ Mũi tên nét đứt theo quy ước UML: ca sử dụng được bao hàm (inc
 | FR-19 | Người dùng phải chọn được ngôn ngữ thuyết minh trong số các ngôn ngữ được hỗ trợ tại màn hình Cài đặt (ban đầu là ngôn ngữ của thiết bị nếu được hỗ trợ, ngược lại là tiếng Việt); lựa chọn được lưu trên thiết bị. | M |
 
 #### UC3: Quản lý điểm tham quan và nội dung thuyết minh
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart TD
+    S(["👤 QTV đăng nhập<br/>JWT 8 giờ (FR-20)"]):::startend --> LIST["🖥️ Danh sách POI<br/>+ tìm kiếm (FR-21)"]:::cms
+    LIST --> EDIT["Tạo/sửa POI: toạ độ, bán kính,<br/>ưu tiên, ảnh (FR-22)"]:::cms
+    EDIT --> TR["Thuyết minh từng ngôn ngữ<br/>+ dịch máy (FR-23)"]:::cms
+    TR -.-> EXT["🌐 Dịch / TTS"]:::ext
+    TR --> VAL{"Dữ liệu hợp lệ?<br/>(FR-25)"}:::decision
+    VAL -- "Không" --> ERR["Lỗi theo từng trường,<br/>không lưu gì"]:::bad
+    VAL -- "Có" --> SAVE["⚙️ Lưu POI + bản dịch"]:::backend
+    SAVE --> AUD["Audio: tải lên ≤ 15 MB,<br/>TTS máy chủ, xoá (FR-24)"]:::cms
+    AUD -.-> EXT
+    SAVE --> QR["Mã QR: tạo, nhãn, PNG,<br/>in, xoá (FR-27)"]:::cms
+    LIST --> DEL{"Xác nhận xoá?<br/>(FR-26)"}:::decision
+    DEL -- "Có" --> CAS["Xoá bản dịch, audio, ảnh, QR,<br/>gỡ khỏi tour; giữ nhật ký"]:::backend
+    SAVE & AUD & QR & CAS --> VER[("🗄️ content_version + 1<br/>(FR-28)")]:::data
+    classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef bad fill:#FEE2E2,stroke:#DC2626,stroke-width:2px,color:#7F1D1D
+    classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+    classDef data fill:#F1F5F9,stroke:#475569,stroke-width:2px,color:#0F172A
+    classDef decision fill:#FFF7ED,stroke:#EA580C,stroke-width:2px,color:#7C2D12
+    classDef ext fill:#FFE4E6,stroke:#E11D48,stroke-width:2px,color:#881337
+    classDef startend fill:#1E3A8A,stroke:#1E3A8A,stroke-width:2px,color:#FFFFFF
+```
+
+*Hình: Luồng quản lý điểm tham quan và nội dung thuyết minh trên CMS (FR-20 đến FR-28)*
+
 
 | ID | Yêu cầu | Độ ưu tiên |
 |---|---|---|
@@ -191,6 +544,29 @@ Mũi tên nét đứt theo quy ước UML: ca sử dụng được bao hàm (inc
 
 #### UC4: Quản lý tour
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+    L["🖥️ Danh sách tour<br/>tên, mô tả, số POI (FR-29)"]:::cms --> E["Tạo/sửa tour: POI có thứ tự,<br/>polyline trên bản đồ (FR-30)"]:::cms
+    E --> V{"≥ 1 POI, không trùng,<br/>POI đều tồn tại? (FR-31)"}:::decision
+    V -- "Không" --> R["Từ chối lưu<br/>(UC4 E1)"]:::bad
+    V -- "Có" --> S["⚙️ Lưu tour<br/>+ thứ tự tham quan"]:::backend
+    L --> D{"Xác nhận xoá?<br/>(FR-32)"}:::decision
+    D -- "Có" --> X["⚙️ Xoá tour"]:::backend
+    S --> SN[("🗄️ Bản chụp /sync<br/>có danh sách tour")]:::data
+    X --> SN
+    SN --> APP["📱 App: danh sách điểm,<br/>điểm kế tiếp + khoảng<br/>cách (FR-33)"]:::mobile
+    classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef bad fill:#FEE2E2,stroke:#DC2626,stroke-width:2px,color:#7F1D1D
+    classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+    classDef data fill:#F1F5F9,stroke:#475569,stroke-width:2px,color:#0F172A
+    classDef decision fill:#FFF7ED,stroke:#EA580C,stroke-width:2px,color:#7C2D12
+    classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+```
+
+*Hình: Luồng quản lý tour từ CMS tới ứng dụng (FR-29 đến FR-33)*
+
+
 | ID | Yêu cầu | Độ ưu tiên |
 |---|---|---|
 | FR-29 | CMS phải liệt kê tour kèm tên, mô tả và số điểm tham quan. | M |
@@ -200,6 +576,30 @@ Mũi tên nét đứt theo quy ước UML: ca sử dụng được bao hàm (inc
 | FR-33 | Tour phải được đưa vào bản chụp đồng bộ và hiển thị trong ứng dụng dưới dạng danh sách có thứ tự các điểm tham quan để người dùng đi theo (điểm kế tiếp và khoảng cách). | S |
 
 #### UC5: Xem thống kê sử dụng
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart TB
+    APP["📱 Mẫu vị trí ~30 s / 25 m<br/>+ nhật ký phát (FR-34)"]:::mobile -- "POST /logs/*<br/>chỉ session ID" --> API["⚙️ Backend lưu,<br/>toạ độ làm tròn"]:::backend
+    OFF["Tắt dữ liệu ẩn danh:<br/>ngừng ghi, xoá hàng đợi"]:::warn -.-> APP
+    API --> DB[("🗄️ usage_log<br/>location_log")]:::data
+    CMS["🖥️ Lọc theo ngày<br/>và tour (FR-35)"]:::cms --> REP["⚙️ GET /admin/analytics<br/>chỉ SELECT (FR-36, FR-39)"]:::backend
+    DB --> REP
+    REP --> HD{"has_data?"}:::decision
+    HD -- "false" --> NO["Không có dữ liệu<br/>(UC5 E1)"]:::warn
+    HD -- "true" --> VIEW["🖥️ KPI, biểu đồ, bảng POI,<br/>heatmap, lộ trình (FR-37)"]:::cms
+    VIEW --> EXP["Xuất Excel / PDF<br/>(FR-38)"]:::ok
+    classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+    classDef data fill:#F1F5F9,stroke:#475569,stroke-width:2px,color:#0F172A
+    classDef decision fill:#FFF7ED,stroke:#EA580C,stroke-width:2px,color:#7C2D12
+    classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+    classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+```
+
+*Hình: Dòng dữ liệu thống kê: thu thập ẩn danh trên app, tính báo cáo ở backend, hiển thị và xuất trên CMS (FR-34 đến FR-39)*
+
 
 | ID | Yêu cầu | Độ ưu tiên |
 |---|---|---|
@@ -211,6 +611,50 @@ Mũi tên nét đứt theo quy ước UML: ca sử dụng được bao hàm (inc
 | FR-39 | Việc tạo báo cáo không được thay đổi dữ liệu đã lưu (hậu điều kiện của UC5). | M |
 
 ### 3.2 Yêu cầu phi chức năng
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+mindmap
+  root((NFR vận hành))
+    Hiệu năng
+      NFR-01 geofence ≤ 50 ms với 200 POI
+      NFR-02 bắt đầu phát trong 2 giây
+      NFR-03 API ≤ 500 ms
+    Ngoại tuyến
+      NFR-04 thuyết minh không cần mạng
+      NFR-05 chỉ tải lại khi đổi phiên bản
+    Độ tin cậy
+      NFR-18 ghi nhiều dòng trong một transaction
+    Bảo trì
+      NFR-16 ba lớp, provider tiêm vào
+    Khả chuyển
+      NFR-17 Android + iOS một mã nguồn
+```
+
+*Hình: Nhóm yêu cầu phi chức năng về vận hành: hiệu năng, ngoại tuyến, tin cậy, bảo trì, khả chuyển*
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+mindmap
+  root((NFR người dùng<br/>và an toàn))
+    Quyền riêng tư
+      NFR-06 không đăng ký, session ID ngẫu nhiên
+      NFR-07 làm tròn toạ độ ~11 m
+      NFR-08 không định danh thiết bị, tắt được
+    Bảo mật
+      NFR-09 bcrypt + JWT khoá bí mật
+      NFR-10 giới hạn MIME, 15 MB, helmet
+      NFR-11 120 yêu cầu/phút, HTTPS
+    Dễ dùng
+      NFR-12 dùng không cần hướng dẫn
+      NFR-13 lỗi từng trường, xác nhận xoá
+    Đa ngôn ngữ
+      NFR-14 sáu ngôn ngữ, vi dự phòng
+      NFR-15 UTF-8 từ đầu đến cuối
+```
+
+*Hình: Nhóm yêu cầu phi chức năng về người dùng và an toàn: riêng tư, bảo mật, dễ dùng, đa ngôn ngữ*
+
 
 | ID | Nhóm | Yêu cầu |
 |---|---|---|
@@ -235,6 +679,39 @@ Mũi tên nét đứt theo quy ước UML: ca sử dụng được bao hàm (inc
 
 ### 3.3 Quy tắc nghiệp vụ
 
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+    B1["BR-01 Chống phát lặp<br/>trong cooldown"]:::warn
+    B7["BR-07 Thiếu ngôn ngữ<br/>→ phát tiếng Việt"]:::warn
+    B6["BR-06 Một QR → đúng<br/>một POI; một POI<br/>→ nhiều QR"]:::warn
+    B2["BR-02 POI: toạ độ hợp lệ,<br/>bán kính > 0, có<br/>thuyết minh mặc định"]:::warn
+    B5["BR-05 Xác nhận trước<br/>khi xoá"]:::warn
+    B3["BR-03 Tour có<br/>≥ 1 POI"]:::warn
+    B4["BR-04 Vị trí, lộ trình<br/>ẩn danh"]:::warn
+    U1(["UC1 Geofence"]):::mobile
+    U2(["UC2 Quét QR"]):::mobile
+    U3(["UC3 Quản lý POI"]):::cms
+    U4(["UC4 Quản lý tour"]):::cms
+    U5(["UC5 Thống kê"]):::cms
+    B1 --> U1
+    B7 --> U1
+    B7 --> U2
+    B6 --> U2
+    B6 --> U3
+    B2 --> U3
+    B5 --> U3
+    B5 --> U4
+    B3 --> U4
+    B4 --> U5
+    classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+    classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+    classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+```
+
+*Hình: Bảy quy tắc nghiệp vụ và ca sử dụng chịu ràng buộc của từng quy tắc*
+
+
 | ID | Quy tắc (business rule) | Nguồn |
 |---|---|---|
 | BR-01 | Không được phát lại cùng một điểm tham quan nhiều lần trong thời gian ngắn; lần kích hoạt xảy ra khi đang phát hoặc trong thời gian chờ phát lại sẽ bị huỷ bỏ. | Quy tắc nghiệp vụ của UC1, A1 |
@@ -250,6 +727,42 @@ Mũi tên nét đứt theo quy ước UML: ca sử dụng được bao hàm (inc
 ## 4. Ma trận truy vết yêu cầu
 
 Đường dẫn cài đặt tính từ thư mục gốc của repository. Đường dẫn phía client tính từ `mobile/src/` và `cms/src/`. Mã kiểm thử tham chiếu tới `03-test-plan.md` (TC = ca kiểm thử (test case), tự động hoặc thủ công; FT = kiểm thử thực địa (field test)).
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart TB
+    U1["UC1 Geofence<br/>FR-01–12"]:::mobile
+    U2["UC2 Quét QR<br/>FR-13–19"]:::mobile
+    U3["UC3 Quản lý POI<br/>FR-20–28"]:::cms
+    U4["UC4 Quản lý tour<br/>FR-29–33"]:::cms
+    U5["UC5 Thống kê<br/>FR-34–39"]:::cms
+    M["📱 mobile/src"]:::mobile
+    B["⚙️ backend/src"]:::backend
+    C["🖥️ cms/src"]:::cms
+    T["✅ 03-test-plan<br/>TC-01 – TC-90<br/>FT-01 – FT-08"]:::ok
+    U1 --> M
+    U1 -. "FR-02, 03, 10" .-> B
+    U2 --> M
+    U2 -. "FR-14, 16, 18" .-> B
+    U3 --> B
+    U3 --> C
+    U4 --> B
+    U4 --> C
+    U4 -. "FR-33" .-> M
+    U5 --> B
+    U5 --> C
+    U5 -. "FR-34" .-> M
+    M --> T
+    B --> T
+    C --> T
+    classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef cms fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#4C1D95
+    classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
+    classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+```
+
+*Hình: Truy vết ca sử dụng → nhóm FR → mã nguồn từng thành phần → ca kiểm thử (nét đứt: chỉ một số FR của nhóm)*
+
 
 | FR | UC | Module cài đặt | Ca kiểm thử |
 |---|---|---|---|
@@ -294,3 +807,19 @@ Mũi tên nét đứt theo quy ước UML: ca sử dụng được bao hàm (inc
 | FR-39 | UC5 | Backend: phần thống kê chỉ dùng SELECT | TC-34 (rà soát mã) |
 
 Các yêu cầu phi chức năng được kiểm chứng như sau: NFR-07 bằng TC-33 và TC-34; NFR-09 bằng TC-01 đến TC-05; NFR-10 bằng TC-18; NFR-14 bằng TC-12 và TC-13; NFR-18 bằng rà soát mã việc dùng `transaction()` cùng TC-31 và TC-32; NFR-01, NFR-02, NFR-04 bằng FT-02 đến FT-08; NFR-12 bằng TC-62 đến TC-70 (trên thiết bị, chưa thực hiện); NFR-13 bằng TC-75, TC-79 và TC-80; NFR-03 bằng đo đạc trong kiểm thử tích hợp (chưa ghi nhận kết quả).
+
+```mermaid
+%%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
+flowchart LR
+    N1["NFR-07, 09, 10,<br/>13, 14"]:::neutral --> TC["✅ Ca kiểm thử TC<br/>tự động / thủ công"]:::ok
+    N2["NFR-18<br/>độ tin cậy"]:::neutral --> CR["✅ Rà soát mã transaction()<br/>+ TC-31, TC-32"]:::ok
+    N3["NFR-01, 02, 04"]:::neutral --> FT["Kiểm thử thực địa<br/>FT-02–08"]:::warn
+    N4["NFR-12<br/>dễ dùng"]:::neutral --> DEV["TC-62–70 trên thiết bị<br/>chưa thực hiện"]:::warn
+    N5["NFR-03<br/>hiệu năng API"]:::neutral --> MEAS["Đo trong kiểm thử tích hợp<br/>chưa ghi nhận kết quả"]:::warn
+    classDef neutral fill:#F8FAFC,stroke:#94A3B8,stroke-width:1.5px,color:#334155
+    classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    classDef warn fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+```
+
+*Hình: Cách kiểm chứng các yêu cầu phi chức năng được nêu trong đoạn trên*
+
