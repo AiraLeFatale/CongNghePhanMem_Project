@@ -7,6 +7,7 @@
  */
 import fs from 'node:fs';
 import crypto from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 import bcrypt from 'bcryptjs';
 import { config } from '../config.js';
 import { openDatabase, transaction } from './database.js';
@@ -128,7 +129,7 @@ function seedDemoUsage(db, ids) {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const demo = process.argv.includes('--demo');
   fs.mkdirSync(config.uploadDir, { recursive: true });
   const db = openDatabase();
