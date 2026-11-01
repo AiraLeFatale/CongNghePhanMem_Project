@@ -1,3 +1,7 @@
+/**
+ * Client HTTP cho API quản trị: gắn token, xử lý JSON/FormData, chuẩn hoá lỗi
+ * thành ApiError và gọi callback khi phiên hết hạn (401).
+ */
 import { tokenStore } from './storage';
 import type {
   AdminUser,
@@ -28,6 +32,7 @@ export class ApiError extends Error {
   }
 }
 
+/** Lấy thông điệp hiển thị được từ lỗi bất kỳ, ưu tiên thông điệp của ApiError. */
 export function errorMessage(err: unknown, fallback = 'Đã xảy ra lỗi, vui lòng thử lại'): string {
   if (err instanceof ApiError) return err.message || fallback;
   if (err instanceof Error && err.message) return err.message;
@@ -39,6 +44,7 @@ export function normalizeBase(base: string | undefined | null): string {
   return (base ?? '').trim().replace(/\/+$/, '');
 }
 
+/** Ghép query string từ object, bỏ qua giá trị rỗng/null/undefined. */
 export function buildQuery(params: Record<string, string | number | null | undefined>): string {
   const sp = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
@@ -49,6 +55,7 @@ export function buildQuery(params: Record<string, string | number | null | undef
   return s ? `?${s}` : '';
 }
 
+/** Tuỳ chọn khi tạo client; cho phép thay base URL, fetch và cách lấy token khi test. */
 export interface ApiClientOptions {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
@@ -59,6 +66,7 @@ export interface ApiClientOptions {
 
 type Body = unknown;
 
+/** Tạo client API với base URL, token và xử lý 401 có thể cấu hình. */
 export function createApiClient(opts: ApiClientOptions = {}) {
   const base = normalizeBase(opts.baseUrl);
   const doFetch: typeof fetch = (...args) => (opts.fetchImpl ?? globalThis.fetch)(...args);
@@ -71,6 +79,7 @@ export function createApiClient(opts: ApiClientOptions = {}) {
     return `${base}${path.startsWith('/') ? '' : '/'}${path}`;
   }
 
+  // Gửi request rồi trả dữ liệu đã parse; mọi lỗi đều được ném dưới dạng ApiError.
   async function request<T>(method: string, path: string, body?: Body, { auth = true } = {}): Promise<T> {
     const headers: Record<string, string> = { Accept: 'application/json' };
     const token = auth ? getToken() : null;
@@ -87,10 +96,12 @@ export function createApiClient(opts: ApiClientOptions = {}) {
     try {
       res = await doFetch(`${base}/api${path}`, { method, headers, body: payload });
     } catch {
+      // Lỗi mạng/CORS/server không chạy: status 0 để phân biệt với lỗi HTTP.
       throw new ApiError(0, 'NETWORK_ERROR', 'Không kết nối được máy chủ. Kiểm tra mạng hoặc backend.');
     }
 
     if (res.status === 204) return null as T;
+    // Đọc text rồi tự parse để chịu được body rỗng hoặc không phải JSON.
     const text = await res.text();
     let data: unknown = null;
     if (text) {
@@ -101,6 +112,7 @@ export function createApiClient(opts: ApiClientOptions = {}) {
       }
     }
     if (!res.ok) {
+      // Máy chủ trả lỗi: lấy code/message/details từ body thống nhất nếu có.
       const e = (data as { error?: { code?: string; message?: string; details?: Record<string, string> } } | null)?.error;
       const err = new ApiError(res.status, e?.code ?? `HTTP_${res.status}`, e?.message ?? `Máy chủ trả lỗi ${res.status}`, e?.details ?? undefined);
       if (res.status === 401 && auth) opts.onUnauthorized?.();
@@ -109,6 +121,7 @@ export function createApiClient(opts: ApiClientOptions = {}) {
     return data as T;
   }
 
+  // Các helper rút gọn theo method HTTP.
   const get = <T>(p: string) => request<T>('GET', p);
   const post = <T>(p: string, b?: Body) => request<T>('POST', p, b);
   const put = <T>(p: string, b?: Body) => request<T>('PUT', p, b);
@@ -169,6 +182,7 @@ export function setUnauthorizedHandler(fn: (() => void) | null) {
   unauthorizedHandler = fn;
 }
 
+// Instance dùng chung: lấy token từ localStorage và chuyển về đăng nhập khi gặp 401.
 export const api = createApiClient({
   baseUrl: import.meta.env.VITE_API_URL,
   getToken: () => tokenStore.getToken(),

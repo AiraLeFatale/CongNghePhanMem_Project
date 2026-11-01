@@ -1,9 +1,15 @@
+/**
+ * Các component trạng thái và bố cục dùng chung: spinner, loading, rỗng, lỗi,
+ * tiêu đề trang và bọc một trường nhập liệu kèm nhãn/gợi ý/lỗi.
+ */
 import type { ReactNode } from 'react';
 
+/** Vòng xoay báo đang tải; bản `small` dùng trong nút hoặc khối nhỏ. */
 export function Spinner({ small = false }: { small?: boolean }) {
   return <span className={`spinner${small ? ' spinner-sm' : ''}`} aria-hidden="true" />;
 }
 
+/** Khối báo đang tải kèm thông điệp, có aria-live để trình đọc màn hình đọc. */
 export function LoadingState({ text = 'Đang tải dữ liệu…' }: { text?: string }) {
   return (
     <div className="state state-loading" role="status" aria-live="polite">
@@ -13,6 +19,7 @@ export function LoadingState({ text = 'Đang tải dữ liệu…' }: { text?: s
   );
 }
 
+/** Khối danh sách rỗng: tiêu đề, mô tả và hành động gợi ý (nếu có). */
 export function EmptyState({ title, children, action }: { title: string; children?: ReactNode; action?: ReactNode }) {
   return (
     <div className="state state-empty">
@@ -26,6 +33,7 @@ export function EmptyState({ title, children, action }: { title: string; childre
   );
 }
 
+/** Khối lỗi kèm nút "Thử lại" tuỳ chọn; dùng role="alert" để được thông báo ngay. */
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
     <div className="state state-error" role="alert">
@@ -43,6 +51,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
   );
 }
 
+/** Tiêu đề trang kèm phụ đề và nhóm nút hành động bên phải. */
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: ReactNode; actions?: ReactNode }) {
   return (
     <div className="page-header">
@@ -55,6 +64,7 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
   );
 }
 
+/** Bọc nhãn, ô nhập, gợi ý và lỗi của một trường; thêm dấu * khi bắt buộc. */
 export function Field({
   id,
   label,

@@ -1,3 +1,7 @@
+/**
+ * Các component bản đồ Leaflet: chọn toạ độ POI, xem lộ trình tour và bản đồ nhiệt thống kê.
+ * Dùng tile OpenStreetMap nên không cần khoá API.
+ */
 import { useEffect, useMemo, useRef } from 'react';
 import L from 'leaflet';
 import { Circle, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap, useMapEvents } from 'react-leaflet';
@@ -6,6 +10,7 @@ import { Circle, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap, use
 export const DISTRICT4_CENTER: [number, number] = [10.7605, 106.7045];
 const ACCENT = '#0f766e';
 
+/** Lớp tile nền OpenStreetMap dùng chung cho mọi bản đồ. */
 export function OsmTiles() {
   return (
     <TileLayer
@@ -16,6 +21,7 @@ export function OsmTiles() {
   );
 }
 
+// Icon ghim mặc định cho điểm thuyết minh (chấm tròn, neo ở đáy).
 export const pinIcon = L.divIcon({
   className: 'map-pin',
   html: '<span class="map-pin-dot"></span>',
@@ -23,6 +29,7 @@ export const pinIcon = L.divIcon({
   iconAnchor: [14, 28],
 });
 
+/** Icon đánh số thứ tự cho các điểm dừng của tour. */
 export function numberIcon(n: number) {
   return L.divIcon({
     className: 'map-num',
@@ -32,6 +39,7 @@ export function numberIcon(n: number) {
   });
 }
 
+/** Lắng nghe sự kiện click trên bản đồ để lấy toạ độ người dùng chọn. */
 function ClickToPick({ onPick }: { onPick: (lat: number, lng: number) => void }) {
   useMapEvents({
     click(e) {
@@ -46,11 +54,13 @@ function KeepInView({ pos }: { pos: [number, number] | null }) {
   const map = useMap();
   useEffect(() => {
     if (!pos) return;
+    // Chỉ căn lại khi điểm nằm ngoài khung nhìn (bỏ lề 10%) để tránh bản đồ nhảy liên tục.
     if (!map.getBounds().pad(-0.1).contains(pos)) map.setView(pos, Math.max(map.getZoom(), 15));
   }, [map, pos]);
   return null;
 }
 
+// Thông tin tối thiểu của POI khác để vẽ vòng bán kính tham chiếu.
 export interface OtherPoi {
   id: number;
   name: string;
@@ -59,10 +69,12 @@ export interface OtherPoi {
   radius_m: number;
 }
 
+/** Làm tròn toạ độ về 6 chữ số thập phân (sai số khoảng 0,1 m). */
 export function round6(n: number) {
   return Math.round(n * 1e6) / 1e6;
 }
 
+/** Bản đồ cho phép chọn vị trí POI bằng cách click hoặc kéo ghim. */
 export function MapPicker({
   lat,
   lng,
@@ -79,6 +91,7 @@ export function MapPicker({
   const pos = useMemo<[number, number] | null>(() => (lat !== null && lng !== null ? [lat, lng] : null), [lat, lng]);
   const initial = useRef(pos ?? DISTRICT4_CENTER);
   const markerRef = useRef<L.Marker>(null);
+  // Chuẩn hoá toạ độ trước khi đưa lên form để tránh số thập phân quá dài.
   const pick = (a: number, b: number) => onChange(round6(a), round6(b));
 
   return (
@@ -123,8 +136,10 @@ export function MapPicker({
   );
 }
 
+/** Tự thu phóng bản đồ vừa với toàn bộ điểm; một điểm thì đặt mức zoom 16. */
 function FitBounds({ points, padding = 40 }: { points: [number, number][]; padding?: number }) {
   const map = useMap();
+  // So sánh bằng chuỗi để effect chỉ chạy lại khi toạ độ thực sự thay đổi.
   const key = JSON.stringify(points);
   useEffect(() => {
     if (points.length === 0) return;
@@ -135,6 +150,7 @@ function FitBounds({ points, padding = 40 }: { points: [number, number][]; paddi
   return null;
 }
 
+/** Bản đồ xem trước tour: nối các điểm dừng theo thứ tự và đánh số. */
 export function TourMap({ stops }: { stops: { id: number; name: string; latitude: number; longitude: number }[] }) {
   const points = stops.map((s) => [s.latitude, s.longitude] as [number, number]);
   return (
@@ -163,11 +179,13 @@ function loadHeat() {
   return heatLoaded;
 }
 
+/** Lớp bản đồ nhiệt, nạp plugin leaflet.heat theo nhu cầu. */
 function HeatLayer({ points }: { points: { lat: number; lng: number; weight: number }[] }) {
   const map = useMap();
   useEffect(() => {
     let layer: L.Layer | null = null;
     let cancelled = false;
+    // Chuẩn hoá trọng số về 0..1 vì leaflet.heat dùng cường độ tương đối.
     const max = Math.max(1, ...points.map((p) => p.weight));
     loadHeat().then(() => {
       if (cancelled || points.length === 0) return;
@@ -196,8 +214,10 @@ function HeatLayer({ points }: { points: { lat: number; lng: number; weight: num
   return null;
 }
 
+// Bảng màu cho từng lộ trình để phân biệt các route trên cùng bản đồ.
 const ROUTE_COLORS = ['#0f766e', '#2563eb', '#9333ea', '#db2777', '#ea580c', '#65a30d', '#0891b2', '#4f46e5'];
 
+/** Bản đồ nhiệt lượt nghe kèm lộ trình di chuyển và các điểm POI có số lượt. */
 export function HeatMap({
   heat,
   routes,
@@ -210,6 +230,7 @@ export function HeatMap({
   pois: { poi_id: number; name: string; latitude: number; longitude: number; plays: number }[];
 }) {
   const bounds = useMemo<[number, number][]>(() => {
+    // Gộp điểm nhiệt và POI để khung nhìn bao trùm toàn bộ dữ liệu.
     const pts: [number, number][] = heat.map((h) => [h.lat, h.lng]);
     pois.forEach((p) => pts.push([p.latitude, p.longitude]));
     return pts;

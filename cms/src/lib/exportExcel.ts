@@ -1,7 +1,12 @@
+/**
+ * Xuất báo cáo thống kê ra Excel: tách phần dựng dữ liệu từng sheet khỏi phần ghi file
+ * để có thể kiểm thử mà không cần thư viện xlsx.
+ */
 import type { AnalyticsReport } from './types';
 import { fillDaily, hourlyToLocal } from './format';
 import { languageLabel, triggerLabel } from './languages';
 
+// Thông tin kỳ báo cáo và tour đang lọc, dùng cho sheet Tổng quan.
 export interface ExportMeta {
   from: string;
   to: string;
@@ -11,6 +16,7 @@ export interface ExportMeta {
 /** Bảng dữ liệu cho từng sheet — tách riêng để kiểm thử không cần thư viện xlsx. */
 export function reportSheets(r: AnalyticsReport, meta: ExportMeta): { name: string; rows: (string | number)[][] }[] {
   const s = r.summary;
+  // Mỗi sheet gồm tên và mảng dòng; dòng đầu của các sheet dữ liệu là tiêu đề cột.
   return [
     {
       name: 'Tổng quan',
@@ -43,11 +49,13 @@ export function reportSheets(r: AnalyticsReport, meta: ExportMeta): { name: stri
   ];
 }
 
+/** Tạo workbook từ báo cáo và tải xuống file .xlsx; nạp xlsx theo nhu cầu để nhẹ bundle. */
 export async function exportReportExcel(r: AnalyticsReport, meta: ExportMeta) {
   const XLSX = await import('xlsx');
   const wb = XLSX.utils.book_new();
   for (const sheet of reportSheets(r, meta)) {
     const ws = XLSX.utils.aoa_to_sheet(sheet.rows);
+    // Ước lượng độ rộng cột theo nội dung dài nhất, giới hạn trong khoảng 8..60 ký tự.
     const widths = sheet.rows.reduce<number[]>((acc, row) => {
       row.forEach((c, i) => (acc[i] = Math.min(60, Math.max(acc[i] ?? 8, String(c ?? '').length + 2))));
       return acc;

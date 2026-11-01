@@ -3,6 +3,7 @@ import { REQUEST_TIMEOUT_MS } from '../config';
 import type { LocationLog, Poi, SyncBundle, UsageLog } from '../types';
 import { ParsedQr, qrApiPath } from '../engine/qr';
 
+/** Lỗi do máy chủ trả về: `status` là mã HTTP, `code` là mã lỗi nghiệp vụ (nếu có). */
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -22,8 +23,13 @@ export class NetworkError extends Error {
   }
 }
 
+/**
+ * Gọi một endpoint JSON với timeout; ném NetworkError khi không kết nối/timeout
+ * và ApiError khi máy chủ trả mã lỗi.
+ */
 async function request<T>(base: string, path: string, init: RequestInit = {}, timeoutMs = REQUEST_TIMEOUT_MS): Promise<T> {
   const controller = new AbortController();
+  // Huỷ request khi quá hạn để không treo UI ở mạng chậm.
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   let res: Response;
   try {
@@ -39,6 +45,7 @@ async function request<T>(base: string, path: string, init: RequestInit = {}, ti
   }
   const text = await res.text();
   let json: any = null;
+  // Body rỗng hoặc không phải JSON vẫn được chấp nhận; lỗi HTTP xử lý ở dưới.
   try {
     json = text ? JSON.parse(text) : null;
   } catch {
@@ -50,6 +57,7 @@ async function request<T>(base: string, path: string, init: RequestInit = {}, ti
   return json as T;
 }
 
+/** Tập endpoint công khai của backend, kèm timeout riêng cho từng loại dữ liệu. */
 export const api = {
   health: (base: string) => request<{ status: string }>(base, '/api/health', {}, 4000),
   syncVersion: (base: string) => request<{ version: number }>(base, '/api/sync/version'),

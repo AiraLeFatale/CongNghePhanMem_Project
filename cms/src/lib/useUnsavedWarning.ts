@@ -1,3 +1,7 @@
+/**
+ * Hook cảnh báo thay đổi chưa lưu khi rời trang, dùng cho các form POI/tour.
+ * Kết hợp chặn điều hướng nội bộ của react-router với sự kiện beforeunload.
+ */
 import { useEffect, useRef } from 'react';
 import { useBlocker } from 'react-router';
 import { useConfirm } from '../components/ConfirmDialog';
@@ -10,8 +14,10 @@ export function useUnsavedWarning(dirty: boolean, message = 'Bạn có thay đ�
   const confirm = useConfirm();
   const bypass = useRef(false);
   const dirtyRef = useRef(dirty);
+  // Giữ giá trị dirty mới nhất để hàm kiểm tra của useBlocker luôn đọc đúng.
   dirtyRef.current = dirty;
 
+  // Chỉ chặn khi form đang bẩn, không nằm trong trạng thái bỏ qua và đường dẫn thực sự đổi.
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
       dirtyRef.current && !bypass.current && currentLocation.pathname !== nextLocation.pathname,
@@ -20,6 +26,7 @@ export function useUnsavedWarning(dirty: boolean, message = 'Bạn có thay đ�
   useEffect(() => {
     if (blocker.state !== 'blocked') return;
     let active = true;
+    // Hỏi xác nhận bằng hộp thoại chung: đồng ý thì đi tiếp, huỷ thì ở lại.
     confirm({ title: 'Rời trang khi chưa lưu?', message, confirmText: 'Rời trang', cancelText: 'Ở lại', danger: true }).then((ok) => {
       if (!active) return;
       if (ok) blocker.proceed();
@@ -32,6 +39,7 @@ export function useUnsavedWarning(dirty: boolean, message = 'Bạn có thay đ�
 
   useEffect(() => {
     if (!dirty) return;
+    // Cảnh báo mặc định của trình duyệt khi đóng tab hoặc tải lại trang.
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = '';

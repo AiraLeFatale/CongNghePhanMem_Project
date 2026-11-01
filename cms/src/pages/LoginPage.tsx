@@ -1,3 +1,8 @@
+/**
+ * Trang đăng nhập của CMS.
+ * Xác thực tài khoản quản trị, hiển thị lỗi và chuyển hướng về trang đích
+ * được truyền qua tham số ?next trên URL.
+ */
 import { useState, type FormEvent } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '../auth/AuthContext';
@@ -6,12 +11,14 @@ import { useDocumentTitle } from '../lib/useAsync';
 import { Icon } from '../components/Icon';
 import { Spinner } from '../components/States';
 
+// Chuẩn hoá tham số ?next, chỉ chấp nhận đường dẫn nội bộ an toàn.
 function safeNext(next: string | null): string {
   // Chỉ cho chuyển hướng nội bộ để tránh open-redirect.
   if (!next || !next.startsWith('/') || next.startsWith('//') || next.startsWith('/login')) return '/';
   return next;
 }
 
+// Trang đăng nhập: quản lý state form, gọi login và điều hướng sau khi thành công.
 export function LoginPage() {
   useDocumentTitle('Đăng nhập');
   const { login, token } = useAuth();
@@ -23,8 +30,10 @@ export function LoginPage() {
   const [busy, setBusy] = useState(false);
   const next = safeNext(params.get('next'));
 
+  // Đã có token và không đang đăng nhập thì vào thẳng trang đích.
   if (token && !busy) return <Navigate to={next} replace />;
 
+  // Kiểm tra dữ liệu nhập, gọi API đăng nhập rồi chuyển hướng.
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!username.trim() || !password) {
@@ -54,6 +63,7 @@ export function LoginPage() {
             <p>Đăng nhập trang quản trị nội dung</p>
           </div>
         </div>
+        {/* Thông báo lỗi đăng nhập, được liên kết với form qua aria-describedby. */}
         {error && (
           <div className="alert alert-error" id="login-error" role="alert">
             {error}

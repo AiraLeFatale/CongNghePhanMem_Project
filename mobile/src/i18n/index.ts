@@ -4,6 +4,7 @@
  */
 import { store, useAppStore } from '../state/store';
 
+// Bộ chuỗi tiếng Việt — đồng thời là nguồn định nghĩa kiểu Key cho toàn bộ i18n.
 const vi = {
   'tab.map': 'Bản đồ',
   'tab.tours': 'Tour',
@@ -154,8 +155,10 @@ const vi = {
   'method.manual': 'Thủ công',
 };
 
+// Tập khoá dịch, suy ra từ object tiếng Việt để hai bộ chuỗi luôn khớp nhau.
 type Key = keyof typeof vi;
 
+// Bản tiếng Anh; Record<Key, string> buộc phải có đủ mọi khoá như tiếng Việt.
 const en: Record<Key, string> = {
   'tab.map': 'Map',
   'tab.tours': 'Tours',
@@ -306,17 +309,24 @@ const en: Record<Key, string> = {
   'method.manual': 'Manual',
 };
 
+/** Khoá dịch dùng chung cho UI và các service. */
 export type I18nKey = Key;
+/** Ngôn ngữ giao diện: chỉ có tiếng Việt và tiếng Anh (nội dung thuyết minh có thể khác). */
 export type UiLang = 'vi' | 'en';
 
+/** Chọn ngôn ngữ giao diện từ ngôn ngữ thuyết minh: "vi" → vi, còn lại → en. */
 export const uiLangFor = (narrationLang: string): UiLang => (narrationLang === 'vi' ? 'vi' : 'en');
 
+/** Thay các placeholder dạng {tên} trong chuỗi bằng giá trị tương ứng. */
 function format(s: string, params?: Record<string, string | number>): string {
   if (!params) return s;
+  // Thiếu tham số thì giữ nguyên placeholder để dễ phát hiện khi kiểm thử.
   return s.replace(/\{(\w+)\}/g, (m, k) => (params[k] != null ? String(params[k]) : m));
 }
 
+/** Dịch một khoá theo ngôn ngữ giao diện, có áp placeholder. */
 export function translate(lang: UiLang, key: Key, params?: Record<string, string | number>): string {
+  // Thiếu khoá ở ngôn ngữ đích → rơi về tiếng Việt, cuối cùng trả chính khoá.
   return format((lang === 'vi' ? vi : en)[key] ?? vi[key] ?? key, params);
 }
 
@@ -331,6 +341,7 @@ export function useT() {
   return { lang, t: (key: Key, params?: Record<string, string | number>) => translate(lang, key, params) };
 }
 
+/** Tên ngôn ngữ hiển thị trong danh sách chọn (luôn viết bằng chính ngôn ngữ đó). */
 export const LANGUAGE_NAMES: Record<string, string> = {
   vi: 'Tiếng Việt',
   en: 'English',
@@ -340,6 +351,8 @@ export const LANGUAGE_NAMES: Record<string, string> = {
   fr: 'Français',
 };
 
+/** Nhãn ngắn 2 ký tự thay cho cờ (tránh phụ thuộc font emoji trên một số thiết bị). */
 export const LANGUAGE_FLAGS: Record<string, string> = { vi: 'VI', en: 'EN', zh: 'ZH', ko: 'KO', ja: 'JA', fr: 'FR' };
 
+// Xuất object thô để test/kiểm tra tính đầy đủ của bản dịch.
 export { vi as viStrings, en as enStrings };

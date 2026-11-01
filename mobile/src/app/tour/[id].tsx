@@ -9,7 +9,9 @@ import { useT } from '../../i18n';
 import { startTourWalk, stopTourWalk } from '../../services/simulation';
 import { store, useAppStore } from '../../state/store';
 
+// Màn hình chi tiết tour: danh sách điểm dừng, theo dõi tour và mô phỏng đi bộ.
 export default function TourDetail() {
+  // id trên URL là chuỗi, chuyển sang số để tra tour trong store.
   const { id } = useLocalSearchParams<{ id: string }>();
   const tourId = Number(id);
   const { t } = useT();
@@ -22,8 +24,10 @@ export default function TourDetail() {
   const walking = useAppStore((s) => s.simWalkingTourId);
 
   if (!tour) return <StateView kind="empty" title={t('tour.notFound')} />;
+  // Ghép poi_ids với dữ liệu POI thật, bỏ qua id không còn tồn tại.
   const stops = tour.poi_ids.map((pid) => pois.find((p) => p.id === pid)).filter((p): p is NonNullable<typeof p> => !!p);
   const following = follow?.tourId === tour.id;
+  // Chỉ số điểm kế tiếp, -1 khi không theo dõi tour này.
   const nextIndex = following ? follow!.nextIndex : -1;
 
   return (
@@ -40,6 +44,7 @@ export default function TourDetail() {
             </Text>
             {tour.description ? <Text style={styles.desc}>{tour.description}</Text> : null}
             <View style={styles.actions}>
+              {/* Đang theo dõi thì cho bỏ theo dõi, chưa thì bắt đầu từ điểm đầu tiên và về tab bản đồ. */}
               {following ? (
                 <Button
                   title={t('tour.unfollow')}
@@ -61,6 +66,7 @@ export default function TourDetail() {
                 />
               )}
             </View>
+            {/* Bỏ qua điểm kế tiếp bằng cách tăng nextIndex. */}
             {following && nextIndex < stops.length && (
               <Button
                 title={t('tour.skip')}
@@ -74,6 +80,7 @@ export default function TourDetail() {
                 title={walking === tour.id ? t('map.stopWalk') : t('tour.simWalk')}
                 variant="ghost"
                 onPress={() => {
+                  // Bật/tắt chế độ đi bộ mô phỏng quanh tour rồi quay về bản đồ để xem.
                   if (walking === tour.id) stopTourWalk();
                   else if (startTourWalk(tour.id)) router.navigate('/');
                 }}
@@ -85,8 +92,10 @@ export default function TourDetail() {
           </View>
         }
         renderItem={({ item, index }) => {
+          // Điểm kế tiếp được tô nổi bật, các điểm trước đó coi như đã đi qua.
           const isNext = index === nextIndex;
           const done = following && index < nextIndex;
+          // Mở trang chi tiết của điểm dừng tương ứng khi chạm vào thẻ.
           return (
             <Pressable
               onPress={() => router.push({ pathname: '/poi/[id]', params: { id: String(item.id) } })}

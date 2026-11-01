@@ -13,6 +13,7 @@ import { refreshRegions, resetGeofence } from '../../services/pipeline';
 import { notify, store, useAppStore } from '../../state/store';
 import { LANGUAGES } from '../../types';
 
+// Một dòng cài đặt dạng bật/tắt kèm nhãn và gợi ý.
 function Row({ label, hint, value, onChange }: { label: string; hint?: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
     <View style={styles.row}>
@@ -25,6 +26,7 @@ function Row({ label, hint, value, onChange }: { label: string; hint?: string; v
   );
 }
 
+// Bộ điều chỉnh số (cooldown, tốc độ mô phỏng) với nút −/+ và giới hạn min/max.
 function Stepper({ label, value, min, max, step = 1, onChange }: { label: string; value: number; min: number; max: number; step?: number; onChange: (v: number) => void }) {
   return (
     <View style={styles.row}>
@@ -38,8 +40,10 @@ function Stepper({ label, value, min, max, step = 1, onChange }: { label: string
   );
 }
 
+// Định dạng dung lượng byte sang KB/MB cho phần thống kê audio offline.
 const fmtSize = (b: number) => (b > 1e6 ? `${(b / 1e6).toFixed(1)} MB` : `${Math.round(b / 1e3)} KB`);
 
+// Màn hình Cài đặt: đọc/ghi store, đồng bộ dữ liệu, quản lý audio offline và các tùy chọn demo.
 export default function SettingsScreen() {
   const { t, lang: uiLang } = useT();
   const settings = useAppStore((s) => s.settings);
@@ -57,14 +61,18 @@ export default function SettingsScreen() {
   const [stats, setStats] = useState<{ files: number; bytes: number } | null>(null);
   const [qrCount, setQrCount] = useState(0);
 
+  // Đọc lại dung lượng audio đã tải và số QR lưu cục bộ.
   const refreshStats = () => {
     audioCacheStats().then(setStats).catch(() => {});
     qrLocalCount().then(setQrCount).catch(() => {});
   };
+  // Cập nhật thống kê mỗi khi nội dung đồng bộ có phiên bản mới.
   useEffect(refreshStats, [version]);
 
+  // Danh sách URL audio của toàn bộ POI, dùng cho nút tải offline.
   const audioUrls = collectAudioUrls(pois);
 
+  // Tải toàn bộ audio về máy, hiển thị tiến độ và báo số file lỗi (nếu có).
   const downloadAudio = async () => {
     setDl({ d: 0, n: audioUrls.length });
     const r = await downloadAll(audioUrls, apiBase, (d, n) => setDl({ d, n }));
@@ -73,6 +81,7 @@ export default function SettingsScreen() {
     if (r.failed) notify(`${t('common.error')}: ${r.failed}/${audioUrls.length}`, 'warn');
   };
 
+  // Xóa cache dữ liệu + audio sau khi người dùng xác nhận, rồi nạp lại nội dung cục bộ.
   const onClear = () =>
     Alert.alert(t('settings.clearCache'), t('settings.clearConfirm'), [
       { text: t('common.cancel'), style: 'cancel' },
@@ -92,6 +101,7 @@ export default function SettingsScreen() {
       },
     ]);
 
+  // Hiển thị thời điểm đồng bộ theo định dạng ngày giờ của ngôn ngữ giao diện.
   const lastSync = lastSyncAt ? new Date(lastSyncAt).toLocaleString(uiLang === 'vi' ? 'vi-VN' : 'en-GB') : t('common.never');
 
   return (
@@ -132,6 +142,7 @@ export default function SettingsScreen() {
         />
       </Card>
 
+      {/* Chế độ demo: bật vị trí mô phỏng và tốc độ đi bộ giả lập. */}
       <SectionTitle>{t('settings.demo')}</SectionTitle>
       <Card style={styles.card}>
         <Row label={t('settings.sim')} hint={t('settings.simHint')} value={settings.simulation} onChange={(v) => updateSettings({ simulation: v })} />
@@ -140,6 +151,7 @@ export default function SettingsScreen() {
         )}
       </Card>
 
+      {/* Địa chỉ backend; để trống thì dùng địa chỉ mặc định do config.ts suy ra. */}
       <SectionTitle>{t('settings.server')}</SectionTitle>
       <Card style={styles.card}>
         <Text style={styles.label}>{t('settings.serverUrl')}</Text>
@@ -172,6 +184,7 @@ export default function SettingsScreen() {
         </Text>
       </Card>
 
+      {/* Dữ liệu: phiên bản nội dung, số POI/tour, đồng bộ thủ công và audio offline. */}
       <SectionTitle>{t('settings.data')}</SectionTitle>
       <Card style={styles.card}>
         <Text style={styles.meta}>
@@ -198,6 +211,7 @@ export default function SettingsScreen() {
         <Button title={t('settings.clearCache')} variant="ghost" onPress={onClear} style={{ marginTop: 8 }} />
       </Card>
 
+      {/* Quyền riêng tư: chia sẻ dữ liệu ẩn danh và số bản ghi đang chờ gửi. */}
       <SectionTitle>{t('settings.privacy')}</SectionTitle>
       <Card style={styles.card}>
         <Row label={t('settings.share')} value={settings.shareAnonymousData} onChange={(v) => updateSettings({ shareAnonymousData: v })} />

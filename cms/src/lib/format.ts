@@ -1,6 +1,11 @@
+/**
+ * Các hàm định dạng số, thời lượng và ngày giờ theo kiểu Việt Nam,
+ * cùng tiện ích điền đủ ngày/giờ cho dữ liệu báo cáo.
+ */
 const nf = new Intl.NumberFormat('vi-VN');
 const nf1 = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 });
 
+// Số nguyên và số thập phân (1 chữ số); giá trị thiếu hiển thị dấu gạch ngang.
 export const formatNumber = (n: number | null | undefined) => (n === null || n === undefined ? '–' : nf.format(n));
 export const formatDecimal = (n: number | null | undefined) => (n === null || n === undefined ? '–' : nf1.format(n));
 
@@ -24,6 +29,7 @@ export function toLocalISODate(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+/** Trả về ngày cách `n` ngày so với mốc `from` (mặc định hôm nay). */
 export function daysAgo(n: number, from = new Date()): string {
   const d = new Date(from);
   d.setDate(d.getDate() - n);
@@ -52,7 +58,9 @@ export function fillDaily(daily: { date: string; plays: number }[], from: string
   const out: { date: string; plays: number }[] = [];
   const start = new Date(`${from}T00:00:00Z`);
   const end = new Date(`${to}T00:00:00Z`);
+  // Khoảng ngày không hợp lệ thì giữ nguyên dữ liệu gốc thay vì dựng mảng rỗng.
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start > end) return daily;
+  // Duyệt từng ngày UTC, giới hạn 1000 phần tử để tránh vòng lặp quá dài.
   for (let d = start; d <= end && out.length < 1000; d = new Date(d.getTime() + 86400000)) {
     const key = d.toISOString().slice(0, 10);
     out.push({ date: key, plays: map.get(key) ?? 0 });
@@ -60,11 +68,13 @@ export function fillDaily(daily: { date: string; plays: number }[], from: string
   return out;
 }
 
+// Chênh lệch giờ Việt Nam so với UTC, dùng khi đổi giờ trong báo cáo.
 export const VN_OFFSET_HOURS = 7;
 
 /** Giờ trong báo cáo là UTC → đổi sang giờ Việt Nam (UTC+7), đủ 24 cột. */
 export function hourlyToLocal(hourly: { hour: number; plays: number }[], offset = VN_OFFSET_HOURS): { hour: number; plays: number }[] {
   const arr = Array.from({ length: 24 }, (_, hour) => ({ hour, plays: 0 }));
+  // Cộng offset rồi chuẩn hoá về 0..23 bằng modulo kép để xử lý cả giờ âm.
   for (const h of hourly) arr[(((h.hour + offset) % 24) + 24) % 24].plays += h.plays;
   return arr;
 }

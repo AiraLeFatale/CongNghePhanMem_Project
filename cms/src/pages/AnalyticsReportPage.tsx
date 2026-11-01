@@ -22,10 +22,14 @@ export function AnalyticsReportPage() {
   const autoPrint = params.get('print') === '1';
   const { user } = useAuth();
   const printed = useRef(false);
+  // Tải số liệu thống kê theo khoảng thời gian và tour đang lọc.
   const report = useAsync(() => api.analytics({ from: filters.from, to: filters.to, tour_id: filters.tourId }), [filters.from, filters.to, filters.tourId]);
+  // Danh sách tour dùng để hiển thị tên tour thay cho id trong phần thông tin báo cáo.
   const tours = useAsync(() => api.listTours(), []);
+  // Tên tour đang lọc; null nghĩa là báo cáo cho tất cả tour.
   const tourName = filters.tourId ? (tours.data?.find((t) => t.id === filters.tourId)?.name ?? `Tour #${filters.tourId}`) : null;
 
+  // Tắt animation biểu đồ để bản in ổn định, khôi phục cấu hình khi rời trang.
   useEffect(() => {
     const prev = ChartJS.defaults.animation;
     ChartJS.defaults.animation = false;
@@ -34,6 +38,7 @@ export function AnalyticsReportPage() {
     };
   }, []);
 
+  // Tự mở hộp thoại in khi URL có ?print=1 và dữ liệu đã tải xong (chỉ một lần).
   useEffect(() => {
     if (!autoPrint || printed.current || !report.data || tours.loading) return;
     printed.current = true;
@@ -41,6 +46,7 @@ export function AnalyticsReportPage() {
     return () => clearTimeout(t);
   }, [autoPrint, report.data, tours.loading]);
 
+  // Chuẩn hoá dữ liệu cho báo cáo: điền đủ ngày, đổi giờ sang giờ Việt Nam và lấy top 10 điểm.
   const r = report.data;
   const daily = r ? fillDaily(r.daily, filters.from, filters.to) : [];
   const hourly = r ? hourlyToLocal(r.hourly) : [];
@@ -49,6 +55,7 @@ export function AnalyticsReportPage() {
 
   return (
     <div className="report">
+      {/* Thanh công cụ chỉ hiện trên màn hình, được ẩn khi in nhờ lớp no-print. */}
       <div className="report-toolbar no-print">
         <Link to={`/analytics?${filtersQuery(filters)}`} className="btn">
           ← Quay lại thống kê
@@ -64,6 +71,7 @@ export function AnalyticsReportPage() {
         <ErrorState message={report.error} onRetry={report.reload} />
       ) : r ? (
         <article className="report-page">
+          {/* Phần đầu báo cáo: tiêu đề, khoảng thời gian, tour và người lập. */}
           <header className="report-head">
             <div>
               <h1>Báo cáo thống kê thuyết minh tự động</h1>
@@ -87,6 +95,7 @@ export function AnalyticsReportPage() {
             <p className="report-empty">Không có dữ liệu trong khoảng thời gian đã chọn.</p>
           ) : (
             <>
+              {/* Các khối số liệu và biểu đồ, đánh số mục theo thứ tự in. */}
               <h2>1. Chỉ số tổng quan</h2>
               <Kpis r={r} />
 
@@ -102,6 +111,7 @@ export function AnalyticsReportPage() {
               <PerPoiTable r={r} />
 
               <div className="report-cols">
+                {/* Hai bảng tỉ lệ theo cách kích hoạt và theo ngôn ngữ, in cạnh nhau. */}
                 <section>
                   <h2>4. Cách kích hoạt</h2>
                   <table className="table">
@@ -155,6 +165,7 @@ export function AnalyticsReportPage() {
               </div>
 
               <h2>6. Lượt nghe theo giờ (giờ Việt Nam)</h2>
+              {/* Bảng 24 cột: giờ trong ngày và số lượt nghe tương ứng. */}
               <table className="table table-compact hours">
                 <tbody>
                   <tr>

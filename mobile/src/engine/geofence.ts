@@ -11,6 +11,7 @@
  */
 import { haversineMeters, LatLng } from './geo';
 
+/** Một vùng geofence tròn gắn với POI; `priority` càng cao càng được ưu tiên khi chồng lấn. */
 export interface GeofenceRegion {
   id: number;
   latitude: number;
@@ -19,23 +20,28 @@ export interface GeofenceRegion {
   priority: number;
 }
 
+/** Ngưỡng cấu hình: độ chính xác GPS tối đa (m) và hệ số hysteresis khi rời vùng. */
 export interface GeofenceOptions {
   maxAccuracyM: number;
   hysteresis: number;
 }
 
+/** Giá trị mặc định: bỏ qua GPS sai số > 60 m, rời vùng khi vượt 1,2 lần bán kính. */
 export const DEFAULT_GEOFENCE_OPTIONS: GeofenceOptions = { maxAccuracyM: 60, hysteresis: 1.2 };
 
+/** Một mẫu GPS: toạ độ kèm độ chính xác (m, null nếu thiết bị không báo). */
 export interface GeofenceFix extends LatLng {
   accuracy: number | null;
 }
 
+/** Sự kiện kích hoạt thuyết minh cho một POI khi vừa vào vùng. */
 export interface GeofenceTrigger {
   poiId: number;
   distanceM: number;
   priority: number;
 }
 
+/** Kết quả một lần cập nhật vị trí. */
 export interface GeofenceResult {
   /** true nếu bản ghi bị loại vì độ chính xác kém. */
   ignored: boolean;
@@ -65,12 +71,14 @@ export function pickBest<T extends { priority: number; distanceM: number; id: nu
   return best;
 }
 
+/** Bộ máy geofence: giữ danh sách vùng và trạng thái trong/ngoài để sinh sự kiện vào/ra. */
 export class GeofenceEngine {
   private regions: GeofenceRegion[] = [];
   private inside = new Set<number>();
   private triggeredThisVisit = new Set<number>();
   private opts: GeofenceOptions;
 
+  /** Gộp tuỳ chọn truyền vào với giá trị mặc định rồi nạp danh sách vùng ban đầu. */
   constructor(regions: GeofenceRegion[] = [], opts: Partial<GeofenceOptions> = {}) {
     this.opts = { ...DEFAULT_GEOFENCE_OPTIONS, ...opts };
     this.setRegions(regions);
@@ -86,10 +94,12 @@ export class GeofenceEngine {
     for (const id of [...this.triggeredThisVisit]) if (!ids.has(id)) this.triggeredThisVisit.delete(id);
   }
 
+  /** Đổi ngưỡng cấu hình tại chỗ (ví dụ khi người dùng chỉnh cài đặt). */
   setOptions(opts: Partial<GeofenceOptions>): void {
     this.opts = { ...this.opts, ...opts };
   }
 
+  /** Danh sách id POI hiện đang nằm trong vùng. */
   getInside(): number[] {
     return [...this.inside];
   }
@@ -100,6 +110,10 @@ export class GeofenceEngine {
     this.triggeredThisVisit.clear();
   }
 
+  /**
+   * Xử lý một mẫu GPS: cập nhật trạng thái trong/ngoài, trả về POI vừa vào/ra
+   * và POI cần thuyết minh (mỗi lượt ghé chỉ kích hoạt một lần).
+   */
   update(fix: GeofenceFix): GeofenceResult {
     const empty: GeofenceResult = {
       ignored: true,
@@ -124,6 +138,7 @@ export class GeofenceEngine {
         this.inside.add(r.id);
         entered.push(r.id);
       } else if (wasInside && d > r.radius_m * this.opts.hysteresis) {
+        // Chỉ coi là ra vùng khi vượt bán kính × hysteresis → tránh nhấp nháy ở mép vùng.
         this.inside.delete(r.id);
         this.triggeredThisVisit.delete(r.id);
         exited.push(r.id);

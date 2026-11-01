@@ -11,6 +11,7 @@ const SCHEMA_VERSION = 1;
 
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
+/** Mở database một lần duy nhất (singleton) và chạy migrate; lỗi thì reset để lần sau thử lại. */
 export function getDb(): Promise<SQLite.SQLiteDatabase> {
   if (!dbPromise) {
     dbPromise = (async () => {
@@ -25,7 +26,9 @@ export function getDb(): Promise<SQLite.SQLiteDatabase> {
   return dbPromise;
 }
 
+/** Tạo bảng nếu chưa có và nâng `user_version`; bỏ qua khi schema đã mới nhất. */
 async function migrate(db: SQLite.SQLiteDatabase): Promise<void> {
+  // WAL cho ghi nhanh hơn, bật khoá ngoại để ON DELETE CASCADE hoạt động.
   await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
   const row = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
   const current = row?.user_version ?? 0;
@@ -59,12 +62,14 @@ async function migrate(db: SQLite.SQLiteDatabase): Promise<void> {
 
 /* ---------------- key/value (cài đặt, phiên bản nội dung) ---------------- */
 
+/** Đọc một giá trị trong bảng key/value; trả null nếu chưa có. */
 export async function kvGet(key: string): Promise<string | null> {
   const db = await getDb();
   const r = await db.getFirstAsync<{ value: string | null }>('SELECT value FROM kv WHERE key = ?', key);
   return r?.value ?? null;
 }
 
+/** Ghi/ghi đè một giá trị key/value; truyền null để xoá khoá. */
 export async function kvSet(key: string, value: string | null): Promise<void> {
   const db = await getDb();
   if (value == null) await db.runAsync('DELETE FROM kv WHERE key = ?', key);
@@ -73,11 +78,13 @@ export async function kvSet(key: string, value: string | null): Promise<void> {
 
 /* ---------------- nội dung ---------------- */
 
+/** Nạp toàn bộ POI kèm bản dịch và tour kèm thứ tự điểm dừng từ SQLite. */
 export async function loadContent(): Promise<{ pois: Poi[]; tours: Tour[] }> {
   const db = await getDb();
   const poiRows = await db.getAllAsync<Omit<Poi, 'translations'>>('SELECT * FROM poi ORDER BY priority DESC, id');
   const trRows = await db.getAllAsync<Translation & { poi_id: number }>('SELECT * FROM poi_translation');
   const byPoi = new Map<number, Translation[]>();
+  // Gom bản dịch theo poi_id để ghép vào từng POI chỉ với một lượt truy vấn.
   for (const t of trRows) {
     const list = byPoi.get(t.poi_id) ?? [];
     list.push({
@@ -98,6 +105,7 @@ export async function loadContent(): Promise<{ pois: Poi[]; tours: Tour[] }> {
   return { pois, tours };
 }
 
+/** Đếm số POI đang lưu trên máy (dùng để biết đã có dữ liệu offline chưa). */
 export async function countPois(): Promise<number> {
   const db = await getDb();
   const r = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM poi');
@@ -108,6 +116,7 @@ export async function countPois(): Promise<number> {
 export async function replaceContent(bundle: SyncBundle): Promise<void> {
   const db = await getDb();
   await db.withExclusiveTransactionAsync(async (txn) => {
+    // Xoá sạch nội dung cũ trước khi ghi gói mới (thứ tự tôn trọng khoá ngoại).
     await txn.execAsync('DELETE FROM tour_poi; DELETE FROM tour; DELETE FROM poi_translation; DELETE FROM poi; DELETE FROM qr_code;');
     for (const p of bundle.pois) {
       await txn.runAsync(
@@ -123,10 +132,12 @@ export async function replaceContent(bundle: SyncBundle): Promise<void> {
     }
     for (const t of bundle.tours) {
       await txn.runAsync('INSERT INTO tour (id, name, description, updated_at) VALUES (?,?,?,?)', t.id, t.name, t.description, t.updated_at);
+      // visit_order bắt đầu từ 1 theo đúng thứ tự poi_ids trong gói.
       for (let i = 0; i < t.poi_ids.length; i++) {
         await txn.runAsync('INSERT INTO tour_poi (tour_id, poi_id, visit_order) VALUES (?,?,?)', t.id, t.poi_ids[i], i + 1);
       }
     }
+    // QR phát hành trên máy chủ — dùng để tra cứu offline.
     for (const q of bundle.qrcodes ?? []) {
       await txn.runAsync('INSERT OR REPLACE INTO qr_code (payload, poi_id, label) VALUES (?,?,?)', q.payload, q.poi_id, q.label);
     }
@@ -173,16 +184,19 @@ export async function qrLocalGet(code: string): Promise<{ poi_id: number; label:
   return db.getFirstAsync<{ poi_id: number; label: string | null }>('SELECT poi_id, label FROM qr_code WHERE payload = ?', code);
 }
 
+/** Đếm số mã QR đồng bộ được (dùng cho màn hình cài đặt/chẩn đoán). */
 export async function qrLocalCount(): Promise<number> {
   const db = await getDb();
   return (await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM qr_code'))?.n ?? 0;
 }
 
+/** Tra mã QR đã giải thành công trước đó (bộ đệm để dùng lại khi offline). */
 export async function qrCacheGet(code: string): Promise<{ poi_id: number; label: string | null } | null> {
   const db = await getDb();
   return db.getFirstAsync<{ poi_id: number; label: string | null }>('SELECT poi_id, label FROM qr_cache WHERE code = ?', code);
 }
 
+/** Lưu kết quả giải mã QR vào bộ đệm kèm thời điểm, phục vụ tra cứu offline. */
 export async function qrCachePut(code: string, poiId: number, label: string | null): Promise<void> {
   const db = await getDb();
   await db.runAsync(
@@ -191,11 +205,13 @@ export async function qrCachePut(code: string, poiId: number, label: string | nu
   );
 }
 
+/** Xoá một mục trong bộ đệm QR (ví dụ khi mã không còn hợp lệ). */
 export async function qrCacheDelete(code: string): Promise<void> {
   const db = await getDb();
   await db.runAsync('DELETE FROM qr_cache WHERE code = ?', code);
 }
 
+/** Đếm số mã QR đã lưu trong bộ đệm. */
 export async function qrCacheCount(): Promise<number> {
   const db = await getDb();
   return (await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM qr_cache'))?.n ?? 0;
@@ -203,16 +219,19 @@ export async function qrCacheCount(): Promise<number> {
 
 /* ---------------- audio đã tải ---------------- */
 
+/** URI file audio cục bộ đã tải cho URL gốc; null nếu chưa tải. */
 export async function audioFileGet(url: string): Promise<string | null> {
   const db = await getDb();
   return (await db.getFirstAsync<{ local_uri: string }>('SELECT local_uri FROM audio_file WHERE url = ?', url))?.local_uri ?? null;
 }
 
+/** Liệt kê mọi audio đã tải (để dọn file không còn dùng hoặc tính dung lượng). */
 export async function audioFileList(): Promise<{ url: string; local_uri: string; bytes: number | null }[]> {
   const db = await getDb();
   return db.getAllAsync('SELECT url, local_uri, bytes FROM audio_file');
 }
 
+/** Ghi nhận (hoặc cập nhật) một file audio đã tải: URL gốc → URI cục bộ. */
 export async function audioFilePut(url: string, localUri: string, bytes: number | null): Promise<void> {
   const db = await getDb();
   await db.runAsync(
@@ -221,6 +240,7 @@ export async function audioFilePut(url: string, localUri: string, bytes: number 
   );
 }
 
+/** Xoá bản ghi audio đã tải theo URL gốc. */
 export async function audioFileDelete(url: string): Promise<void> {
   const db = await getDb();
   await db.runAsync('DELETE FROM audio_file WHERE url = ?', url);
@@ -228,30 +248,36 @@ export async function audioFileDelete(url: string): Promise<void> {
 
 /* ---------------- hàng đợi log ẩn danh ---------------- */
 
+/** Hai bảng hàng đợi log ẩn danh: lượt nghe và mẫu vị trí. */
 export type QueueTable = 'usage_queue' | 'location_queue';
 
+/** Đẩy một bản ghi log vào cuối hàng đợi (chờ gửi khi có mạng). */
 export async function queuePush(table: QueueTable, payload: object): Promise<void> {
   const db = await getDb();
   await db.runAsync(`INSERT INTO ${table} (payload, created_at) VALUES (?, ?)`, JSON.stringify(payload), new Date().toISOString());
 }
 
+/** Lấy tối đa `limit` bản ghi cũ nhất trong hàng đợi, kèm id để xoá sau khi gửi thành công. */
 export async function queuePeek<T>(table: QueueTable, limit: number): Promise<{ id: number; payload: T }[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<{ id: number; payload: string }>(`SELECT id, payload FROM ${table} ORDER BY id LIMIT ?`, limit);
   return rows.map((r) => ({ id: r.id, payload: JSON.parse(r.payload) as T }));
 }
 
+/** Xoá các bản ghi đã gửi thành công theo danh sách id (dựng placeholder cho IN). */
 export async function queueDelete(table: QueueTable, ids: number[]): Promise<void> {
   if (!ids.length) return;
   const db = await getDb();
   await db.runAsync(`DELETE FROM ${table} WHERE id IN (${ids.map(() => '?').join(',')})`, ...ids);
 }
 
+/** Đếm số bản ghi đang chờ gửi (hiển thị trên màn hình Cài đặt). */
 export async function queueCount(table: QueueTable): Promise<number> {
   const db = await getDb();
   return (await db.getFirstAsync<{ n: number }>(`SELECT COUNT(*) AS n FROM ${table}`))?.n ?? 0;
 }
 
+/** Xoá sạch hàng đợi (dùng khi người dùng tắt chia sẻ dữ liệu). */
 export async function queueClear(table: QueueTable): Promise<void> {
   const db = await getDb();
   await db.runAsync(`DELETE FROM ${table}`);

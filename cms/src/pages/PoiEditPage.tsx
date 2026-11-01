@@ -1,3 +1,8 @@
+/**
+ * Trang thêm/sửa điểm thuyết minh (POI): thông tin vị trí, vùng kích hoạt, ảnh,
+ * nội dung đa ngôn ngữ, audio (TTS hoặc tải lên) và mã QR in tại trạm.
+ * Trang đảm nhận tải dữ liệu, kiểm tra form, gọi API và cảnh báo thay đổi chưa lưu.
+ */
 import { useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { api, ApiError, errorMessage, qrContent } from '../lib/api';
@@ -29,6 +34,7 @@ import { useToast } from '../components/Toast';
 
 const FIELD_ORDER = ['name', 'latitude', 'longitude', 'radius_m', 'priority', ...LANGUAGES.map((l) => translationKey(l.code))];
 
+// Đọc `id` từ URL, từ chối id không hợp lệ và dùng key để khởi tạo lại editor khi đổi điểm.
 export function PoiEditPage() {
   const { id } = useParams();
   const numericId = id && id !== 'new' ? Number(id) : null;
@@ -38,6 +44,8 @@ export function PoiEditPage() {
   return <PoiEditor key={numericId ?? 'new'} poiId={numericId} />;
 }
 
+// Nạp POI cần sửa cùng danh sách POI khác (để vẽ vòng tròn tham chiếu trên bản đồ).
+// Hiển thị trạng thái tải/lỗi trước khi chuyển sang form nhập liệu.
 function PoiEditor({ poiId }: { poiId: number | null }) {
   const isNew = poiId === null;
   const loaded = useAsync<Poi | null>(() => (poiId ? api.getPoi(poiId) : Promise.resolve(null)), [poiId]);
@@ -55,6 +63,8 @@ function PoiEditor({ poiId }: { poiId: number | null }) {
   return <PoiFormView initial={loaded.data ?? null} isNew={isNew} others={(others.data ?? []).filter((o) => o.id !== poiId)} />;
 }
 
+// Form chính của trang: giữ state `form` (bản đang sửa) và `saved` (bản đã lưu) để phát hiện
+// thay đổi chưa lưu; quản lý lỗi validate, trạng thái bận theo từng tác vụ và điều hướng sau khi lưu/xoá.
 function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: boolean; others: PoiListItem[] }) {
   const navigate = useNavigate();
   const toast = useToast();
@@ -71,22 +81,27 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   useDocumentTitle(isNew ? 'Thêm điểm thuyết minh' : `Sửa: ${poi?.name ?? ''}`);
 
+  // So sánh form với bản đã lưu để bật cảnh báo rời trang và nút "Hoàn tác".
   const dirty = !sameForm(form, saved);
   const bypass = useUnsavedWarning(dirty);
 
+  // Chuẩn hoá chuỗi nhập sang số; null nghĩa là chưa nhập hoặc không hợp lệ.
   const lat = parseNumber(form.latitude);
   const lng = parseNumber(form.longitude);
   const radius = parseNumber(form.radius_m);
 
+  // Cập nhật một trường của form và xoá lỗi tương ứng để thông báo biến mất khi người dùng sửa.
   const set = <K extends keyof PoiForm>(key: K, value: PoiForm[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
     if (errors[key as string]) setErrors(({ [key as string]: _drop, ...rest }) => rest);
   };
+  // Ghi nội dung của một ngôn ngữ vào đúng nhánh translations và xoá lỗi của ngôn ngữ đó.
   const setTr = (code: LanguageCode, key: 'title' | 'narration_text', value: string) => {
     setForm((f) => ({ ...f, translations: { ...f.translations, [code]: { ...f.translations[code], [key]: value } } }));
     const k = translationKey(code);
     if (errors[k]) setErrors(({ [k]: _drop, ...rest }) => rest);
   };
+  // Theo dõi tác vụ đang chạy theo khoá (ví dụ "tr-en", "audio-vi") để hiện spinner và khoá nút.
   const setBusyFor = (k: string, v: string | null) =>
     setBusy((b) => {
       const n = { ...b };
@@ -95,6 +110,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
       return n;
     });
 
+  // Đồng bộ dữ liệu POI vừa trả về từ server; `keepEdits` giữ nguyên nội dung đang gõ khi chỉ cập nhật audio/QR.
   function applyPoi(p: Poi, keepEdits: boolean) {
     setPoi(p);
     const fresh = poiToForm(p);
@@ -102,6 +118,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
     if (!keepEdits) setForm(fresh);
   }
 
+  // Chuyển focus tới ô lỗi đầu tiên theo thứ tự ưu tiên, mở đúng tab ngôn ngữ nếu lỗi nằm trong bản dịch.
   function focusFirstError(errs: FieldErrors) {
     const first = FIELD_ORDER.find((k) => errs[k]) ?? Object.keys(errs)[0];
     if (!first) return;
@@ -123,6 +140,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
       focusFirstError(errs);
       return null;
     }
+    // Chỉ gửi các ngôn ngữ có nội dung; danh sách này dùng để ánh xạ lỗi server về đúng tab.
     const input = toPoiInput(form);
     const sentLangs = filledLanguages(form);
     setSaving(true);
@@ -137,6 +155,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
       }
       return result;
     } catch (err) {
+      // Lỗi 422 từ server được ánh xạ về từng trường để hiển thị ngay cạnh ô nhập.
       if (err instanceof ApiError && err.details) {
         const mapped = mapServerErrors(err.details, sentLangs);
         setErrors(mapped);
@@ -150,11 +169,13 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
     }
   }
 
+  // Chặn submit mặc định của trình duyệt để dùng validate và thông báo lỗi của ứng dụng.
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     await save();
   }
 
+  // Hỏi xác nhận rồi xoá POI (kéo theo bản dịch, audio, QR) và quay về danh sách.
   async function onDelete() {
     if (!poi) return;
     const ok = await confirm({
@@ -182,6 +203,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
   }
 
   // ---- Dịch tự động ----
+  // Dịch tiêu đề và nội dung từ ngôn ngữ mặc định sang `target`; trả về true nếu thành công.
   async function translateOne(target: LanguageCode, src = form.translations[DEFAULT_LANGUAGE]): Promise<boolean> {
     const text = src.narration_text.trim();
     const title = src.title.trim();
@@ -191,6 +213,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
     }
     setBusyFor(`tr-${target}`, 'Đang dịch…');
     try {
+      // Gọi API dịch song song cho tiêu đề và nội dung; bỏ qua tiêu đề nếu đang rỗng.
       const [t1, t2] = await Promise.all([
         api.translate(text, DEFAULT_LANGUAGE, target),
         title ? api.translate(title, DEFAULT_LANGUAGE, target) : Promise.resolve(null),
@@ -210,6 +233,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
     }
   }
 
+  // Dịch lần lượt mọi ngôn ngữ còn trống và báo lại số ngôn ngữ dịch thành công.
   async function translateMissing() {
     const src = form.translations[DEFAULT_LANGUAGE];
     if (!src.narration_text.trim()) {
@@ -232,8 +256,10 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
   }
 
   // ---- Audio ----
+  // Lấy bản dịch đã lưu trên server để so sánh thay đổi và hiển thị audio hiện có.
   const savedTr = (code: LanguageCode) => poi?.translations.find((t) => t.language_code === code);
 
+  // Tạo giọng đọc từ nội dung đã lưu trên server; nếu form đang có thay đổi thì hỏi và lưu trước.
   async function generateTts(code: LanguageCode) {
     let current = poi;
     if (!current || dirty) {
@@ -267,6 +293,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
     }
   }
 
+  // Tải file audio thủ công cho một ngôn ngữ sau khi kiểm tra dung lượng tối đa 15 MB.
   async function uploadAudio(code: LanguageCode, file: File) {
     if (!poi) return;
     if (file.size > 15 * 1024 * 1024) {
@@ -285,6 +312,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
     }
   }
 
+  // Gỡ audio của một ngôn ngữ để app quay lại đọc bằng giọng máy.
   async function removeAudio(code: LanguageCode) {
     if (!poi) return;
     const ok = await confirm({
@@ -307,6 +335,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
   }
 
   // ---- Ảnh ----
+  // Kiểm tra loại/kích thước ảnh rồi tải lên; chỉ gắn URL vào form, người dùng vẫn phải bấm "Lưu".
   async function onImage(file: File) {
     if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
       toast.error('Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP');
@@ -356,7 +385,9 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
         }
       />
 
+      {/* Form chính: thông tin chung, bản đồ, nội dung đa ngôn ngữ, mã QR và thanh lưu. */}
       <form onSubmit={onSubmit} noValidate className="poi-form">
+        {/* Tóm tắt toàn bộ lỗi để người dùng nắm nhanh trước khi sửa từng ô. */}
         {errorCount > 0 && (
           <div className="alert alert-error" role="alert" tabIndex={-1} ref={errorSummaryRef}>
             <strong>Có {errorCount} lỗi cần sửa:</strong>
@@ -369,6 +400,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
         )}
 
         <div className="grid-2 grid-form">
+          {/* Thông tin cơ bản, vùng kích hoạt và ảnh minh hoạ của điểm. */}
           <section className="card" aria-labelledby="sec-info">
             <h2 className="card-title" id="sec-info">
               Thông tin chung
@@ -433,6 +465,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
             </div>
           </section>
 
+          {/* Bản đồ cho phép chọn toạ độ bằng cách bấm/kéo ghim, kèm vòng bán kính kích hoạt. */}
           <section className="card" aria-labelledby="sec-map">
             <h2 className="card-title" id="sec-map">
               Vị trí trên bản đồ
@@ -451,6 +484,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
           </section>
         </div>
 
+        {/* Nội dung thuyết minh theo từng ngôn ngữ, kèm dịch tự động và quản lý audio. */}
         <section className="card" aria-labelledby="sec-content">
           <div className="card-head">
             <h2 className="card-title" id="sec-content">
@@ -488,6 +522,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
           ))}
         </section>
 
+        {/* Mã QR chỉ tạo được sau khi POI đã có id trên server. */}
         {poi ? (
           <QrSection poi={poi} onChange={(qrcodes) => setPoi((p) => (p ? { ...p, qrcodes } : p))} />
         ) : (
@@ -497,6 +532,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
           </section>
         )}
 
+        {/* Thanh lưu cố định: hiển thị trạng thái thay đổi và cho phép hoàn tác. */}
         <div className={`save-bar${dirty ? ' is-dirty' : ''}`}>
           <span className="save-status" aria-live="polite">
             {dirty ? '● Có thay đổi chưa lưu' : isNew ? 'Điểm mới chưa được lưu' : 'Đã lưu mọi thay đổi'}
@@ -517,6 +553,8 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
   );
 }
 
+// Thanh tab chọn ngôn ngữ: đánh dấu ngôn ngữ đã có nội dung/audio/lỗi và hỗ trợ điều hướng bằng bàn phím.
+// `refs` giữ các nút tab để chuyển focus khi người dùng dùng phím mũi tên.
 function LanguageTabs({
   form,
   errors,
@@ -531,6 +569,7 @@ function LanguageTabs({
   onChange: (c: LanguageCode) => void;
 }) {
   const refs = useRef<Record<string, HTMLButtonElement | null>>({});
+  // Điều hướng tab theo chuẩn ARIA: mũi tên trái/phải di chuyển vòng, Home/End tới đầu/cuối.
   function onKey(e: KeyboardEvent, idx: number) {
     let next = -1;
     if (e.key === 'ArrowRight') next = (idx + 1) % LANGUAGES.length;
@@ -582,6 +621,8 @@ function LanguageTabs({
   );
 }
 
+// Khung nhập nội dung của một ngôn ngữ: tiêu đề, nội dung thuyết minh và khu vực audio.
+// Các cờ dẫn xuất giúp cảnh báo khi nội dung đã đổi so với audio hoặc sắp bị xoá.
 function TranslationPanel({
   code,
   value,
@@ -613,6 +654,7 @@ function TranslationPanel({
   const translating = busy[`tr-${code}`];
   const audioBusy = busy[`audio-${code}`];
   const audioSrc = api.fileUrl(saved?.audio_url);
+  // Cờ dẫn xuất: đã có nội dung lưu, nội dung vừa thay đổi và trường hợp xoá sạch bản dịch.
   const savedHasText = !!saved?.narration_text?.trim();
   const textChanged = (saved?.narration_text ?? '') !== value.narration_text.trim();
   const willDelete = !!saved && savedHasText && !value.narration_text.trim() && !value.title.trim();
@@ -710,6 +752,8 @@ function TranslationPanel({
   );
 }
 
+// Khu vực quản lý mã QR của POI: tạo mã có nhãn, tải PNG và xoá mã.
+// Danh sách QR sau mỗi thao tác được đồng bộ lên form cha qua `onChange`.
 function QrSection({ poi, onChange }: { poi: Poi; onChange: (q: QrCode[]) => void }) {
   const toast = useToast();
   const confirm = useConfirm();
@@ -717,6 +761,7 @@ function QrSection({ poi, onChange }: { poi: Poi; onChange: (q: QrCode[]) => voi
   const [creating, setCreating] = useState(false);
   const items = useMemo(() => poi.qrcodes, [poi.qrcodes]);
 
+  // Tạo QR mới với nhãn tuỳ chọn (null nếu để trống) rồi thêm vào danh sách hiện tại.
   async function create(e?: FormEvent) {
     e?.preventDefault();
     setCreating(true);
@@ -732,6 +777,7 @@ function QrSection({ poi, onChange }: { poi: Poi; onChange: (q: QrCode[]) => voi
     }
   }
 
+  // Xác nhận trước khi xoá vì mã đã in và dán tại trạm sẽ không còn quét được.
   async function remove(q: QrCode) {
     const ok = await confirm({
       title: 'Xoá mã QR?',

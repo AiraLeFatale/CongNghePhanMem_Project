@@ -8,8 +8,10 @@ import Constants from 'expo-constants';
 import { isRunningInExpoGo } from 'expo';
 import { Platform } from 'react-native';
 
+// Cổng mặc định của backend Node chạy cùng máy dev.
 export const API_PORT = 4000;
 
+// Chuẩn hóa URL người dùng nhập: bỏ khoảng trắng/dấu / cuối, bỏ hậu tố /api và thêm http:// nếu thiếu.
 export function normalizeApiUrl(url: string): string {
   let u = url.trim().replace(/\/+$/, '');
   if (u.endsWith('/api')) u = u.slice(0, -4);
@@ -26,6 +28,7 @@ function devHost(): string | null {
   return host;
 }
 
+// Chọn địa chỉ backend theo thứ tự ưu tiên: biến môi trường > IP LAN của Metro > mặc định nền tảng.
 export function defaultApiUrl(): string {
   const env = process.env.EXPO_PUBLIC_API_URL;
   if (env && env.trim()) return normalizeApiUrl(env);
@@ -39,6 +42,7 @@ export function defaultApiUrl(): string {
 /** Expo Go không hỗ trợ cập nhật vị trí nền (Android: không có TaskManager; iOS: không có background mode). */
 export const IS_EXPO_GO = isRunningInExpoGo();
 
+// Các khoảng thời gian và vị trí mặc định dùng cho đồng bộ, gửi log và bản đồ.
 export const SYNC_INTERVAL_MS = 5 * 60 * 1000;
 export const FLUSH_INTERVAL_MS = 60 * 1000;
 export const REQUEST_TIMEOUT_MS = 8000;

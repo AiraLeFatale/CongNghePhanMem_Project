@@ -12,7 +12,9 @@ import { setSimulatedLocation } from '../../services/simulation';
 import { useAppStore } from '../../state/store';
 import { LANGUAGES } from '../../types';
 
+// Màn hình chi tiết POI: lấy tham số id trên URL, tra POI trong store và hiển thị bản dịch.
 export default function PoiDetail() {
+  // id trên URL là chuỗi, chuyển sang số để so khớp với POI trong store.
   const { id } = useLocalSearchParams<{ id: string }>();
   const poiId = Number(id);
   const { t } = useT();
@@ -33,10 +35,12 @@ export default function PoiDetail() {
     );
   }
 
+  // Xác định bản dịch theo ngôn ngữ đang chọn và các ngôn ngữ thực sự có nội dung.
   const resolved = resolveTranslation(poi.translations, lang);
   const available = new Set(poi.translations.filter((x) => x.narration_text || x.audio_url).map((x) => x.language_code));
   const title = resolved?.translation.title?.trim() || poi.name;
 
+  // Phát thuyết minh ở chế độ thủ công, khóa nút trong lúc đang chuẩn bị audio.
   const onPlay = async () => {
     setBusy(true);
     try {
@@ -48,6 +52,7 @@ export default function PoiDetail() {
 
   return (
     <View style={styles.flex}>
+      {/* Đặt tiêu đề động theo ngôn ngữ đang chọn trên thanh header. */}
       <Stack.Screen options={{ title }} />
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title} accessibilityRole="header">
@@ -76,6 +81,7 @@ export default function PoiDetail() {
         )}
 
         <View style={styles.actions}>
+          {/* Đang phát POI này thì hiện nút Dừng, ngược lại hiện nút Nghe. */}
           {playing ? (
             <Button title={t('poi.stop')} variant="danger" onPress={stopPlayback} style={styles.flex} />
           ) : (
@@ -93,6 +99,7 @@ export default function PoiDetail() {
 
         {resolved && (
           <Card style={{ marginTop: 16 }}>
+            {/* Cho biết nội dung đang dùng file audio thu sẵn hay sẽ đọc bằng TTS. */}
             <Text style={styles.badge}>{resolved.translation.audio_url ? t('poi.audio') : t('poi.tts')}</Text>
             <Text style={styles.body}>{resolved.translation.narration_text}</Text>
           </Card>

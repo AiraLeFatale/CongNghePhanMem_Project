@@ -11,12 +11,14 @@ import { QrResolution, resolveQr } from '../../services/qrResolver';
 import { useAppStore } from '../../state/store';
 import { LANGUAGES, Poi } from '../../types';
 
+// Trạng thái của luồng quét: đang quét → đang phân giải → thành công/lỗi.
 type ScanState =
   | { kind: 'scanning' }
   | { kind: 'resolving' }
   | { kind: 'ok'; poi: Poi; label: string | null; source: string }
   | { kind: 'error'; message: string };
 
+// Màn hình quét QR: xin quyền camera, nhận mã, phân giải ra POI rồi cho chọn ngôn ngữ và phát.
 export default function ScanScreen() {
   const { t } = useT();
   const [permission, requestPermission] = useCameraPermissions();
@@ -29,6 +31,7 @@ export default function ScanScreen() {
   const nowPlayingId = useAppStore((s) => s.nowPlaying?.poiId ?? null);
   const lock = useRef(false);
 
+  // Chỉ bật camera khi tab đang được hiển thị để tiết kiệm pin và tránh quét ngoài ý muốn.
   useFocusEffect(
     useCallback(() => {
       setFocused(true);
@@ -36,6 +39,7 @@ export default function ScanScreen() {
     }, []),
   );
 
+  // Xử lý một mã QR: khóa chống quét lặp, phân giải qua server/cache rồi phát thuyết minh nếu hợp lệ.
   const handle = useCallback(
     async (raw: string) => {
       if (lock.current) return;
@@ -61,11 +65,13 @@ export default function ScanScreen() {
     [settingsLang, t],
   );
 
+  // Mở khóa và quay lại trạng thái sẵn sàng quét mã mới.
   const reset = () => {
     lock.current = false;
     setState({ kind: 'scanning' });
   };
 
+  // Camera chỉ hiện khi tab đang focus, chưa có kết quả, đã được cấp quyền và không lỗi.
   const showCamera = focused && state.kind === 'scanning' && permission?.granted && !cameraError;
 
   return (
@@ -77,6 +83,7 @@ export default function ScanScreen() {
 
         {state.kind === 'scanning' && (
           <View style={styles.cameraBox}>
+            {/* Lần lượt xử lý: chưa có quyền, bị từ chối, lỗi camera, hoặc hiển thị camera. */}
             {!permission ? (
               <Text style={styles.camMsg}>{t('common.loading')}</Text>
             ) : !permission.granted ? (
@@ -112,6 +119,7 @@ export default function ScanScreen() {
 
         {state.kind === 'error' && (
           <Card style={{ marginTop: 12, borderColor: colors.danger }}>
+            {/* Mã không hợp lệ, mất mạng hoặc lỗi server đều quy về đây kèm nút quét lại. */}
             <Text style={styles.error} accessibilityRole="alert">
               {state.message}
             </Text>
@@ -121,6 +129,7 @@ export default function ScanScreen() {
 
         {state.kind === 'ok' && (
           <Card style={{ marginTop: 12 }}>
+            {/* Mã hợp lệ: hiện POI, cho đổi ngôn ngữ (phát lại ngay) và mở trang chi tiết. */}
             <Text style={styles.small}>{t('scan.found', { label: state.label ?? '—' })}</Text>
             {state.source !== 'server' && state.source !== 'local' ? <Text style={styles.small}>{t('scan.fromCache')}</Text> : null}
             <Text style={styles.poiTitle}>{displayTitle(state.poi, lang)}</Text>
@@ -157,6 +166,7 @@ export default function ScanScreen() {
           </Card>
         )}
 
+        {/* Ô nhập mã thủ công dành cho emulator/thiết bị không có camera. */}
         <SectionTitle>{t('scan.manual')}</SectionTitle>
         <View style={styles.row}>
           <TextInput

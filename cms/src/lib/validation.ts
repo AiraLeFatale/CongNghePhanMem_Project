@@ -1,8 +1,14 @@
+/**
+ * Kiểm tra và chuyển đổi dữ liệu form phía client cho POI, tour, tài khoản và bộ lọc thống kê.
+ * Quy tắc phản chiếu validation của backend để báo lỗi sớm trước khi gửi API.
+ */
 import { DEFAULT_LANGUAGE, LANGUAGE_CODES } from './languages';
 import type { LanguageCode, Poi, PoiInput, TourInput } from './types';
 
+// Lỗi theo tên trường, dùng để hiển thị dưới từng ô nhập.
 export type FieldErrors = Record<string, string>;
 
+// Giới hạn hợp lệ của các trường số trong form POI.
 export const POI_LIMITS = {
   latMin: -90,
   latMax: 90,
@@ -15,6 +21,7 @@ export const POI_LIMITS = {
   narrationMax: 10000,
 } as const;
 
+// Nội dung nháp của một ngôn ngữ trong form.
 export interface TranslationDraft {
   title: string;
   narration_text: string;
@@ -32,6 +39,7 @@ export interface PoiForm {
   translations: Record<LanguageCode, TranslationDraft>;
 }
 
+/** Tạo bản nháp rỗng cho tất cả ngôn ngữ được hỗ trợ. */
 export function emptyTranslations(): Record<LanguageCode, TranslationDraft> {
   return Object.fromEntries(LANGUAGE_CODES.map((c) => [c, { title: '', narration_text: '' }])) as Record<
     LanguageCode,
@@ -39,6 +47,7 @@ export function emptyTranslations(): Record<LanguageCode, TranslationDraft> {
   >;
 }
 
+/** Form POI mới với bán kính và mức ưu tiên mặc định. */
 export function emptyPoiForm(): PoiForm {
   return {
     name: '',
@@ -52,8 +61,10 @@ export function emptyPoiForm(): PoiForm {
   };
 }
 
+/** Chuyển POI từ API về form; số được đổi thành chuỗi để người dùng sửa tự do. */
 export function poiToForm(p: Poi): PoiForm {
   const translations = emptyTranslations();
+  // Chỉ nhận ngôn ngữ còn được hỗ trợ, bỏ qua bản dịch lạ từ dữ liệu cũ.
   for (const t of p.translations) {
     if (translations[t.language_code]) {
       translations[t.language_code] = { title: t.title ?? '', narration_text: t.narration_text ?? '' };
@@ -81,16 +92,20 @@ export function parseNumber(value: string | number | null | undefined): number |
   return Number.isFinite(n) ? n : null;
 }
 
+/** Kiểm tra vĩ độ có nằm trong khoảng hợp lệ (đồng thời thu hẹp kiểu về number). */
 export function isValidLatitude(v: number | null): v is number {
   return v !== null && v >= POI_LIMITS.latMin && v <= POI_LIMITS.latMax;
 }
 
+/** Kiểm tra kinh độ có nằm trong khoảng hợp lệ. */
 export function isValidLongitude(v: number | null): v is number {
   return v !== null && v >= POI_LIMITS.lngMin && v <= POI_LIMITS.lngMax;
 }
 
+// Khoá lỗi của một ngôn ngữ, ví dụ "translations.vi".
 export const translationKey = (code: LanguageCode) => `translations.${code}`;
 
+/** Một ngôn ngữ được coi là có nội dung nếu có tiêu đề hoặc văn bản thuyết minh. */
 function hasContent(t: TranslationDraft | undefined): boolean {
   return !!t && (t.title.trim() !== '' || t.narration_text.trim() !== '');
 }
@@ -121,6 +136,7 @@ export function validatePoiForm(form: PoiForm): FieldErrors {
   else if (radius > POI_LIMITS.radiusMax) errors.radius_m = `Bán kính tối đa ${POI_LIMITS.radiusMax} m`;
 
   const priorityRaw = form.priority.trim();
+  // Để trống mức ưu tiên thì mặc định là 1; còn lại phải là số nguyên 0..100.
   const priority = priorityRaw === '' ? 1 : parseNumber(priorityRaw);
   if (priority === null || !Number.isInteger(priority) || priority < POI_LIMITS.priorityMin || priority > POI_LIMITS.priorityMax) {
     errors.priority = 'Mức ưu tiên là số nguyên từ 0 đến 100';
@@ -143,6 +159,7 @@ export function validatePoiForm(form: PoiForm): FieldErrors {
 /** Chuyển form sang body API. Gọi sau khi `validatePoiForm` không còn lỗi. */
 export function toPoiInput(form: PoiForm): PoiInput {
   const priority = form.priority.trim() === '' ? 1 : (parseNumber(form.priority) as number);
+  // Bán kính lưu theo mét nguyên; các trường số khác đã được kiểm tra trước đó.
   return {
     name: form.name.trim(),
     address: form.address.trim() || null,
@@ -168,9 +185,11 @@ export function mapServerErrors(details: Record<string, string> | undefined, sen
   if (!details) return out;
   for (const [key, msg] of Object.entries(details)) {
     if (key === 'translations') {
+      // Lỗi cấp "translations" không kèm chỉ số nên áp cho ngôn ngữ mặc định.
       out[translationKey(DEFAULT_LANGUAGE)] = msg;
       continue;
     }
+    // Dạng "translations.<i>.<field>": tra lại mã ngôn ngữ theo đúng thứ tự đã gửi.
     const m = key.match(/^translations\.(\d+)\./);
     if (m) {
       const code = sent[Number(m[1])];
@@ -182,12 +201,14 @@ export function mapServerErrors(details: Record<string, string> | undefined, sen
   return out;
 }
 
+/** So sánh nhanh hai form để biết có thay đổi chưa lưu hay không. */
 export function sameForm(a: PoiForm, b: PoiForm): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
 // ---- Tour (UC4) ----
 
+/** Kiểm tra tour: tên bắt buộc, phải có điểm và không lặp điểm. */
 export function validateTour(input: TourInput): FieldErrors {
   const errors: FieldErrors = {};
   if (!input.name.trim()) errors.name = 'Tên tour không được để trống';
@@ -208,6 +229,7 @@ export function moveItem<T>(list: readonly T[], from: number, to: number): T[] {
 
 // ---- Tài khoản ----
 
+/** Kiểm tra đổi mật khẩu: đủ 3 ô, mật khẩu mới dài ≥ 8 và khác mật khẩu cũ. */
 export function validatePasswordChange(current: string, next: string, confirm: string): FieldErrors {
   const errors: FieldErrors = {};
   if (!current) errors.current_password = 'Nhập mật khẩu hiện tại';
@@ -219,6 +241,7 @@ export function validatePasswordChange(current: string, next: string, confirm: s
 
 // ---- Thống kê ----
 
+/** Kiểm tra khoảng ngày báo cáo: đúng định dạng YYYY-MM-DD và from ≤ to. */
 export function validateDateRange(from: string, to: string): string | null {
   const re = /^\d{4}-\d{2}-\d{2}$/;
   if (!re.test(from) || !re.test(to)) return 'Chọn đầy đủ ngày bắt đầu và ngày kết thúc';

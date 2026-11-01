@@ -4,6 +4,7 @@
  */
 const memory = new Map<string, string>();
 
+/** Chọn localStorage nếu dùng được; ghi thử để phát hiện trình duyệt chặn bộ nhớ. */
 function backend(): Storage | null {
   try {
     if (typeof globalThis.localStorage === 'undefined') return null;
@@ -16,6 +17,7 @@ function backend(): Storage | null {
   }
 }
 
+/** API lưu trữ an toàn: luôn có bản sao trong bộ nhớ tạm của phiên. */
 export const safeStorage = {
   get(key: string): string | null {
     try {
@@ -47,12 +49,14 @@ export const safeStorage = {
 const TOKEN_KEY = 'narration_cms_token';
 const USER_KEY = 'narration_cms_user';
 
+/** Lưu token đăng nhập và thông tin người dùng; `clear` dùng khi đăng xuất. */
 export const tokenStore = {
   getToken: () => safeStorage.get(TOKEN_KEY),
   setToken: (t: string) => safeStorage.set(TOKEN_KEY, t),
   getUser<T>(): T | null {
     const raw = safeStorage.get(USER_KEY);
     if (!raw) return null;
+    // Dữ liệu cũ/hỏng thì coi như chưa đăng nhập thay vì làm sập trang.
     try {
       return JSON.parse(raw) as T;
     } catch {

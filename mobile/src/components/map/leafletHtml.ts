@@ -1,6 +1,9 @@
 /** Trang HTML Leaflet chạy trong WebView. Leaflet được nhúng sẵn nên không cần CDN. */
 import { LEAFLET_CSS, LEAFLET_JS } from './leafletAssets.generated';
 
+// Tạo chuỗi HTML hoàn chỉnh (CSS + JS Leaflet nhúng sẵn) để nạp vào WebView.
+// Toàn bộ nội dung bên trong template literal là trang web chạy trong WebView,
+// không phải code React Native nên không chèn comment vào giữa chuỗi.
 export function buildLeafletHtml(center: { latitude: number; longitude: number }): string {
   return `<!doctype html><html><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">

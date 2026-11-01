@@ -4,9 +4,11 @@
  */
 import type { LocationObject } from 'expo-location';
 
+/** Tên tác vụ nền, phải khớp giữa nơi đăng ký và nơi bật/tắt trong location/index.ts. */
 export const BACKGROUND_LOCATION_TASK = 'narration-background-location';
 
 type FixHandler = (loc: LocationObject) => void;
+// Callback do pipeline đăng ký và bộ đệm các bản ghi đến trước khi pipeline sẵn sàng.
 let handler: FixHandler | null = null;
 const pending: LocationObject[] = [];
 
@@ -34,11 +36,13 @@ export function getTaskManager(): TaskManagerModule | null {
 try {
   const TaskManager = taskManager!;
   if (!TaskManager.isTaskDefined(BACKGROUND_LOCATION_TASK)) {
+    // Tác vụ do OS gọi khi app ở nền: chuyển từng vị trí cho handler hoặc xếp đệm.
     TaskManager.defineTask<{ locations?: LocationObject[] }>(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
       if (error || !data?.locations) return;
       for (const loc of data.locations) {
         if (handler) handler(loc);
         else {
+          // Pipeline chưa sẵn sàng → giữ tối đa 20 bản ghi gần nhất.
           pending.push(loc);
           if (pending.length > 20) pending.shift();
         }

@@ -1,6 +1,7 @@
 /** Logic đồng bộ thuần (không I/O) — tách riêng để kiểm thử. */
 import type { Poi, QrMapping, SyncBundle, Tour } from '../types';
 
+/** Quyết định đồng bộ: tải gói mới hoặc bỏ qua vì đã mới nhất. */
 export type SyncPlan = 'download' | 'skip';
 
 /** Tăng khi định dạng dữ liệu lưu trên máy đổi (2 = có bảng QR offline) → buộc tải lại toàn bộ. */
@@ -28,9 +29,11 @@ export interface BundleDiff {
   toursChanged: boolean;
 }
 
+// Tập hợp URL audio của mọi bản dịch, dùng để so sánh giữa gói cũ và gói mới.
 const audioUrls = (pois: Poi[]) =>
   new Set(pois.flatMap((p) => p.translations.map((t) => t.audio_url).filter((u): u is string => !!u)));
 
+// "Chữ ký" nội dung POI: sắp xếp bản dịch theo mã ngôn ngữ để thứ tự không ảnh hưởng so sánh.
 const poiSignature = (p: Poi) =>
   JSON.stringify([
     p.name,
@@ -45,9 +48,14 @@ const poiSignature = (p: Poi) =>
       .map((t) => [t.language_code, t.title, t.narration_text, t.audio_url]),
   ]);
 
+// Chữ ký tour: sắp xếp theo id để so sánh ổn định.
 const tourSignature = (tours: Tour[]) =>
   JSON.stringify([...tours].sort((a, b) => a.id - b.id).map((t) => [t.id, t.name, t.description, t.poi_ids]));
 
+/**
+ * So sánh gói mới với dữ liệu đang có: id thêm/sửa/xoá, audio cần tải/xoá
+ * và cờ cho biết tour có thay đổi.
+ */
 export function diffBundles(oldPois: Poi[], oldTours: Tour[], next: SyncBundle): BundleDiff {
   const oldById = new Map(oldPois.map((p) => [p.id, p]));
   const newById = new Map(next.pois.map((p) => [p.id, p]));
@@ -56,6 +64,7 @@ export function diffBundles(oldPois: Poi[], oldTours: Tour[], next: SyncBundle):
   const removed: number[] = [];
   for (const p of next.pois) {
     const o = oldById.get(p.id);
+    // Không tìm thấy id cũ → thêm mới; cùng id nhưng chữ ký khác → cập nhật.
     if (!o) added.push(p.id);
     else if (poiSignature(o) !== poiSignature(p)) updated.push(p.id);
   }
@@ -79,6 +88,7 @@ export function validateBundle(raw: unknown): SyncBundle {
   const version = Number(b.version);
   if (!Number.isFinite(version)) throw new Error('Gói đồng bộ thiếu version');
   if (!Array.isArray(b.pois) || !Array.isArray(b.tours)) throw new Error('Gói đồng bộ thiếu pois/tours');
+  // Bỏ POI thiếu toạ độ/bán kính thay vì để cả gói hỏng.
   const pois: Poi[] = (b.pois as any[])
     .filter(
       (p) =>
@@ -111,6 +121,7 @@ export function validateBundle(raw: unknown): SyncBundle {
         : [],
     }));
   const poiIds = new Set(pois.map((p) => p.id));
+  // Chỉ giữ tour có id hợp lệ và điểm dừng còn tồn tại trong gói.
   const tours: Tour[] = (b.tours as any[])
     .filter((t) => t && Number.isInteger(t.id))
     .map((t) => ({

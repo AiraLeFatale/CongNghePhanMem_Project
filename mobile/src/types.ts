@@ -1,13 +1,16 @@
 /** Kiểu dữ liệu dùng chung giữa Content layer, Geofence engine, Narration engine và UI. */
 
+// Danh sách ngôn ngữ thuyết minh được hỗ trợ, dùng chung cho UI, dữ liệu và API.
 export const LANGUAGES = ['vi', 'en', 'zh', 'ko', 'ja', 'fr'] as const;
 export type LanguageCode = (typeof LANGUAGES)[number];
 export const DEFAULT_LANGUAGE: LanguageCode = 'vi';
 
+// Type guard kiểm tra một giá trị bất kỳ có phải mã ngôn ngữ hợp lệ.
 export function isLanguageCode(v: unknown): v is LanguageCode {
   return typeof v === 'string' && (LANGUAGES as readonly string[]).includes(v);
 }
 
+// Một bản dịch của POI: tiêu đề, văn bản thuyết minh và audio (nếu có).
 export interface Translation {
   language_code: string;
   title: string | null;
@@ -16,6 +19,7 @@ export interface Translation {
   audio_source?: string | null;
 }
 
+// Điểm thuyết minh (POI): toạ độ, bán kính geofence, độ ưu tiên và các bản dịch.
 export interface Poi {
   id: number;
   name: string;
@@ -29,6 +33,7 @@ export interface Poi {
   translations: Translation[];
 }
 
+// Tour tham quan: danh sách id POI theo thứ tự đi.
 export interface Tour {
   id: number;
   name: string;
@@ -56,8 +61,10 @@ export interface SyncBundle {
   qrcodes?: QrMapping[];
 }
 
+// Cách bài thuyết minh được kích hoạt: tự động theo vùng, quét QR hoặc người dùng bấm nghe.
 export type TriggerMethod = 'geofence' | 'qr' | 'manual';
 
+// Một lần định vị đã qua lọc, kèm nguồn dữ liệu (GPS, nền, mô phỏng).
 export interface LocationFix {
   latitude: number;
   longitude: number;
@@ -67,6 +74,7 @@ export interface LocationFix {
   source: 'gps' | 'background' | 'simulation';
 }
 
+// Bản ghi lượt nghe gửi lên server để thống kê mức độ sử dụng.
 export interface UsageLog {
   poi_id: number;
   session_id: string;
@@ -76,6 +84,7 @@ export interface UsageLog {
   listen_seconds: number;
 }
 
+// Bản ghi vị trí ẩn danh theo phiên, phục vụ phân tích hành trình.
 export interface LocationLog {
   session_id: string;
   latitude: number;

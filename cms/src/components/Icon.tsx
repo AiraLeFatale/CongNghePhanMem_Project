@@ -1,3 +1,8 @@
+/**
+ * Bộ icon SVG nội tuyến dùng trong CMS.
+ * Mỗi icon là một path đơn, kế thừa màu chữ và kích thước qua props.
+ */
+// Kho path SVG (viewBox 24x24) theo tên icon.
 const PATHS: Record<string, string> = {
   home: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
   pin: 'M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z',
@@ -22,6 +27,7 @@ const PATHS: Record<string, string> = {
   file: 'M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8zm0 0v5h5',
 };
 
+/** Hiển thị icon theo tên; tên không tồn tại sẽ vẽ path rỗng thay vì gây lỗi. */
 export function Icon({ name, size = 18, className }: { name: keyof typeof PATHS | string; size?: number; className?: string }) {
   return (
     <svg

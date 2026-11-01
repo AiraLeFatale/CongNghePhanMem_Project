@@ -1,8 +1,14 @@
+/**
+ * Tầng dữ liệu: mở kết nối SQLite (node:sqlite) và tạo schema.
+ * Toàn bộ bảng của hệ thống thuyết minh (admin, poi, bản dịch, QR, tour, log) được khai báo ở đây.
+ * Cung cấp thêm helper transaction() để gói nhiều câu lệnh trong một transaction.
+ */
 import fs from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { config } from '../config.js';
 
+// Câu lệnh DDL tạo toàn bộ bảng/index; CREATE IF NOT EXISTS nên chạy lại nhiều lần vẫn an toàn.
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS admin_user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,6 +27,8 @@ CREATE TABLE IF NOT EXISTS poi (
   radius_m INTEGER NOT NULL CHECK (radius_m > 0),
   priority INTEGER NOT NULL DEFAULT 1,
   image_url TEXT,
+  -- Phí nghe (đồng). 0 = miễn phí; > 0 thì bài đầy đủ bị khoá cho tới khi thanh toán.
+  price INTEGER NOT NULL DEFAULT 0 CHECK (price >= 0),
   created_by INTEGER REFERENCES admin_user(id) ON DELETE SET NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -34,6 +42,8 @@ CREATE TABLE IF NOT EXISTS poi_translation (
   narration_text TEXT NOT NULL DEFAULT '',
   audio_url TEXT,
   audio_source TEXT CHECK (audio_source IN ('upload', 'tts')),
+  -- 1 = bản dịch do máy tạo, 0 = admin tự nhập/sửa.
+  is_auto INTEGER NOT NULL DEFAULT 0,
   UNIQUE (poi_id, language_code)
 );
 
@@ -82,6 +92,28 @@ CREATE TABLE IF NOT EXISTS location_log (
 );
 CREATE INDEX IF NOT EXISTS idx_location_recorded ON location_log(recorded_at);
 
+-- Đơn thanh toán cho điểm có phí. token là bí mật tra cứu đơn (không lộ qua URL).
+CREATE TABLE IF NOT EXISTS payment_order (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT NOT NULL UNIQUE,
+  token TEXT NOT NULL UNIQUE,
+  poi_id INTEGER NOT NULL REFERENCES poi(id) ON DELETE CASCADE,
+  amount INTEGER NOT NULL CHECK (amount >= 0),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'cancelled')),
+  transfer_note TEXT NOT NULL,
+  bank_bin TEXT,
+  bank_name TEXT,
+  bank_account TEXT,
+  bank_account_name TEXT,
+  claimed_at TEXT,
+  paid_at TEXT,
+  confirmed_by TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_order_poi ON payment_order(poi_id);
+CREATE INDEX IF NOT EXISTS idx_order_status ON payment_order(status);
+CREATE INDEX IF NOT EXISTS idx_order_created ON payment_order(created_at);
+
 -- Phiên bản nội dung: tăng mỗi khi admin đổi POI/tour/bản dịch, app dùng để biết khi nào cần đồng bộ lại.
 CREATE TABLE IF NOT EXISTS meta (
   key TEXT PRIMARY KEY,
@@ -90,15 +122,27 @@ CREATE TABLE IF NOT EXISTS meta (
 INSERT OR IGNORE INTO meta (key, value) VALUES ('content_version', '1');
 `;
 
+// Nâng cấp DB cũ tại chỗ: CREATE TABLE IF NOT EXISTS không thêm cột mới vào bảng đã có.
+function migrate(db) {
+  const columns = (table) => db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name);
+  if (!columns('poi').includes('price')) db.exec('ALTER TABLE poi ADD COLUMN price INTEGER NOT NULL DEFAULT 0');
+  if (!columns('poi_translation').includes('is_auto')) db.exec('ALTER TABLE poi_translation ADD COLUMN is_auto INTEGER NOT NULL DEFAULT 0');
+}
+
+// Mở (hoặc tạo mới) file DB tại `file`, bật khoá ngoại + WAL rồi áp schema; trả về connection.
 export function openDatabase(file = config.dbFile) {
+  // Với DB trên đĩa thì tạo trước thư mục chứa; ':memory:' dùng cho test nên bỏ qua.
   if (file !== ':memory:') fs.mkdirSync(path.dirname(file), { recursive: true });
   const db = new DatabaseSync(file);
   db.exec('PRAGMA foreign_keys = ON;');
+  // WAL chỉ có ý nghĩa với DB trên đĩa, giúp đọc/ghi song song tốt hơn.
   if (file !== ':memory:') db.exec('PRAGMA journal_mode = WAL;');
   db.exec(SCHEMA);
+  migrate(db);
   return db;
 }
 
+// Chạy fn() trong một transaction: commit khi thành công, rollback và ném lại lỗi khi thất bại.
 export function transaction(db, fn) {
   db.exec('BEGIN');
   try {
@@ -106,6 +150,7 @@ export function transaction(db, fn) {
     db.exec('COMMIT');
     return result;
   } catch (err) {
+    // Hoàn tác mọi thay đổi dở dang rồi để tầng trên xử lý lỗi.
     db.exec('ROLLBACK');
     throw err;
   }

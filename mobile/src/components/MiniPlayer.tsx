@@ -7,27 +7,32 @@ import { stopPlayback } from '../services/pipeline';
 import { LANGUAGE_FLAGS, useT } from '../i18n';
 import { colors } from './ui';
 
+// Đổi số giây sang dạng m:ss để hiển thị thời lượng đã phát.
 function fmt(sec: number) {
   const m = Math.floor(sec / 60);
   const s = sec % 60;
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
+// Thanh phát thu nhỏ: chỉ hiện khi có POI đang phát, tự cập nhật đồng hồ mỗi giây.
 export function MiniPlayer() {
   const np = useAppStore((s) => s.nowPlaying);
   const { t } = useT();
   const [, tick] = useState(0);
 
+  // Tạo nhịp 1 giây để tính lại thời gian đã nghe; dọn interval khi đổi bài hoặc unmount.
   useEffect(() => {
     if (!np) return;
     const id = setInterval(() => tick((x) => x + 1), 1000);
     return () => clearInterval(id);
   }, [np]);
 
+  // Không có nội dung đang phát thì không chiếm chỗ trên màn hình.
   if (!np) return null;
   const elapsed = Math.max(0, Math.round((Date.now() - np.startedAt) / 1000));
   return (
     <View style={styles.bar} accessibilityRole="summary" accessibilityLabel={`${t('player.playing')}: ${np.title}`}>
+      {/* Chạm vào phần thông tin để mở lại trang chi tiết POI đang phát. */}
       <Pressable
         style={styles.info}
         onPress={() => router.push({ pathname: '/poi/[id]', params: { id: String(np.poiId) } })}
@@ -44,6 +49,7 @@ export function MiniPlayer() {
         </Text>
       </Pressable>
       <Text style={styles.time}>{fmt(elapsed)}</Text>
+      {/* Nút vuông dừng phát và đóng thanh MiniPlayer. */}
       <Pressable
         onPress={stopPlayback}
         style={styles.stop}

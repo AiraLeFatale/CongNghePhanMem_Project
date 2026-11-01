@@ -7,12 +7,15 @@ import { notify, store } from '../state/store';
 import { handleFix, narration } from './pipeline';
 import { t } from '../i18n';
 
+// Nhịp cập nhật vị trí giả, tốc độ đi bộ mặc định và số tick dừng lại ở mỗi điểm.
 const TICK_MS = 1000;
 const WALK_SPEED_MPS = 1.4;
 const DWELL_TICKS = 3;
 
+// Timer của chế độ tự đi bộ (null khi không chạy).
 let timer: ReturnType<typeof setInterval> | null = null;
 
+/** Đặt vị trí giả tại một toạ độ và đẩy qua pipeline như một bản ghi GPS thật. */
 export function setSimulatedLocation(p: LatLng): void {
   handleFix({ latitude: p.latitude, longitude: p.longitude, accuracy: 5, timestamp: Date.now(), source: 'simulation' });
 }
@@ -30,10 +33,15 @@ function startPoint(points: LatLng[]): LatLng {
   };
 }
 
+/**
+ * Bắt đầu tự đi bộ dọc các POI của tour; trả về false nếu tour không tồn tại
+ * hoặc không có POI nào. Timer 1 giây/lần đẩy vị trí giả qua handleFix.
+ */
 export function startTourWalk(tourId: number): boolean {
   const s = store.get();
   const tour = s.tours.find((x) => x.id === tourId);
   if (!tour) return false;
+  // Lấy toạ độ của các POI theo đúng thứ tự trong tour.
   const points = tour.poi_ids
     .map((id) => s.pois.find((p) => p.id === id))
     .filter((p): p is NonNullable<typeof p> => !!p)
@@ -41,6 +49,7 @@ export function startTourWalk(tourId: number): boolean {
   if (!points.length) return false;
   stopTourWalk();
 
+  // Đang có vị trí giả thì đi tiếp từ đó, ngược lại xuất phát cách POI đầu ~200 m.
   let pos = s.fix?.source === 'simulation' ? { latitude: s.fix.latitude, longitude: s.fix.longitude } : startPoint(points);
   let target = 0;
   let dwell = 0;
@@ -54,11 +63,13 @@ export function startTourWalk(tourId: number): boolean {
       dwell--;
       return;
     }
+    // Mỗi tick tiến một đoạn ngắn về phía POI mục tiêu (tốc độ theo cài đặt).
     const step = WALK_SPEED_MPS * store.get().settings.simSpeed * (TICK_MS / 1000);
     const r = stepTowards(pos, points[target], step);
     pos = r.point;
     setSimulatedLocation(pos);
     if (r.arrived) {
+      // Tới điểm: chuyển mục tiêu, dừng vài tick rồi đi tiếp.
       target++;
       dwell = DWELL_TICKS;
       if (target >= points.length) {
@@ -70,6 +81,7 @@ export function startTourWalk(tourId: number): boolean {
   return true;
 }
 
+/** Dừng chế độ tự đi bộ và xoá cờ tour đang mô phỏng trong store. */
 export function stopTourWalk(): void {
   if (timer) clearInterval(timer);
   timer = null;

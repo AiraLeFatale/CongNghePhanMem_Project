@@ -1,5 +1,10 @@
+/**
+ * Tầng controller cho quản trị tour trong CMS: liệt kê, xem, tạo, sửa, xoá tour
+ * (mỗi tour gồm danh sách POI theo thứ tự tham quan do tourService xử lý).
+ */
 import { idParam } from '../utils/validate.js';
 
+// Tạo nhóm handler tour; create cần req.admin.id để ghi người tạo.
 export function createTourController(s) {
   return {
     list: (_req, res) => res.json({ items: s.tours.list() }),

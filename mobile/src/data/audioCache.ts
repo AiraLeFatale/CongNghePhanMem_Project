@@ -4,8 +4,10 @@ import { audioFileDelete, audioFileGet, audioFileList, audioFilePut } from './db
 import { resolveMediaUrl } from './syncLogic';
 import type { Poi } from '../types';
 
+/** Thư mục lưu audio đã tải, nằm trong vùng document riêng của app. */
 const dir = () => new Directory(Paths.document, 'audio');
 
+/** Tạo tên file an toàn từ URL, kèm hash ngắn để hai URL khác nhau không ghi đè nhau. */
 function fileNameFor(url: string): string {
   const base = url.split('?')[0].split('/').pop() || 'audio';
   const safe = base.replace(/[^A-Za-z0-9._-]/g, '_').slice(-80);
@@ -24,10 +26,12 @@ export async function getLocalAudio(url: string): Promise<string | null> {
   } catch {
     /* bỏ qua */
   }
+  // Bản ghi còn nhưng file đã mất → dọn luôn bản ghi để lần sau tải lại.
   await audioFileDelete(url);
   return null;
 }
 
+/** Tải audio về máy (nếu chưa có) và trả URI file cục bộ; ném lỗi khi URL rỗng/tải thất bại. */
 export async function downloadAudio(url: string, apiBase: string): Promise<string> {
   const existing = await getLocalAudio(url);
   if (existing) return existing;
@@ -42,6 +46,7 @@ export async function downloadAudio(url: string, apiBase: string): Promise<strin
   return out.uri;
 }
 
+/** Gom danh sách URL audio duy nhất của các POI; nếu có `language` thì chỉ lấy ngôn ngữ đó. */
 export function collectAudioUrls(pois: Poi[], language?: string): string[] {
   const urls = new Set<string>();
   for (const p of pois)
@@ -50,6 +55,7 @@ export function collectAudioUrls(pois: Poi[], language?: string): string[] {
   return [...urls];
 }
 
+/** Tải lần lượt nhiều URL; lỗi từng file không làm dừng cả lượt, tiến độ báo qua `onProgress`. */
 export async function downloadAll(
   urls: string[],
   apiBase: string,
@@ -83,6 +89,7 @@ export async function pruneAudio(keepUrls: Set<string>): Promise<void> {
   }
 }
 
+/** Xoá toàn bộ thư mục audio (dùng cho "Xoá bộ nhớ đệm" trong Cài đặt). */
 export async function deleteAllAudio(): Promise<void> {
   try {
     const d = dir();
@@ -92,6 +99,7 @@ export async function deleteAllAudio(): Promise<void> {
   }
 }
 
+/** Thống kê bộ nhớ audio: số file và tổng dung lượng (byte). */
 export async function audioCacheStats(): Promise<{ files: number; bytes: number }> {
   const list = await audioFileList();
   return { files: list.length, bytes: list.reduce((s, f) => s + (f.bytes ?? 0), 0) };
