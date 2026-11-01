@@ -1,3 +1,7 @@
+/**
+ * Trang thống kê sử dụng (UC5): lọc theo khoảng ngày và tour, hiển thị KPI, biểu đồ,
+ * bản đồ nhiệt vị trí ẩn danh, bảng chi tiết theo điểm và xuất báo cáo Excel/PDF.
+ */
 import { useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { api, errorMessage } from '../lib/api';
@@ -13,12 +17,15 @@ import { DonutChart, HBarChart, LineChart, VBarChart } from '../components/chart
 import { HeatMap } from '../components/maps';
 import { useToast } from '../components/Toast';
 
+// Bộ lọc dùng chung giữa trang thống kê và trang báo cáo in (một tour cụ thể hoặc tất cả).
 export interface AnalyticsFilters {
   from: string;
   to: string;
   tourId: number | null;
 }
 
+// Đọc bộ lọc từ query string (mặc định 30 ngày gần nhất) và trả về hàm ghi bộ lọc mới lên URL.
+// Việc lưu trên URL giúp tải lại trang hoặc chia sẻ link vẫn giữ đúng khoảng thời gian/tour.
 export function useAnalyticsFilters(): [AnalyticsFilters, (f: AnalyticsFilters) => void] {
   const [params, setParams] = useSearchParams();
   const today = toLocalISODate(new Date());
@@ -34,12 +41,14 @@ export function useAnalyticsFilters(): [AnalyticsFilters, (f: AnalyticsFilters) 
   return [{ from, to, tourId }, set];
 }
 
+// Tạo query string từ bộ lọc, dùng cho link xuất PDF và các liên kết chia sẻ báo cáo.
 export function filtersQuery(f: AnalyticsFilters) {
   const p = new URLSearchParams({ from: f.from, to: f.to });
   if (f.tourId) p.set('tour', String(f.tourId));
   return p.toString();
 }
 
+// Hiển thị 4 chỉ số tổng quan của báo cáo: lượt nghe, số phiên, thời lượng nghe trung bình và tổng thời gian.
 export function Kpis({ r }: { r: AnalyticsReport }) {
   const s = r.summary;
   return (
@@ -66,10 +75,13 @@ export function Kpis({ r }: { r: AnalyticsReport }) {
   );
 }
 
+// Trang thống kê: giữ bộ lọc đã áp dụng và bản nháp, tải báo cáo tương ứng,
+// hiển thị các trạng thái tải/lỗi/rỗng và điều phối việc xuất Excel/PDF.
 export function AnalyticsPage() {
   useDocumentTitle('Thống kê');
   const toast = useToast();
   const [filters, setFilters] = useAnalyticsFilters();
+  // `draft` là bộ lọc đang nhập; chỉ ghi vào URL (và tải báo cáo) khi bấm "Xem báo cáo".
   const [draft, setDraft] = useState(filters);
   const [rangeError, setRangeError] = useState<string | null>(null);
   const [showRoutes, setShowRoutes] = useState(false);
@@ -79,8 +91,10 @@ export function AnalyticsPage() {
     () => api.analytics({ from: filters.from, to: filters.to, tour_id: filters.tourId }),
     [filters.from, filters.to, filters.tourId],
   );
+  // Tên tour đang lọc để hiển thị trong phần mô tả và tiêu đề file xuất.
   const tourName = filters.tourId ? (tours.data?.find((t) => t.id === filters.tourId)?.name ?? `Tour #${filters.tourId}`) : null;
 
+  // Kiểm tra khoảng ngày trước khi áp dụng bộ lọc nháp.
   function apply(e: FormEvent) {
     e.preventDefault();
     const err = validateDateRange(draft.from, draft.to);
@@ -89,6 +103,7 @@ export function AnalyticsPage() {
     setFilters(draft);
   }
 
+  // Đặt nhanh khoảng `days` ngày tính đến hôm nay và áp dụng ngay, không cần bấm thêm.
   function preset(days: number) {
     const f = { ...draft, from: daysAgo(days - 1), to: toLocalISODate(new Date()) };
     setDraft(f);
@@ -96,6 +111,7 @@ export function AnalyticsPage() {
     setFilters(f);
   }
 
+  // Xuất báo cáo đang xem ra Excel; cờ `exporting` tránh người dùng bấm lặp khi file còn đang tạo.
   async function onExcel() {
     if (!report.data) return;
     setExporting(true);
@@ -110,6 +126,7 @@ export function AnalyticsPage() {
   }
 
   const r = report.data;
+  // Chỉ cho phép xuất khi đã có dữ liệu và không đang tải lại báo cáo.
   const canExport = !!r && r.has_data && !report.loading;
 
   return (
@@ -135,6 +152,7 @@ export function AnalyticsPage() {
         }
       />
 
+      {/* Bộ lọc khoảng ngày và tour; các nút preset áp dụng ngay lập tức. */}
       <form className="card filters" onSubmit={apply} noValidate>
         <div className="field">
           <label htmlFor="f-from">Từ ngày</label>
@@ -201,6 +219,7 @@ export function AnalyticsPage() {
         </div>
       ) : (
         <div className={`analytics${report.loading ? ' is-refreshing' : ''}`} aria-busy={report.loading}>
+          {/* KPI, biểu đồ và bản đồ nhiệt của báo cáo. */}
           <Kpis r={r} />
           <AnalyticsCharts r={r} from={filters.from} to={filters.to} />
           <section className="card">
@@ -222,9 +241,13 @@ export function AnalyticsPage() {
   );
 }
 
+// Bộ biểu đồ của báo cáo: top điểm nghe nhiều, thời lượng nghe trung bình, lượt nghe theo ngày,
+// cách kích hoạt, ngôn ngữ, khung giờ trong ngày và bảng chi tiết theo điểm.
 export function AnalyticsCharts({ r, from, to }: { r: AnalyticsReport; from: string; to: string }) {
+  // Chuẩn bị dữ liệu: top 10 điểm theo lượt nghe và top 10 theo thời lượng nghe trung bình.
   const top = [...r.per_poi].sort((a, b) => b.plays - a.plays).slice(0, 10);
   const byListen = [...r.per_poi].filter((p) => p.plays > 0).sort((a, b) => b.avg_listen_seconds - a.avg_listen_seconds).slice(0, 10);
+  // Bù các ngày trống để trục thời gian liên tục và đổi giờ UTC sang giờ Việt Nam.
   const daily = fillDaily(r.daily, from, to);
   const hourly = hourlyToLocal(r.hourly);
   return (
@@ -278,6 +301,7 @@ export function AnalyticsCharts({ r, from, to }: { r: AnalyticsReport; from: str
   );
 }
 
+// Bảng chi tiết từng điểm thuyết minh, sắp xếp giảm dần theo số lượt nghe.
 export function PerPoiTable({ r }: { r: AnalyticsReport }) {
   const rows = [...r.per_poi].sort((a, b) => b.plays - a.plays);
   return (

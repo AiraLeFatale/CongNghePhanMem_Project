@@ -5,6 +5,7 @@
 import { useSyncExternalStore } from 'react';
 import type { LanguageCode, LocationFix, Poi, Tour, TriggerMethod } from '../types';
 
+// Các tùy chọn người dùng chỉnh trong màn hình Cài đặt và được lưu bền.
 export interface Settings {
   language: LanguageCode;
   autoNarration: boolean;
@@ -19,6 +20,7 @@ export interface Settings {
 
 export type PermissionState = 'unknown' | 'granted' | 'denied' | 'unavailable';
 
+// Thông tin bài thuyết minh đang phát, phục vụ MiniPlayer và trạng thái nút play/stop.
 export interface NowPlaying {
   poiId: number;
   title: string;
@@ -29,18 +31,21 @@ export interface NowPlaying {
   startedAt: number;
 }
 
+// Banner thông báo tạm thời (toast) đang hiển thị.
 export interface Notice {
   id: number;
   kind: 'info' | 'warn' | 'error';
   text: string;
 }
 
+// Tour người dùng đang đi theo và vị trí điểm kế tiếp.
 export interface FollowTour {
   tourId: number;
   /** Chỉ số điểm kế tiếp trong tour.poi_ids. */
   nextIndex: number;
 }
 
+// Toàn bộ trạng thái runtime của app: dữ liệu nội dung, vị trí, quyền, đồng bộ và UI tạm thời.
 export interface AppState {
   ready: boolean;
   initError: string | null;
@@ -69,6 +74,7 @@ export interface AppState {
 
 type Listener = () => void;
 
+// Giá trị khởi tạo trước khi bootstrap đọc cấu hình/cache từ thiết bị.
 let state: AppState = {
   ready: false,
   initError: null,
@@ -106,10 +112,12 @@ let state: AppState = {
 
 const listeners = new Set<Listener>();
 
+// API store tối giản: đọc state, cập nhật một phần state và đăng ký listener.
 export const store = {
   get: (): AppState => state,
   set(patch: Partial<AppState> | ((s: AppState) => Partial<AppState>)): void {
     const p = typeof patch === 'function' ? patch(state) : patch;
+    // Tạo object mới để React nhận biết thay đổi, sau đó thông báo cho mọi subscriber.
     state = { ...state, ...p };
     listeners.forEach((l) => l());
   },
@@ -119,12 +127,14 @@ export const store = {
   },
 };
 
+// Hook đọc một phần state và tự re-render khi store thay đổi.
 export function useAppStore<T>(selector: (s: AppState) => T): T {
   return useSyncExternalStore(store.subscribe, () => selector(store.get()), () => selector(store.get()));
 }
 
 let noticeSeq = 0;
 let noticeTimer: ReturnType<typeof setTimeout> | null = null;
+// Hiển thị toast và tự xóa sau `ms`; toast mới sẽ thay thế và hủy hẹn giờ của toast cũ.
 export function notify(text: string, kind: Notice['kind'] = 'info', ms = 4000): void {
   if (noticeTimer) clearTimeout(noticeTimer);
   const id = ++noticeSeq;
@@ -134,6 +144,7 @@ export function notify(text: string, kind: Notice['kind'] = 'info', ms = 4000): 
   }, ms);
 }
 
+// Tra cứu POI theo id trong snapshot state hiện tại.
 export function poiById(id: number): Poi | undefined {
   return state.pois.find((p) => p.id === id);
 }

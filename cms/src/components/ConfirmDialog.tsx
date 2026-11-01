@@ -1,5 +1,10 @@
+/**
+ * Hộp thoại xác nhận dùng chung: cung cấp hàm confirm() trả về Promise<boolean>
+ * để các trang await kết quả trước khi thực hiện thao tác nguy hiểm.
+ */
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 
+// Nội dung và nhãn nút của hộp thoại xác nhận.
 export interface ConfirmOptions {
   title: string;
   message: ReactNode;
@@ -8,7 +13,9 @@ export interface ConfirmOptions {
   danger?: boolean;
 }
 
+// Hàm confirm trả về true nếu người dùng đồng ý, false nếu huỷ.
 type ConfirmFn = (opts: ConfirmOptions) => Promise<boolean>;
+// Context chia sẻ hàm confirm cho toàn bộ cây component bên trong provider.
 const ConfirmContext = createContext<ConfirmFn | null>(null);
 
 /** Hộp thoại xác nhận dùng <dialog> gốc: tự giữ focus, Esc để huỷ. */
@@ -18,6 +25,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null);
   const cancelBtn = useRef<HTMLButtonElement>(null);
 
+  // Huỷ lượt chờ cũ (nếu có) rồi mở hộp thoại mới; Promise chỉ resolve khi người dùng chọn.
   const confirm = useCallback<ConfirmFn>((o) => {
     resolver.current?.(false);
     setOpts(o);
@@ -26,6 +34,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Đồng bộ trạng thái opts với <dialog>: mở dạng modal và focus nút Huỷ để tránh xác nhận nhầm.
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
@@ -35,6 +44,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
     } else if (!opts && d.open) d.close();
   }, [opts]);
 
+  // Kết thúc lượt chờ: trả kết quả cho Promise, xoá resolver và đóng hộp thoại.
   const finish = (v: boolean) => {
     resolver.current?.(v);
     resolver.current = null;
@@ -80,6 +90,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Hook lấy hàm confirm; báo lỗi sớm nếu component không nằm trong ConfirmProvider.
 export function useConfirm(): ConfirmFn {
   const ctx = useContext(ConfirmContext);
   if (!ctx) throw new Error('useConfirm phải nằm trong ConfirmProvider');

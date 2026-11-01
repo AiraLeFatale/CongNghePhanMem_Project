@@ -1,3 +1,7 @@
+/**
+ * Các component biểu đồ dùng ở trang Thống kê, dựng trên Chart.js và react-chartjs-2.
+ * Đăng ký thành phần Chart.js một lần, thống nhất font, màu và định dạng số kiểu Việt Nam.
+ */
 import {
   ArcElement,
   BarElement,
@@ -13,16 +17,20 @@ import {
 } from 'chart.js';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 
+// Đăng ký các thành phần Chart.js cần dùng cho cả ba loại biểu đồ trong module.
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Tooltip, Legend, Filler);
 ChartJS.defaults.font.family = '"Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
 ChartJS.defaults.color = '#4b5b58';
 
+// Màu nhấn và bảng màu xoay vòng cho các chuỗi dữ liệu.
 export const ACCENT = '#0f766e';
 export const PALETTE = ['#0f766e', '#2563eb', '#d97706', '#9333ea', '#db2777', '#64748b'];
 
+// Định dạng số kiểu Việt Nam và màu lưới dùng chung cho mọi biểu đồ.
 const nf = new Intl.NumberFormat('vi-VN');
 const gridColor = 'rgba(15, 23, 42, 0.07)';
 
+/** Biểu đồ thanh ngang: mỗi nhãn một thanh, chiều cao giãn theo số dòng. */
 export function HBarChart({ labels, values, label, unit = '', color = ACCENT }: { labels: string[]; values: number[]; label: string; unit?: string; color?: string }) {
   const options: ChartOptions<'bar'> = {
     indexAxis: 'y',
@@ -44,6 +52,7 @@ export function HBarChart({ labels, values, label, unit = '', color = ACCENT }: 
   );
 }
 
+/** Biểu đồ thanh dọc cho so sánh nhanh giữa các nhóm. */
 export function VBarChart({ labels, values, label, color = ACCENT, height = 240 }: { labels: string[]; values: number[]; label: string; color?: string; height?: number }) {
   const options: ChartOptions<'bar'> = {
     responsive: true,
@@ -58,6 +67,7 @@ export function VBarChart({ labels, values, label, color = ACCENT, height = 240 
   );
 }
 
+/** Biểu đồ đường theo thời gian; ẩn điểm dữ liệu khi có quá nhiều mốc. */
 export function LineChart({ labels, values, label, height = 260 }: { labels: string[]; values: number[]; label: string; height?: number }) {
   const options: ChartOptions<'line'> = {
     responsive: true,
@@ -86,7 +96,9 @@ export function LineChart({ labels, values, label, height = 260 }: { labels: str
   );
 }
 
+/** Biểu đồ tròn khuyết hiển thị tỉ lệ từng nhóm trên tổng số. */
 export function DonutChart({ labels, values, label }: { labels: string[]; values: number[]; label: string }) {
+  // Tổng dùng để tính phần trăm trong tooltip; dùng 1 khi mảng rỗng để tránh chia cho 0.
   const total = values.reduce((a, b) => a + b, 0) || 1;
   const options: ChartOptions<'doughnut'> = {
     responsive: true,
@@ -104,6 +116,7 @@ export function DonutChart({ labels, values, label }: { labels: string[]; values
   );
 }
 
+/** Cắt ngắn nhãn dài và thêm dấu "…" để vừa trục biểu đồ. */
 function truncate(s: string | undefined, n: number) {
   if (!s) return '';
   return s.length > n ? `${s.slice(0, n - 1)}…` : s;

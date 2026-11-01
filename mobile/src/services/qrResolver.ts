@@ -14,25 +14,33 @@ import { poiById, store } from '../state/store';
 import type { Poi } from '../types';
 import { refreshRegions } from './pipeline';
 
+/** Kết quả tra một mã QR: tìm thấy POI, mã sai, mất mạng hoặc lỗi khác. */
 export type QrResolution =
   | { status: 'ok'; poi: Poi; label: string | null; source: 'local' | 'server' | 'cache' }
   | { status: 'invalid' }
   | { status: 'offline' }
   | { status: 'error'; message: string };
 
+/**
+ * Tra mã QR theo thứ tự local → cache → máy chủ; trả về POI kèm nguồn tìm được.
+ * Có thể ghi cache và cập nhật POI/geofence nếu máy chủ trả về dữ liệu mới.
+ */
 export async function resolveQr(raw: string): Promise<QrResolution> {
   const parsed = parseQrPayload(raw);
   if (!parsed) return { status: 'invalid' };
 
+  // 1) Bảng qr_code đồng bộ sẵn — dùng được offline.
   const local = await qrLocalGet(parsed.code);
   const localPoi = local ? poiById(local.poi_id) : undefined;
   if (local && localPoi) return { status: 'ok', poi: localPoi, label: local.label, source: 'local' };
 
+  // 2) Mã đã từng tra và lưu trong cache.
   const cached = await qrCacheGet(parsed.code);
   const cachedPoi = cached ? poiById(cached.poi_id) : undefined;
   if (cached && cachedPoi) return { status: 'ok', poi: cachedPoi, label: cached.label, source: 'cache' };
 
   try {
+    // 3) Chỉ gọi máy chủ khi chưa có trên máy; kết quả được lưu lại cho lần sau.
     const res = await api.resolveQr(store.get().apiBase, parsed);
     await qrCachePut(parsed.code, res.poi.id, res.qr.label);
     let poi = poiById(res.poi.id);
@@ -45,11 +53,13 @@ export async function resolveQr(raw: string): Promise<QrResolution> {
     }
     return { status: 'ok', poi, label: res.qr.label, source: 'server' };
   } catch (e) {
+    // Mã không tồn tại/không hợp lệ → xoá cache cũ và báo E1.
     if (e instanceof ApiError && (e.status === 404 || e.status === 400)) {
       await qrCacheDelete(parsed.code);
       return { status: 'invalid' };
     }
     if (e instanceof NetworkError) {
+      // Không có mạng → E2, giữ cache để lần sau dùng offline.
       store.set({ online: false });
       return { status: 'offline' };
     }

@@ -2,6 +2,7 @@
 import { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
+// Bảng màu dùng chung cho toàn ứng dụng; các màu poi* tương ứng trạng thái vòng POI trên bản đồ.
 export const colors = {
   bg: '#f4f6f8',
   card: '#ffffff',
@@ -21,6 +22,7 @@ export const colors = {
   poiNext: '#8e24aa',
 };
 
+// Nút bấm hỗ trợ 4 biến thể, trạng thái disabled/loading và thuộc tính trợ năng.
 export function Button({
   title,
   onPress,
@@ -38,6 +40,7 @@ export function Button({
   style?: ViewStyle;
   accessibilityHint?: string;
 }) {
+  // Màu nền và màu chữ suy ra từ biến thể để giữ giao diện đồng nhất.
   const bg =
     variant === 'primary' ? colors.primary : variant === 'danger' ? colors.danger : variant === 'ghost' ? 'transparent' : '#e7eef0';
   const fg = variant === 'primary' || variant === 'danger' ? colors.primaryText : colors.primary;
@@ -61,10 +64,12 @@ export function Button({
   );
 }
 
+// Thẻ nội dung có nền trắng, bo góc và viền mảnh.
 export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
   return <View style={[styles.card, style]}>{children}</View>;
 }
 
+// Khung trạng thái dùng chung cho màn hình đang tải, rỗng hoặc lỗi (kèm nút hành động tùy chọn).
 export function StateView({
   kind,
   title,
@@ -86,6 +91,7 @@ export function StateView({
   );
 }
 
+// Chip chọn một giá trị (ví dụ ngôn ngữ), có trạng thái selected/disabled.
 export function Chip({
   label,
   selected,
@@ -113,6 +119,7 @@ export function Chip({
   );
 }
 
+// Tiêu đề nhóm nội dung trong các màn hình cuộn.
 export function SectionTitle({ children }: { children: ReactNode }) {
   return (
     <Text style={styles.section} accessibilityRole="header">
@@ -121,6 +128,7 @@ export function SectionTitle({ children }: { children: ReactNode }) {
   );
 }
 
+// Style dùng chung cho các thành phần phía trên.
 export const styles = StyleSheet.create({
   btn: { minHeight: 46, borderRadius: 10, paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center' },
   btnText: { fontSize: 15, fontWeight: '600' },

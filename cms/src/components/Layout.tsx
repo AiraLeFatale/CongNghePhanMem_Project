@@ -1,8 +1,13 @@
+/**
+ * Khung giao diện chính của CMS: thanh trên cùng, sidebar điều hướng và vùng nội dung.
+ * Sidebar thu gọn trên màn hình nhỏ và tự đóng mỗi khi chuyển trang.
+ */
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router';
 import { useAuth } from '../auth/AuthContext';
 import { Icon } from './Icon';
 
+// Các mục điều hướng chính; `end` giúp mục Tổng quan không active ở mọi route con.
 const NAV = [
   { to: '/', label: 'Tổng quan', icon: 'home', end: true },
   { to: '/pois', label: 'Điểm thuyết minh', icon: 'pin' },
@@ -11,11 +16,13 @@ const NAV = [
   { to: '/analytics', label: 'Thống kê', icon: 'chart' },
 ];
 
+/** Component bố cục, dùng làm phần tử bao ngoài các route con qua <Outlet />. */
 export function Layout() {
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
+  // Đóng menu mobile sau khi điều hướng để không che nội dung mới.
   useEffect(() => setOpen(false), [location.pathname]);
 
   return (

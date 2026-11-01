@@ -1,3 +1,7 @@
+/**
+ * Trang danh sách tour tham quan.
+ * Hiển thị các tour kèm số điểm, thời gian cập nhật và thao tác sửa/xoá.
+ */
 import { Link } from 'react-router';
 import { api, errorMessage } from '../lib/api';
 import { useAsync, useDocumentTitle } from '../lib/useAsync';
@@ -8,12 +12,14 @@ import { Icon } from '../components/Icon';
 import { useConfirm } from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';
 
+// Trang danh sách tour: tải dữ liệu và xử lý xoá tour kèm hộp thoại xác nhận.
 export function TourListPage() {
   useDocumentTitle('Tour tham quan');
   const toast = useToast();
   const confirm = useConfirm();
   const { data, error, loading, reload, setData } = useAsync(() => api.listTours(), []);
 
+  // Xác nhận việc xoá tour (các điểm bên trong vẫn được giữ), sau đó cập nhật danh sách.
   async function onDelete(t: TourListItem) {
     const ok = await confirm({
       title: 'Xoá tour?',
@@ -64,6 +70,7 @@ export function TourListPage() {
           </EmptyState>
         ) : (
           <div className="table-wrap">
+            {/* Bảng tour: tên/mô tả, số điểm, thời gian cập nhật và thao tác. */}
             <table className="table">
               <thead>
                 <tr>

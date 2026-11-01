@@ -1,6 +1,7 @@
 /** Chọn bản dịch theo ngôn ngữ, fallback về tiếng Việt (mặc định) rồi bản bất kỳ có nội dung. */
 import { DEFAULT_LANGUAGE, Translation } from '../types';
 
+/** Kết quả chọn bản dịch, kèm cờ cho biết đã phải fallback hay chưa. */
 export interface ResolvedTranslation {
   translation: Translation;
   /** Ngôn ngữ thực sự được dùng. */
@@ -9,9 +10,14 @@ export interface ResolvedTranslation {
   isFallback: boolean;
 }
 
+// Một bản dịch chỉ được coi là dùng được khi có nội dung chữ hoặc có file audio.
 const hasContent = (t: Translation | undefined): t is Translation =>
   !!t && (!!(t.narration_text && t.narration_text.trim()) || !!t.audio_url);
 
+/**
+ * Chọn bản dịch theo thứ tự ưu tiên: ngôn ngữ đang chọn → ngôn ngữ mặc định → bản đầu tiên có nội dung.
+ * Trả null nếu không có bản dịch nào dùng được.
+ */
 export function resolveTranslation(
   translations: Translation[] | null | undefined,
   preferred: string,
@@ -19,10 +25,13 @@ export function resolveTranslation(
 ): ResolvedTranslation | null {
   const list = translations ?? [];
   const find = (code: string) => list.find((t) => t.language_code === code);
+  // 1) Đúng ngôn ngữ người dùng chọn.
   const p = find(preferred);
   if (hasContent(p)) return { translation: p, language: preferred, isFallback: false };
+  // 2) Ngôn ngữ mặc định (tiếng Việt).
   const f = find(fallback);
   if (hasContent(f)) return { translation: f, language: fallback, isFallback: preferred !== fallback };
+  // 3) Chấp nhận bất kỳ bản dịch nào có nội dung, miễn là còn nghe được.
   const any = list.find(hasContent);
   if (any) return { translation: any, language: any.language_code, isFallback: true };
   return null;

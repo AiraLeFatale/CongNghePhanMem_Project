@@ -1,6 +1,11 @@
+/**
+ * Hook tải dữ liệu bất đồng bộ kèm trạng thái loading/lỗi và hàm tải lại.
+ * Bỏ qua kết quả của lần gọi cũ để tránh ghi đè dữ liệu mới.
+ */
 import { useCallback, useEffect, useRef, useState, type DependencyList } from 'react';
 import { errorMessage } from './api';
 
+// Trạng thái mà useAsync trả về cho component.
 export interface AsyncState<T> {
   data: T | undefined;
   error: string | null;
@@ -18,6 +23,7 @@ export function useAsync<T>(fn: () => Promise<T>, deps: DependencyList): AsyncSt
   const callId = useRef(0);
 
   useEffect(() => {
+    // Mỗi lần chạy effect nhận một id mới; kết quả cũ không còn khớp id sẽ bị bỏ.
     const id = ++callId.current;
     setLoading(true);
     setError(null);
@@ -36,6 +42,7 @@ export function useAsync<T>(fn: () => Promise<T>, deps: DependencyList): AsyncSt
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps, tick]);
 
+  // Tăng tick để effect chạy lại và gọi lại hàm tải dữ liệu.
   const reload = useCallback(() => setTick((t) => t + 1), []);
   const setData = useCallback((v: T | ((prev: T | undefined) => T)) => {
     setDataState((prev) => (typeof v === 'function' ? (v as (p: T | undefined) => T)(prev) : v));
@@ -43,6 +50,7 @@ export function useAsync<T>(fn: () => Promise<T>, deps: DependencyList): AsyncSt
   return { data, error, loading, reload, setData };
 }
 
+/** Cập nhật document.title theo trang đang mở. */
 export function useDocumentTitle(title: string) {
   useEffect(() => {
     document.title = `${title} · CMS Thuyết minh Quận 4`;

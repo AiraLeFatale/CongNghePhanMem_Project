@@ -6,17 +6,20 @@ import { useT } from '../../i18n';
 import { runSync } from '../../services/bootstrap';
 import { useAppStore } from '../../state/store';
 
+// Màn hình danh sách tour: kéo để đồng bộ, chạm để mở chi tiết tour.
 export default function ToursScreen() {
   const { t } = useT();
   const tours = useAppStore((s) => s.tours);
   const syncing = useAppStore((s) => s.syncing);
   const follow = useAppStore((s) => s.follow);
 
+  // Chưa có tour: hiện đang tải nếu đang đồng bộ, ngược lại gợi ý đồng bộ dữ liệu.
   if (!tours.length) {
     if (syncing) return <StateView kind="loading" title={t('common.loading')} />;
     return <StateView kind="empty" title={t('tours.empty')} action={{ title: t('settings.syncNow'), onPress: () => runSync(true, true) }} />;
   }
 
+  // Kéo xuống (onRefresh) để đồng bộ lại dữ liệu tour.
   return (
     <FlatList
       data={tours}
@@ -33,6 +36,7 @@ export default function ToursScreen() {
           <Card>
             <View style={styles.row}>
               <Text style={styles.name}>{item.name}</Text>
+              {/* Nhãn đánh dấu tour người dùng đang đi theo. */}
               {follow?.tourId === item.id && <Text style={styles.following}>{t('tour.following')}</Text>}
             </View>
             {item.description ? <Text style={styles.desc}>{item.description}</Text> : null}

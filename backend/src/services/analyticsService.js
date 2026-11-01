@@ -1,7 +1,10 @@
+import { config } from '../config.js';
 import { badRequest } from '../utils/errors.js';
 import { isIsoDate } from '../utils/validate.js';
 
-export function createAnalyticsService(repos) {
+// Tạo service thống kê; repos.analytics chứa các truy vấn SQL, repos.tours để kiểm tra tour.
+export function createAnalyticsService(repos, options = {}) {
+  // Chuyển query string thành bộ lọc { from, to, tourId }; ném 400 nếu ngày/tour không hợp lệ.
   function parseFilters(q) {
     const f = {};
     if (q.from) {
@@ -25,6 +28,7 @@ export function createAnalyticsService(repos) {
   }
 
   function tourBbox(tourId) {
+    // Khung bao quanh các POI của tour, nới 0.003 độ (~300 m) để không cắt mất điểm gần biên.
     const pts = repos.tours.findById(tourId).pois;
     if (!pts.length) return null;
     const pad = 0.003; // ~300 m quanh các điểm của tour
@@ -37,7 +41,8 @@ export function createAnalyticsService(repos) {
   }
 
   return {
-    report(query) {
+    // Trả toàn bộ số liệu: tổng quan, theo cách kích hoạt/ngôn ngữ/POI/ngày/giờ, heatmap và tuyến.
+        report(query) {
       const f = parseFilters(query);
       const a = repos.analytics;
       const bbox = f.tourId ? tourBbox(f.tourId) : null;
@@ -45,7 +50,7 @@ export function createAnalyticsService(repos) {
       const heatmap = a.heatmap({ ...f, bbox });
       return {
         filters: { from: f.from ?? null, to: f.to ?? null, tour_id: f.tourId ?? null },
-        has_data: summary.plays > 0 || heatmap.length > 0,
+        has_data: summary.plays > 0 || heatmap.length > 0,   // vẫn kiểm tra trên số thật
         summary,
         by_method: a.byMethod(f),
         by_language: a.byLanguage(f),

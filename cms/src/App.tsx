@@ -1,3 +1,7 @@
+/**
+ * Cấu hình định tuyến (routing) cho trang quản trị CMS.
+ * Khai báo các provider dùng chung, bảng route và các trang lỗi / 404.
+ */
 import { createBrowserRouter, Link, Outlet, RouterProvider, useRouteError } from 'react-router';
 import { AuthProvider, RequireAuth } from './auth/AuthContext';
 import { ToastProvider } from './components/Toast';
@@ -14,6 +18,7 @@ import { AnalyticsPage } from './pages/AnalyticsPage';
 import { AnalyticsReportPage } from './pages/AnalyticsReportPage';
 import { AccountPage } from './pages/AccountPage';
 
+// Bọc các provider dùng chung: toast, hộp thoại xác nhận và ngữ cảnh đăng nhập.
 function Root() {
   return (
     <ToastProvider>
@@ -26,6 +31,7 @@ function Root() {
   );
 }
 
+// Trang 404 dùng khi đường dẫn không khớp bất kỳ route nào bên trong Layout.
 function NotFound() {
   return (
     <div className="state state-empty">
@@ -41,7 +47,9 @@ function NotFound() {
   );
 }
 
+// Trang lỗi của router: hiển thị thông điệp lỗi và lối quay về trang tổng quan.
 function RouteError() {
+  // Lấy lỗi mà router ném ra để hiển thị nội dung thân thiện với người dùng.
   const err = useRouteError();
   console.warn(err);
   return (
@@ -58,13 +66,16 @@ function RouteError() {
   );
 }
 
+// Bảng định tuyến: /login công khai, các trang quản trị nằm trong RequireAuth và dùng chung Layout.
 const router = createBrowserRouter([
   {
     element: <Root />,
     errorElement: <RouteError />,
     children: [
+      // Trang đăng nhập không yêu cầu xác thực.
       { path: '/login', element: <LoginPage /> },
       {
+        // Báo cáo in/PDF đứng riêng, không dùng Layout để tối ưu bố cục khi in.
         path: '/analytics/report',
         element: (
           <RequireAuth>
@@ -95,6 +106,7 @@ const router = createBrowserRouter([
   },
 ]);
 
+// Component gốc của ứng dụng, gắn bảng định tuyến vào cây React.
 export function App() {
   return <RouterProvider router={router} />;
 }

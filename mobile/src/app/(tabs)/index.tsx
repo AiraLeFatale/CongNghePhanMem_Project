@@ -11,6 +11,7 @@ import { retryLocationPermission, runSync } from '../../services/bootstrap';
 import { setSimulatedLocation, stopTourWalk } from '../../services/simulation';
 import { useAppStore } from '../../state/store';
 
+// Màn hình chính của tab Bản đồ: đọc trạng thái vị trí/POI từ store và hiển thị lên WebView Leaflet.
 export default function MapScreen() {
   const { t } = useT();
   const mapRef = useRef<LeafletMapHandle>(null);
@@ -36,6 +37,7 @@ export default function MapScreen() {
   const tour = follow ? tours.find((x) => x.id === follow.tourId) : undefined;
   const nextId = tour ? tour.poi_ids[follow!.nextIndex] : undefined;
 
+  // Tính màu vòng POI theo thứ tự ưu tiên: đang phát > đang trong vùng > điểm kế tiếp > đã nghe > mặc định.
   const data: MapData = useMemo(() => {
     const color = (id: number) =>
       id === playingId
@@ -47,6 +49,7 @@ export default function MapScreen() {
             : recentlyPlayed.includes(id)
               ? colors.poiPlayed
               : colors.poiIdle;
+    // Đường nối các điểm của tour đang theo dõi (theo đúng thứ tự poi_ids).
     const path: [number, number][] = tour
       ? tour.poi_ids
           .map((id) => pois.find((p) => p.id === id))
@@ -82,10 +85,12 @@ export default function MapScreen() {
     );
   }
 
+  // Chọn POI ưu tiên cao nhất trong số các POI đang nằm trong vùng geofence.
   const insideBest = inside
     .map((id) => pois.find((p) => p.id === id))
     .filter((p): p is NonNullable<typeof p> => !!p)
     .sort((a, b) => b.priority - a.priority)[0];
+  // Tìm điểm gần nhất trong bảng khoảng cách đã tính để hiển thị trên thanh trạng thái.
   let nearest: { title: string; d: number } | null = null;
   for (const p of pois) {
     const d = distances[p.id];
@@ -93,6 +98,7 @@ export default function MapScreen() {
   }
   const nextPoi = nextId != null ? pois.find((p) => p.id === nextId) : undefined;
 
+  // Ưu tiên thông báo trạng thái: mô phỏng > GPS yếu > chưa có vị trí > trong vùng > điểm gần nhất.
   let status: string;
   if (simulation) status = walking != null ? t('map.walking') : t('map.simOn');
   else if (weakAcc != null) status = t('map.weakGps', { acc: Math.round(weakAcc) });
@@ -101,10 +107,12 @@ export default function MapScreen() {
   else if (nearest) status = t('map.nearest', { title: nearest.title, dist: formatDistance(nearest.d) });
   else status = '';
 
+  // Chỉ hiện thẻ xin quyền khi không ở chế độ mô phỏng và quyền đã bị từ chối/không khả dụng.
   const showPermission = !simulation && (permission === 'denied' || permission === 'unavailable');
 
   return (
     <View style={styles.flex}>
+      {/* Bản đồ Leaflet: chạm POI để mở chi tiết, chạm bản đồ để dịch vị trí giả lập. */}
       <LeafletMap
         ref={mapRef}
         data={data}
@@ -139,6 +147,7 @@ export default function MapScreen() {
         </Card>
       </View>
 
+      {/* Chú giải màu vòng POI, đặt cố định ở góc dưới trái. */}
       <View style={styles.legend} pointerEvents="none">
         {(
           [
@@ -158,6 +167,7 @@ export default function MapScreen() {
 
       {showPermission && (
         <View style={styles.permWrap}>
+          {/* Thẻ giải thích lý do cần quyền vị trí, kèm nút mở Cài đặt hệ thống hoặc thử lại. */}
           <Card>
             <Text style={styles.permTitle} accessibilityRole="header">
               {t('perm.title')}

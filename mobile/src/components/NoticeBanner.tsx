@@ -4,11 +4,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { store, useAppStore } from '../state/store';
 import { colors } from './ui';
 
+// Banner toast: đọc notice từ store, tự ẩn sau thời gian do notify() đặt, chạm để đóng ngay.
 export function NoticeBanner() {
   const n = useAppStore((s) => s.notice);
   const insets = useSafeAreaInsets();
   if (!n) return null;
+  // Màu nền theo mức độ: lỗi (đỏ), cảnh báo (nâu), thông tin (xanh đậm).
   const bg = n.kind === 'error' ? colors.danger : n.kind === 'warn' ? colors.warn : '#263f4a';
+  // Chạm để đóng banner trước khi hết thời gian; căn dưới tai thỏ bằng insets của safe area.
   return (
     <Pressable
       onPress={() => store.set({ notice: null })}

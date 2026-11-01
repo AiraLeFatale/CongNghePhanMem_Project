@@ -4,8 +4,10 @@ import { isLanguageCode } from '../types';
 import { kvGet, kvSet } from './db';
 import type { Settings } from '../state/store';
 
+// Khoá lưu toàn bộ cài đặt dưới dạng JSON trong bảng kv.
 const KEY = 'settings';
 
+/** Lấy ngôn ngữ từ locale hệ thống; nếu không được hỗ trợ hoặc lỗi thì mặc định "vi". */
 export function initialLanguage(): Settings['language'] {
   try {
     const code = getLocales()[0]?.languageCode ?? 'vi';
@@ -15,8 +17,13 @@ export function initialLanguage(): Settings['language'] {
   }
 }
 
+/**
+ * Chuẩn hoá cài đặt đọc từ bộ nhớ: sai kiểu/rác thì dùng `base`,
+ * riêng các giá trị số bị kẹp trong khoảng cho phép.
+ */
 export function sanitizeSettings(raw: unknown, base: Settings): Settings {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Partial<Settings>;
+  // Ép về số và kẹp trong [min, max]; không phải số hữu hạn thì dùng mặc định.
   const num = (v: unknown, d: number, min: number, max: number) => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : d;
@@ -33,6 +40,7 @@ export function sanitizeSettings(raw: unknown, base: Settings): Settings {
   };
 }
 
+/** Đọc cài đặt đã lưu; lần đầu chạy hoặc JSON hỏng thì dùng giá trị mặc định. */
 export async function loadSettings(defaults: Settings): Promise<Settings> {
   const raw = await kvGet(KEY);
   if (!raw) return { ...defaults, language: initialLanguage() };
@@ -43,6 +51,7 @@ export async function loadSettings(defaults: Settings): Promise<Settings> {
   }
 }
 
+/** Ghi cài đặt hiện tại vào SQLite (một dòng kv dạng JSON). */
 export async function saveSettings(s: Settings): Promise<void> {
   await kvSet(KEY, JSON.stringify(s));
 }

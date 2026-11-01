@@ -11,9 +11,9 @@ flowchart LR
     APP -. "audio, ảnh" .-> UP
     CMS -. "audio, ảnh" .-> UP
     subgraph API["⚙️ http://server:4000"]
-        PUB["/api công khai<br/>7 endpoint, ẩn danh"]:::backend
+        PUB["/api công khai<br/>12 endpoint, ẩn danh"]:::backend
         LOGIN["/api/auth/login<br/>1 endpoint"]:::backend
-        ADM["/api/admin/*<br/>22 endpoint, cần JWT"]:::backend
+        ADM["/api/admin/*<br/>29 endpoint, cần JWT"]:::backend
         UP["/uploads/tên file<br/>file tĩnh"]:::data
     end
     style API fill:#F8FAFC,stroke:#CBD5E1
@@ -99,19 +99,30 @@ flowchart LR
         U["POST /logs/usage"]:::backend
         LO["POST /logs/location"]:::backend
     end
+    subgraph LIVE["Đếm người đang dùng"]
+        PING["POST /live/ping"]:::backend
+    end
+    subgraph PAY["Nội dung đầy đủ và thanh toán VietQR"]
+        FULL["GET /pois/:id/full"]:::backend
+        ORD["POST /orders<br/>GET /orders/:code<br/>POST /orders/:code/claim"]:::backend
+    end
     APP --> INFO
     APP --> SYNC
     APP --> QRG
     APP --> LOG
+    APP --> LIVE
+    APP --> PAY
     style INFO fill:#F8FAFC,stroke:#CBD5E1
     style SYNC fill:#F8FAFC,stroke:#CBD5E1
     style QRG fill:#F8FAFC,stroke:#CBD5E1
     style LOG fill:#F8FAFC,stroke:#CBD5E1
+    style LIVE fill:#F8FAFC,stroke:#CBD5E1
+    style PAY fill:#F8FAFC,stroke:#CBD5E1
     classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
     classDef mobile fill:#DBEAFE,stroke:#2563EB,stroke-width:2px,color:#1E3A8A
 ```
 
-*Hình: Bảy endpoint công khai chia theo mục đích; chỉ hai endpoint ghi nhật ký bị giới hạn tần suất*
+*Hình: Mười hai endpoint công khai chia theo mục đích; các endpoint ghi nhật ký, heartbeat và tạo đơn bị giới hạn tần suất*
 
 
 | Phương thức | Đường dẫn | Mô tả |
@@ -123,8 +134,13 @@ flowchart LR
 | GET | `/qr/:payload` | Tra một mã QR → `{qr:{id,label}, poi:{...,translations}}`; 404 nếu không biết mã. `payload` nhận `NARR:<code>`, `<code>` hoặc URL kết thúc bằng `/q/<code>` (áp dụng `encodeURIComponent`) |
 | POST | `/logs/usage` | Ghi sự kiện phát thuyết minh. Thân là một đối tượng hoặc một mảng (≤ 500 phần tử) |
 | POST | `/logs/location` | Ghi mẫu vị trí ẩn danh. Thân là một đối tượng hoặc một mảng (≤ 500 phần tử) |
+| POST | `/live/ping` | Heartbeat đếm người đang dùng. Thân `{session_id, state}`, `state` ∈ `browsing` · `listening` · `left` → 204 (xem mục 4) |
+| GET | `/pois/:id/full` | Nội dung đầy đủ của POI để phát thuyết minh. Header `x-access-token` chứa một hoặc nhiều token đơn, cách nhau dấu phẩy → 402 nếu POI có phí mà chưa có quyền |
+| POST | `/orders` | `{poi_id}` → 201 `{code, token, amount, status, bank, transfer_note}`. `token` chỉ trả về đúng lần tạo đơn, dùng cho hai endpoint dưới |
+| GET | `/orders/:code` | Trạng thái đơn. Header `x-order-token` bắt buộc; sai/thiếu → 404 (không lộ đơn của người khác) |
+| POST | `/orders/:code/claim` | Khách báo "Tôi đã chuyển khoản" → mở quyền nghe ngay (`claimed: true`); 409 nếu đơn đã huỷ |
 
-Hai endpoint ghi nhật ký bị giới hạn 120 yêu cầu mỗi phút cho mỗi IP.
+Các endpoint `POST /logs/*`, `POST /live/ping`, `POST /orders` và `POST /orders/:code/claim` dùng chung giới hạn **120 yêu cầu mỗi phút cho mỗi IP**.
 
 `GET /sync`:
 ```json
@@ -268,6 +284,7 @@ flowchart LR
     subgraph CONT["Nội dung thuyết minh"]
         AUD["/pois/:id/audio/:lang<br/>POST multipart<br/>DELETE"]:::backend
         TTS["/pois/:id/tts/:lang<br/>POST"]:::backend
+        AUTO["/pois/:id/auto<br/>GET · POST"]:::backend
         TR["/translate<br/>POST"]:::backend
     end
     subgraph QRG["Mã QR in tại trạm"]
@@ -278,8 +295,10 @@ flowchart LR
         TOURS["/tours<br/>GET · POST"]:::backend
         TOUR["/tours/:id<br/>GET · PUT<br/>DELETE"]:::backend
     end
-    subgraph ANG["Thống kê"]
+    subgraph ANG["Thống kê và vận hành"]
         AN["/analytics<br/>GET ?from&to&tour_id"]:::backend
+        LIVE["/live<br/>GET<br/>GET /stream (SSE)"]:::backend
+        ORD["/orders<br/>GET ?status=<br/>POST /:id/confirm<br/>POST /:id/cancel"]:::backend
     end
     ADM --> ACC
     ADM --> POIG
@@ -300,13 +319,18 @@ flowchart LR
     classDef ext fill:#FFE4E6,stroke:#E11D48,stroke-width:2px,color:#881337
 ```
 
-*Hình: Bản đồ 22 endpoint quản trị theo tài nguyên; ô gộp các phương thức trên cùng một đường dẫn*
+*Hình: Bản đồ 29 endpoint quản trị theo tài nguyên; ô gộp các phương thức trên cùng một đường dẫn*
 
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
 | GET | `/admin/me` | Quản trị viên đang đăng nhập |
 | POST | `/admin/me/password` | `{current_password,new_password}` (mật khẩu mới ≥ 8 ký tự) → 204. Lỗi trả 400 kèm `details.current_password` hoặc `details.new_password` |
+| GET | `/admin/live` | Snapshot đếm người đang dùng, dùng cho nhịp hỏi lại dự phòng (xem mục 4) |
+| GET | `/admin/live/stream` | Kênh SSE, đẩy cùng snapshot mỗi `LIVE_SSE_INTERVAL_MS` (đang đặt 1000 ms). Vì cần header Bearer nên CMS đọc bằng `fetch`, không dùng `EventSource` |
+| GET | `/admin/orders?status=` | `{enabled, totals, items:[{id,code,poi_id,poi_name,amount,status,created_at,paid_at,claimed_at,confirmed_by}]}`. `status` ∈ `pending` · `paid` · `cancelled`; bỏ trống = mọi đơn |
+| POST | `/admin/orders/:id/confirm` | Xác nhận đã nhận tiền → đơn chuyển `paid`; 409 nếu đơn không còn `pending` |
+| POST | `/admin/orders/:id/cancel` | Huỷ đơn đang chờ → đơn chuyển `cancelled`; 409 nếu đơn đã xử lý |
 | GET | `/admin/pois?q=` | `{items:[{id,name,address,latitude,longitude,radius_m,priority,image_url,created_at,updated_at,languages:["vi","en"],audio_languages:["vi"],qr_count}]}`. `q` tìm theo tên và địa chỉ |
 | POST | `/admin/pois` | Tạo POI (thân yêu cầu ở bên dưới) → 201 + POI đầy đủ |
 | GET | `/admin/pois/:id` | POI + `translations[]` + `qrcodes[]` (mỗi mã có `content` = `NARR:<payload>`) |
@@ -315,6 +339,8 @@ flowchart LR
 | POST | `/admin/pois/:id/audio/:lang` | multipart, trường `audio` (mp3/m4a/aac/wav/ogg/webm, ≤ 15 MB) → POI. Thay thế audio cũ của ngôn ngữ đó (nếu có) |
 | DELETE | `/admin/pois/:id/audio/:lang` | Gỡ audio → POI |
 | POST | `/admin/pois/:id/tts/:lang` | Tạo file MP3 từ `narration_text` ĐÃ LƯU của ngôn ngữ đó (hoặc từ thân yêu cầu `{text}`) → POI với `audio_source:"tts"` |
+| GET | `/admin/pois/:id/auto` | Tiến trình tự dịch và tạo giọng đọc: `{enabled, state:"idle|queued|running|done|error", step, done, total, errors[]}` |
+| POST | `/admin/pois/:id/auto` | Chạy lại ngay: dịch nội dung tiếng Việt sang 5 ngôn ngữ còn lại (giữ nguyên bản admin tự nhập) rồi tạo lại TTS. Trả về cùng dạng trạng thái |
 | GET | `/admin/pois/:id/qrcodes` | `{items:[{id,poi_id,payload,label,content,created_at}]}` |
 | POST | `/admin/pois/:id/qrcodes` | `{label?}` → 201 QR. `content` là chuỗi cần mã hoá vào mã QR in ra (`NARR:<payload>`) |
 | GET | `/admin/qrcodes` | Mọi mã QR kèm `poi_name` |
@@ -328,7 +354,7 @@ flowchart LR
 | DELETE | `/admin/tours/:id` | 204 |
 | GET | `/admin/analytics?from=YYYY-MM-DD&to=YYYY-MM-DD&tour_id=` | Báo cáo thống kê (analytics) (xem bên dưới). Mọi tham số đều không bắt buộc |
 
-Mỗi thao tác tạo/cập nhật/xoá thành công đối với POI, bản dịch, audio, tour hoặc mã QR đều làm tăng `content_version`.
+Mỗi thao tác tạo/cập nhật/xoá thành công đối với POI, bản dịch, audio, tour hoặc mã QR đều làm tăng `content_version` (job tự dịch/TTS ở `POST /admin/pois/:id/auto` cũng vậy khi chạy xong). Xác nhận/huỷ đơn thanh toán **không** đổi nội dung nên không tăng `content_version`.
 
 ```mermaid
 %%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
@@ -432,4 +458,43 @@ flowchart TD
 ```
 
 *Hình: Cách backend dựng báo cáo thống kê từ bộ lọc tới các khối dữ liệu trả về*
+
+
+## 4. Đếm người đang dùng thời gian thực (live)
+
+Số liệu này **không lấy từ DB** mà từ bộ nhớ của tiến trình backend:
+
+| Hàm | File | Việc |
+|---|---|---|
+| `ping(body)` | `backend/src/services/liveService.js` | Ghi/cập nhật/xoá một phiên theo `session_id`; ném 400 nếu `session_id` hoặc `state` sai |
+| `snapshot()` | cùng file | Dọn phiên quá hạn rồi tính `total`, `listening`, `browsing`, `by_poi`, `by_language`, `by_method`, `by_source` |
+| `stream(req, res)` | cùng file | Giữ kết nối SSE, gửi `snapshot()` ngay khi nối và lặp lại mỗi `LIVE_SSE_INTERVAL_MS` |
+| `snapshot` / `stream` | `backend/src/controllers/liveController.js` | Hai handler của `GET /api/admin/live` và `GET /api/admin/live/stream` |
+
+Website gửi `POST /api/live/ping` mỗi 15 giây; app di động gửi cùng endpoint khi vào/ra màn hình nghe.
+
+```json
+// POST /api/live/ping  → 204 No Content
+{ "session_id": "a1b2c3d4e5f6a7b8", "state": "listening", "poi_id": 1, "language_code": "vi", "trigger_method": "geofence", "source": "web" }
+```
+
+```json
+// GET /api/admin/live  (và mỗi khung SSE của /api/admin/live/stream)
+{
+  "at": "2026-11-01T03:00:00.000Z",
+  "ttl_seconds": 45,
+  "total": 2, "listening": 1, "browsing": 1,
+  "by_poi": [{ "poi_id": 1, "name": "Bến Nhà Rồng – Bảo tàng Hồ Chí Minh", "listening": 1 }],
+  "by_language": { "vi": 1 },
+  "by_method": { "geofence": 1 },
+  "by_source": { "web": 2 }
+}
+```
+
+- `state`: `browsing` (đang xem), `listening` (đang nghe), `left` (đã rời — xoá phiên ngay).
+- Phiên không nhận heartbeat trong `LIVE_TTL_MS` (mặc định 45 giây) bị loại khi đọc số, nên đóng tab/mất mạng cũng tự giảm sau tối đa 45 giây.
+- `total`, `listening`, `browsing`, `by_poi[].listening`, `by_language`, `by_method`, `by_source` đều nhân `LIVE_DEMO_FACTOR` (đang đặt `1` = số thật) rồi làm tròn.
+- `LIVE_SSE_INTERVAL_MS` đang đặt `1000` → CMS nhận khung mới mỗi 1 giây. Nếu SSE bị chặn (proxy đệm, mất mạng), CMS tự chuyển sang hỏi `GET /api/admin/live` mỗi 3 giây.
+- Restart server là mất toàn bộ phiên đang đếm (chúng chỉ nằm trong RAM); website sẽ tự ping lại trong vòng 15 giây.
+
 

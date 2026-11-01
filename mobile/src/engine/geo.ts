@@ -1,8 +1,10 @@
 /** Hàm hình học thuần (không phụ thuộc Expo) — dùng chung cho geofence, analytics và mô phỏng. */
 
+// Bán kính Trái Đất theo IUGG (m) và hàm đổi độ → radian dùng cho công thức haversine.
 const EARTH_RADIUS_M = 6371008.8;
 const toRad = (d: number) => (d * Math.PI) / 180;
 
+/** Toạ độ địa lý tối thiểu (độ thập phân). */
 export interface LatLng {
   latitude: number;
   longitude: number;
@@ -33,6 +35,7 @@ export function stepTowards(from: LatLng, to: LatLng, meters: number): { point: 
   return { point: interpolate(from, to, meters / d), arrived: false };
 }
 
+/** Định dạng khoảng cách thân thiện: dưới 1 km hiển thị mét, từ 1 km hiển thị km (1 chữ số thập phân). */
 export function formatDistance(m: number): string {
   if (!Number.isFinite(m)) return '—';
   if (m < 1000) return `${Math.round(m)} m`;

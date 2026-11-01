@@ -1,3 +1,8 @@
+/**
+ * Trang tổng quan (dashboard) của CMS.
+ * Hiển thị số lượng điểm/tour/mã QR, thống kê 7 ngày gần nhất
+ * và danh sách việc cần làm để bổ sung nội dung.
+ */
 import { Link } from 'react-router';
 import { api } from '../lib/api';
 import { useAsync, useDocumentTitle } from '../lib/useAsync';
@@ -8,20 +13,26 @@ import { ErrorState, LoadingState, PageHeader } from '../components/States';
 import { Icon } from '../components/Icon';
 import { VBarChart } from '../components/charts';
 
+// Trang tổng quan: tải song song danh mục nội dung và số liệu thống kê 7 ngày gần nhất.
 export function DashboardPage() {
   useDocumentTitle('Tổng quan');
   const { user } = useAuth();
+  // Khoảng thời gian mặc định: 7 ngày gần nhất, tính cả hôm nay.
   const from = daysAgo(6);
   const to = toLocalISODate(new Date());
+  // Gọi song song ba API danh sách để đếm số điểm, tour và mã QR.
   const counts = useAsync(() => Promise.all([api.listPois(), api.listTours(), api.listQrCodes()]), []);
+  // Số liệu thống kê dùng cho biểu đồ và các chỉ số nhanh.
   const stats = useAsync(() => api.analytics({ from, to }), [from, to]);
 
   const [pois, tours, qrs] = counts.data ?? [[], [], []];
+  // Phân loại nội dung còn thiếu để hiển thị ở khối "Việc cần làm".
   const missingAudio = pois.filter((p) => p.audio_languages.length === 0);
   const fewLanguages = pois.filter((p) => p.languages.length < LANGUAGES.length);
   const noQr = pois.filter((p) => p.qr_count === 0);
   const s = stats.data?.summary;
   const daily = stats.data ? fillDaily(stats.data.daily, from, to) : [];
+  // Điểm có nhiều lượt nghe nhất trong khoảng thời gian thống kê.
   const topPoi = stats.data ? [...stats.data.per_poi].sort((a, b) => b.plays - a.plays)[0] : undefined;
 
   return (
@@ -42,6 +53,7 @@ export function DashboardPage() {
         <ErrorState message={counts.error} onRetry={counts.reload} />
       ) : (
         <div className="kpis">
+          {/* Ba thẻ KPI, mỗi thẻ liên kết tới trang quản lý tương ứng. */}
           <Link to="/pois" className="kpi kpi-link">
             <span className="kpi-label">
               <Icon name="pin" /> Điểm thuyết minh
@@ -67,6 +79,7 @@ export function DashboardPage() {
       )}
 
       <div className="grid-2">
+        {/* Cột trái: thống kê 7 ngày; cột phải: việc cần làm và lối tắt. */}
         <section className="card">
           <div className="card-head">
             <h2 className="card-title">7 ngày gần nhất</h2>

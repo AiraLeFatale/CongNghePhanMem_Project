@@ -14,9 +14,11 @@ import { expoAudioOutput, expoSpeechOutput } from './audioOutput';
 import { logPlayback, sampleLocation } from './analytics';
 import { t } from '../i18n';
 
+// Động cơ geofence và cooldown dùng chung cho GPS thật lẫn mô phỏng.
 export const geofence = new GeofenceEngine();
 export const gate = new CooldownGate();
 
+// Narration engine nối với audio/TTS thật, đọc trạng thái trực tiếp từ store.
 export const narration = new NarrationEngine({
   audio: expoAudioOutput,
   speech: expoSpeechOutput,
@@ -25,6 +27,7 @@ export const narration = new NarrationEngine({
   resolveUrl: (url) => resolveMediaUrl(url, store.get().apiBase),
   isOnline: () => store.get().online !== false,
   log: (entry) => {
+    // Ghi analytics không được làm hỏng luồng phát.
     logPlayback(entry).catch(() => {});
   },
   onChange: (np) => store.set({ nowPlaying: np, recentlyPlayed: gate.recentlyPlayed() }),
@@ -39,12 +42,17 @@ export function applySettingsToEngines(): void {
   gate.setCooldownMinutes(store.get().settings.cooldownMinutes);
 }
 
+/**
+ * Phát thuyết minh cho một POI (theo id hoặc object) và hiện thông báo phù hợp
+ * với kết quả. Trả về null nếu không tìm thấy POI.
+ */
 export async function playPoi(poi: Poi | number, method: TriggerMethod, language?: string): Promise<PlayResult | null> {
   const p = typeof poi === 'number' ? poiById(poi) : poi;
   if (!p) return null;
   const lang = language ?? store.get().settings.language;
   const res = await narration.play(p, method, lang);
   const title = displayTitle(p, lang);
+  // Phản hồi cho người dùng theo từng kết quả của engine.
   if (res.status === 'playing' && res.isFallback) notify(t('notice.fallback', { title }), 'info');
   else if (res.status === 'no-content') notify(t('notice.noContent', { title }), 'warn');
   else if (res.status === 'discarded' && method === 'geofence') {
@@ -55,10 +63,12 @@ export async function playPoi(poi: Poi | number, method: TriggerMethod, language
   return res;
 }
 
+/** Dừng mọi âm thanh đang phát (audio hoặc TTS). */
 export function stopPlayback(): void {
   narration.stop();
 }
 
+/** Tiến con trỏ tour "đi theo" khi các POI vừa vào vùng; báo hoàn thành khi hết tour. */
 function advanceFollow(entered: number[]): void {
   const f = store.get().follow;
   if (!f) return;
@@ -84,11 +94,13 @@ export function handleFix(fix: LocationFix): void {
 
   const res = geofence.update(fix);
   if (res.ignored) {
+    // Sai số GPS quá lớn: giữ trạng thái cũ, chỉ ghi nhận để UI cảnh báo.
     store.set({ lastIgnoredAccuracy: fix.accuracy });
     return;
   }
   store.set({ inside: res.inside, distances: res.distances, lastIgnoredAccuracy: null, recentlyPlayed: gate.recentlyPlayed() });
   if (res.entered.length) advanceFollow(res.entered);
+  // Chỉ tự phát khi người dùng bật thuyết minh tự động.
   if (res.trigger && store.get().settings.autoNarration) {
     playPoi(res.trigger.poiId, 'geofence').catch(() => {});
   }

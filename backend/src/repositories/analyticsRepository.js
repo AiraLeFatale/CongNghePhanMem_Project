@@ -2,7 +2,10 @@
  * Truy vấn thống kê. Điều kiện lọc: khoảng ngày (theo played_at/recorded_at, dạng ISO) và tour (lọc theo POI thuộc tour).
  * Bản ghi vị trí không gắn với POI nên lọc tour cho heatmap dùng khung bao quanh các POI của tour.
  */
+// Tạo repository thống kê; mọi hàm nhận bộ lọc f = { from, to, tourId/bbox } đã chuẩn hoá.
 export function createAnalyticsRepository(db) {
+  // Dựng mệnh đề WHERE động cho usage_log: lọc theo thời gian và/hoặc POI thuộc tour.
+  // Trả về { sql, params } để tránh lặp code ở từng truy vấn thống kê.
   function usageWhere({ from, to, tourId }) {
     const clauses = [];
     const params = [];
@@ -13,6 +16,7 @@ export function createAnalyticsRepository(db) {
   }
 
   return {
+    // Tổng quan: số lượt nghe, số phiên, thời lượng nghe trung bình và tổng.
     summary(f) {
       const w = usageWhere(f);
       return db
@@ -24,16 +28,19 @@ export function createAnalyticsRepository(db) {
         )
         .get(...w.params);
     },
+    // Phân bố lượt nghe theo cách kích hoạt (geofence/qr/manual).
     byMethod(f) {
       const w = usageWhere(f);
       return db.prepare(`SELECT u.trigger_method AS method, COUNT(*) AS plays FROM usage_log u ${w.sql} GROUP BY u.trigger_method`).all(...w.params);
     },
+    // Phân bố lượt nghe theo ngôn ngữ, giảm dần để biết ngôn ngữ phổ biến.
     byLanguage(f) {
       const w = usageWhere(f);
       return db
         .prepare(`SELECT u.language_code AS language, COUNT(*) AS plays FROM usage_log u ${w.sql} GROUP BY u.language_code ORDER BY plays DESC`)
         .all(...w.params);
     },
+    // Thống kê chi tiết từng POI (kèm toạ độ để vẽ bản đồ nhiệt).
     perPoi(f) {
       const w = usageWhere(f);
       return db
@@ -46,18 +53,21 @@ export function createAnalyticsRepository(db) {
         )
         .all(...w.params);
     },
+    // Chuỗi lượt nghe theo từng ngày (10 ký tự đầu của ISO timestamp).
     daily(f) {
       const w = usageWhere(f);
       return db
         .prepare(`SELECT substr(u.played_at, 1, 10) AS date, COUNT(*) AS plays FROM usage_log u ${w.sql} GROUP BY date ORDER BY date`)
         .all(...w.params);
     },
+    // Phân bố lượt nghe theo giờ trong ngày (ký tự 12-13 của ISO timestamp).
     hourly(f) {
       const w = usageWhere(f);
       return db
         .prepare(`SELECT CAST(substr(u.played_at, 12, 2) AS INTEGER) AS hour, COUNT(*) AS plays FROM usage_log u ${w.sql} GROUP BY hour ORDER BY hour`)
         .all(...w.params);
     },
+    // Bản đồ nhiệt từ location_log; lọc thêm theo khung bao (bbox) nếu có.
     heatmap({ from, to, bbox }) {
       const clauses = [];
       const params = [];
@@ -76,6 +86,7 @@ export function createAnalyticsRepository(db) {
         )
         .all(...params);
     },
+    // Lấy tối đa `limit` phiên có >= 2 điểm, mỗi phiên trả chuỗi toạ độ theo thời gian.
     routes({ from, to, bbox, limit = 30 }) {
       const clauses = [];
       const params = [];
@@ -86,6 +97,7 @@ export function createAnalyticsRepository(db) {
         params.push(bbox.minLat, bbox.maxLat, bbox.minLng, bbox.maxLng);
       }
       const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+      // Chọn các phiên gần nhất có ít nhất 2 điểm để vẽ thành tuyến.
       const sessions = db
         .prepare(`SELECT session_id FROM location_log ${where} GROUP BY session_id HAVING COUNT(*) >= 2 ORDER BY MAX(recorded_at) DESC LIMIT ?`)
         .all(...params, limit)

@@ -1,3 +1,8 @@
+/**
+ * Trang quản lý mã QR dán tại trạm xe buýt.
+ * Cho phép lọc theo điểm, chọn mã cần in, tải PNG và xoá mã.
+ * Bảng in được render sẵn trong DOM để trình duyệt in đúng bố cục.
+ */
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { api, errorMessage, qrContent } from '../lib/api';
@@ -11,6 +16,7 @@ import { QrImage } from '../components/QrImage';
 import { useConfirm } from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';
 
+// Trang mã QR: tải danh sách mã, lọc theo điểm và quản lý bảng in.
 export function QrPage() {
   useDocumentTitle('Mã QR');
   const [params, setParams] = useSearchParams();
@@ -20,18 +26,22 @@ export function QrPage() {
   const { data, error, loading, reload, setData } = useAsync(() => api.listQrCodes(), []);
   const [excluded, setExcluded] = useState<Set<number>>(new Set());
 
+  // Gom các điểm đang có mã QR để dựng danh sách lọc, sắp xếp theo tên tiếng Việt.
   const pois = useMemo(() => {
     const m = new Map<number, string>();
     (data ?? []).forEach((q) => m.set(q.poi_id, q.poi_name ?? `Điểm #${q.poi_id}`));
     return [...m.entries()].sort((a, b) => a[1].localeCompare(b[1], 'vi'));
   }, [data]);
 
+  // Lọc theo điểm đang chọn và sắp xếp ổn định theo tên điểm rồi id.
   const visible = useMemo(
     () => (data ?? []).filter((q) => !poiFilter || String(q.poi_id) === poiFilter).sort((a, b) => (a.poi_name ?? '').localeCompare(b.poi_name ?? '', 'vi') || a.id - b.id),
     [data, poiFilter],
   );
+  // Các mã được đánh dấu "In" (mặc định in tất cả).
   const toPrint = visible.filter((q) => !excluded.has(q.id));
 
+  // Bật/tắt một mã khỏi bảng in mà không làm thay đổi dữ liệu gốc.
   function toggle(id: number) {
     setExcluded((s) => {
       const n = new Set(s);
@@ -41,6 +51,7 @@ export function QrPage() {
     });
   }
 
+  // Xác nhận rồi xoá mã QR; các bản in đã dán tại trạm sẽ ngừng hoạt động.
   async function remove(q: QrCode) {
     const ok = await confirm({
       title: 'Xoá mã QR?',
@@ -63,6 +74,7 @@ export function QrPage() {
     }
   }
 
+  // Chặn in khi chưa chọn mã nào, sau đó mở hộp thoại in của trình duyệt.
   function print() {
     if (toPrint.length === 0) {
       toast.error('Chọn ít nhất một mã QR để in');
@@ -74,6 +86,7 @@ export function QrPage() {
   return (
     <>
       <div className="no-print">
+        {/* Khu vực tương tác, được ẩn khi in nhờ lớp no-print. */}
         <PageHeader
           title="Mã QR"
           subtitle="Mã QR dán tại trạm xe buýt: hành khách quét để nghe thuyết minh của điểm gần đó"
@@ -85,6 +98,7 @@ export function QrPage() {
         />
         <div className="card">
           <div className="toolbar">
+            {/* Bộ lọc theo điểm thuyết minh, giá trị lưu trên URL. */}
             <div className="field field-inline">
               <label htmlFor="qr-poi">Lọc theo điểm</label>
               <select
@@ -153,6 +167,7 @@ export function QrPage() {
       </div>
 
       <div className="print-sheet" aria-hidden="true">
+        {/* Bảng in thật sự: mỗi mã là một thẻ, chỉ hiển thị khi in. */}
         {toPrint.map((q) => (
           <div key={q.id} className="print-card">
             <QrImage content={qrContent(q)} size={260} alt="" />

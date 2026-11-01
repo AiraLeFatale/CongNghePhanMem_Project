@@ -1,0 +1,747 @@
+{
+  "version": 160,
+  "generated_at": "2026-10-26T11:11:02.946Z",
+  "default_language": "vi",
+  "languages": [
+    {
+      "code": "vi",
+      "name": "Tiếng Việt"
+    },
+    {
+      "code": "en",
+      "name": "English"
+    },
+    {
+      "code": "zh",
+      "name": "中文"
+    },
+    {
+      "code": "ko",
+      "name": "한국어"
+    },
+    {
+      "code": "ja",
+      "name": "日本語"
+    },
+    {
+      "code": "fr",
+      "name": "Français"
+    }
+  ],
+  "pois": [
+    {
+      "id": 1,
+      "name": "Bến Nhà Rồng – Bảo tàng Hồ Chí Minh",
+      "address": "1 Nguyễn Tất Thành, Phường Xóm Chiếu",
+      "latitude": 10.7681,
+      "longitude": 106.7068,
+      "radius_m": 80,
+      "priority": 10,
+      "image_url": null,
+      "price": 5000,
+      "updated_at": "2026-10-20 08:30:31",
+      "translations": [
+        {
+          "language_code": "en",
+          "title": "Nha Rong Wharf",
+          "narration_text": "You are approaching Nha Rong Wharf. The French built this house in 1863 as the head office of a shipping company; the two dragons on its roof gave it the name \"Dragon House\". On 5 June 1911, the young Nguyen Tat Thanh left from this port to seek a path for national independence. Today it is the Ho Chi Minh Museum, open Tuesday to Sunday.",
+          "audio_url": "/uploads/tts-1792483963508-8a962ba3afdb.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "fr",
+          "title": "Quai de Nha Rong",
+          "narration_text": "Vous arrivez au quai de Nha Rong. Le bâtiment a été construit par les Français en 1863 comme siège d'une compagnie maritime. Le toit a deux dragons, c'est pourquoi les gens l'appellent Dragon House. Le 5 juin 1911, le jeune homme Nguyen Tat Thanh quitte ce port pour trouver un moyen de sauver son pays. Il s'agit actuellement du musée Ho Chi Minh, ouvert du mardi au dimanche.",
+          "audio_url": "/uploads/tts-1792483983847-213572587c96.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "ja",
+          "title": "ナロン埠頭",
+          "narration_text": "ナロン埠頭に到着です。この建物は 1863 年に海運会社の本社としてフランス人によって建てられました。屋根には二匹の龍が描かれているので、ドラゴンハウスと呼ばれています。 1911 年 6 月 5 日、青年グエン タット タンは祖国を救う方法を見つけるためにこの港を出港しました。現在、ここはホーチミン博物館で、火曜日から日曜日まで開館しています。",
+          "audio_url": "/uploads/tts-1792483983282-baad3449613c.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "ko",
+          "title": "나롱 부두",
+          "narration_text": "냐롱 부두에 도착합니다. 이 건물은 1863년 프랑스인들이 해운 회사의 본부로 지은 것입니다. 지붕에는 용이 두 마리 있어 사람들은 이곳을 용의 집이라고 부릅니다. 1911년 6월 5일, 청년 Nguyen Tat Thanh은 조국을 구할 방법을 찾기 위해 이 항구를 떠났습니다. 현재 이곳은 화요일부터 일요일까지 개장하는 호치민 박물관입니다.",
+          "audio_url": "/uploads/tts-1792484004895-1360f23129a9.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "vi",
+          "title": "Bến Nhà Rồng",
+          "narration_text": "Bạn đang đến Bến Nhà Rồng. Toà nhà được người Pháp xây năm 1863 làm trụ sở hãng vận tải biển, mái có hai con rồng nên người dân gọi là Nhà Rồng. Ngày 5 tháng 6 năm 1911, người thanh niên Nguyễn Tất Thành rời bến cảng này ra đi tìm đường cứu nước. Hiện nay đây là Bảo tàng Hồ Chí Minh, mở cửa từ thứ Ba đến Chủ nhật.",
+          "audio_url": "/uploads/tts-1792484010469-d2885d5de1f2.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "zh",
+          "title": "芽龙码头",
+          "narration_text": "您即将抵达芽龙码头。该建筑由法国人于1863年建造，作为一家航运公司的总部。屋顶有两条龙，故人们称其为龙屋。 1911 年 6 月 5 日，年轻人 Nguyen Tat Thanh 离开这个港口去寻找拯救国家的方法。目前这里是胡志明博物馆，周二至周日开放。",
+          "audio_url": "/uploads/tts-1792484011497-ae3379c46fac.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        }
+      ],
+      "locked": true,
+      "created_at": "2026-10-18 02:17:56",
+      "qrcodes": [
+        {
+          "id": 1,
+          "poi_id": 1,
+          "payload": "VSdMICEvK7Ln",
+          "label": "Trạm xe buýt Bến Nhà Rồng (Xóm Chiếu)",
+          "created_at": "2026-10-18 02:17:56",
+          "content": "NARR:VSdMICEvK7Ln"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Phố ẩm thực Vĩnh Khánh",
+      "address": "Đường Vĩnh Khánh, Phường Vĩnh Hội",
+      "latitude": 10.7605,
+      "longitude": 106.7036,
+      "radius_m": 120,
+      "priority": 8,
+      "image_url": null,
+      "price": 5000,
+      "updated_at": "2026-10-20 08:30:31",
+      "translations": [
+        {
+          "language_code": "en",
+          "title": "Vinh Khanh Food Street",
+          "narration_text": "Welcome to Vinh Khanh food street, the most famous snail street in Saigon. From late afternoon, both sides of the road fill with snail, grilled seafood and street snack stalls. Try the butter-garlic sea snails and grilled scallops with scallion oil, and remember to ask for prices before ordering.",
+          "audio_url": "/uploads/tts-1792484017987-a987ec1290a4.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "fr",
+          "title": "Rue gastronomique de Vinh Khanh",
+          "narration_text": "Bienvenue dans la rue gastronomique de Vinh Khanh, la rue des escargots la plus célèbre de Saigon. Dès la fin de l'après-midi, les deux côtés de la rue se remplissent de boutiques d'escargots, de fruits de mer grillés et de snacks. Il faut tester les escargots sautés au beurre d'ail, les pétoncles grillés à la graisse d'oignon et penser à demander le prix avant de commander.",
+          "audio_url": "/uploads/tts-1792484443112-7650e0e9a802.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ja",
+          "title": "ヴィン カイン フード ストリート",
+          "narration_text": "サイゴンで最も有名なカタツムリ通り、ビン カイン フード ストリートへようこそ。午後遅くから、通りの両側はカタツムリの店、シーフードのグリル、軽食店でいっぱいになります。ガーリックバターで炒めたカタツムリや、オニオングリースを添えたホタテのグリルなどを試してみてください。注文する前に忘れずに価格を聞いてください。",
+          "audio_url": "/uploads/tts-1792484457305-d030aceef368.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ko",
+          "title": "빈칸 푸드 스트리트",
+          "narration_text": "사이공에서 가장 유명한 달팽이 거리인 빈칸(Vinh Khanh) 음식 거리에 오신 것을 환영합니다. 늦은 오후부터 거리 양쪽에는 달팽이 가게와 해산물 구이, 간식거리가 가득하다. 마늘 버터를 곁들인 달팽이 볶음, 양파 기름을 곁들인 가리비 구이를 맛보고 주문하기 전에 가격을 물어보세요.",
+          "audio_url": "/uploads/tts-1792484467245-7305c6e93f83.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "vi",
+          "title": "Phố ẩm thực Vĩnh Khánh",
+          "narration_text": "Chào mừng bạn đến phố ẩm thực Vĩnh Khánh, con đường ốc nổi tiếng nhất Sài Gòn. Từ chiều tối, hai bên đường kín quán ốc, hải sản nướng và các món ăn vặt. Bạn nên thử ốc hương xào bơ tỏi, sò điệp nướng mỡ hành và nhớ hỏi giá trước khi gọi món.",
+          "audio_url": "/uploads/tts-1792484023875-ec9afa1334e3.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "zh",
+          "title": "永庆美食街",
+          "narration_text": "欢迎来到永庆美食街，西贡最著名的蜗牛街。从下午晚些时候开始，街道两旁就布满了蜗牛店、烤海鲜和小吃。你应该尝试大蒜黄油炒蜗牛、洋葱油烤扇贝，并记得在点餐前询问价格。",
+          "audio_url": "/uploads/tts-1792484475782-2859bf1af2e5.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        }
+      ],
+      "locked": true,
+      "created_at": "2026-10-18 02:17:56",
+      "qrcodes": [
+        {
+          "id": 2,
+          "poi_id": 2,
+          "payload": "rm0AFPQ2-TrC",
+          "label": "Trạm xe buýt Vĩnh Khánh (Vĩnh Hội)",
+          "created_at": "2026-10-18 02:17:56",
+          "content": "NARR:rm0AFPQ2-TrC"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Cầu Mống",
+      "address": "Bắc qua kênh Bến Nghé, Phường Khánh Hội",
+      "latitude": 10.7699,
+      "longitude": 106.7049,
+      "radius_m": 60,
+      "priority": 7,
+      "image_url": null,
+      "price": 0,
+      "updated_at": "2026-10-20 08:22:00",
+      "translations": [
+        {
+          "language_code": "en",
+          "title": "Mong Bridge",
+          "narration_text": "This is Mong bridge, an arched steel bridge built by the French in 1894. \"Mong\" means rainbow in the southern dialect, matching the shape of the bridge. Today it is reserved for pedestrians and is a popular photo spot for Saigon residents.",
+          "audio_url": "/uploads/tts-1792484030025-e3186f2e9b15.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "fr",
+          "title": "Pont Mong",
+          "narration_text": "Il s'agit du pont Mong, un pont en acier en forme d'arc construit par les Français en 1894. Le mot Mong dans la langue du Sud signifie arc-en-ciel, évoquant la forme exacte du pont. Aujourd'hui, le pont est réservé aux piétons et constitue un lieu de photographie familier pour les Saigonnais.",
+          "audio_url": "/uploads/tts-1792484493106-a45e2651c741.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ja",
+          "title": "モン橋",
+          "narration_text": "これは、1894 年にフランス人によって建設された円弧状の鋼橋、モン橋です。南部の言語で虹を意味するモンという言葉は、まさに橋の形を思い起こさせます。現在、この橋は歩行者専用となっており、サイゴンの人々にとって馴染みのある写真スポットとなっています。",
+          "audio_url": "/uploads/tts-1792484502924-506e2010e01e.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ko",
+          "title": "몽브릿지",
+          "narration_text": "1894년 프랑스인이 건설한 호형 철교인 몽교(Mong Bridge)다. 남방어로 몽(Mong)이라는 말은 무지개를 뜻하는데, 다리의 모양이 정확히 그렇다. 오늘날 이 다리는 보행자 전용이며 사이공 사람들에게 친숙한 포토 스팟입니다.",
+          "audio_url": "/uploads/tts-1792484511719-a4aa7896d0e5.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "vi",
+          "title": "Cầu Mống",
+          "narration_text": "Đây là cầu Mống, cây cầu thép hình vòng cung do người Pháp xây dựng năm 1894. Chữ Mống trong tiếng Nam Bộ có nghĩa là cầu vồng, gợi đúng hình dáng của cầu. Ngày nay cầu chỉ dành cho người đi bộ và là điểm chụp ảnh quen thuộc của người Sài Gòn.",
+          "audio_url": "/uploads/tts-1792484035623-13a4c2f8db64.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "zh",
+          "title": "芒桥",
+          "narration_text": "这就是芒桥，一座由法国人于1894年建造的弧形钢桥。“芒”在南方语言中的意思是彩虹，让人想起这座桥的确切形状。如今，这座桥仅供行人通行，是西贡人熟悉的拍照地点。",
+          "audio_url": "/uploads/tts-1792484520517-8e7bc8bb04bf.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        }
+      ],
+      "locked": false,
+      "created_at": "2026-10-18 02:17:56",
+      "qrcodes": []
+    },
+    {
+      "id": 3,
+      "name": "Chợ Xóm Chiếu",
+      "address": "Đường Tôn Đản, Phường Xóm Chiếu",
+      "latitude": 10.7578,
+      "longitude": 106.7071,
+      "radius_m": 70,
+      "priority": 6,
+      "image_url": null,
+      "price": 0,
+      "updated_at": "2026-10-20 08:27:04",
+      "translations": [
+        {
+          "language_code": "en",
+          "title": "Xom Chieu Market",
+          "narration_text": "This is Xom Chieu market, one of the oldest markets in District 4. The name \"Mat Village\" comes from the mat-weaving craft of local residents in the last century. The market is busiest in the morning, with vegetables, fresh seafood and many affordable breakfast dishes.",
+          "audio_url": "/uploads/tts-1792484042033-6fc61ab0cbca.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "fr",
+          "title": "Marché de Xom Chieu",
+          "narration_text": "Il s'agit du marché de Xom Chieu, l'un des plus anciens marchés du district 4. Le nom Xom Chieu vient du métier de tisseur de nattes des habitants de cette région depuis le siècle dernier. Le marché est le plus fréquenté le matin et vend des légumes frais, des fruits de mer et de nombreux plats populaires pour le petit-déjeuner.",
+          "audio_url": "/uploads/tts-1792484814413-532746bf60e2.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ja",
+          "title": "ソムチュウ市場",
+          "narration_text": "これは、第 4 地区で最も古い市場の 1 つである Xom Chieu 市場です。Xom Chieu という名前は、前世紀からこの地域の住民がマット織りをしていた職業に由来しています。市場は朝が最も賑わっており、新鮮な野菜、魚介類、人気の朝食料理が数多く売られています。",
+          "audio_url": "/uploads/tts-1792484824736-8b7da6118516.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ko",
+          "title": "솜 치에우 시장",
+          "narration_text": "이곳은 4군에서 가장 오래된 시장 중 하나인 Xom Chieu 시장입니다. Xom Chieu라는 이름은 지난 세기부터 이 지역 주민들의 매트 직조 직업에서 유래되었습니다. 시장은 아침에 가장 붐비며 신선한 야채, 해산물 및 다양한 인기 아침 식사 요리를 판매합니다.",
+          "audio_url": "/uploads/tts-1792484537477-80806c24471e.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "vi",
+          "title": "Chợ Xóm Chiếu",
+          "narration_text": "Đây là chợ Xóm Chiếu, một trong những khu chợ lâu đời của Quận 4. Tên Xóm Chiếu bắt nguồn từ nghề dệt chiếu của cư dân vùng này từ thế kỷ trước. Buổi sáng chợ đông nhất, bày bán rau củ, hải sản tươi và nhiều món ăn sáng bình dân.",
+          "audio_url": "/uploads/tts-1792484046925-059f8d51f975.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "zh",
+          "title": "Xom Chieu市场",
+          "narration_text": "这是Xom Chieu市场，第四区最古老的市场之一。Xom Chieu这个名字源于该地区居民自上世纪以来的编织席子职业。市场在早上最热闹，出售新鲜蔬菜、海鲜和许多受欢迎的早餐菜肴。",
+          "audio_url": "/uploads/tts-1792484546903-03d7cd5516f6.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        }
+      ],
+      "locked": false,
+      "created_at": "2026-10-18 02:17:56",
+      "qrcodes": [
+        {
+          "id": 3,
+          "poi_id": 3,
+          "payload": "4lUZ4hiy7lXM",
+          "label": "Trạm xe buýt Chợ Xóm Chiếu",
+          "created_at": "2026-10-18 02:17:56",
+          "content": "NARR:4lUZ4hiy7lXM"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Cầu Khánh Hội",
+      "address": "Nối Quận 1 và Phường Khánh Hội",
+      "latitude": 10.7655,
+      "longitude": 106.7032,
+      "radius_m": 90,
+      "priority": 5,
+      "image_url": null,
+      "price": 0,
+      "updated_at": "2026-10-20 08:23:17",
+      "translations": [
+        {
+          "language_code": "en",
+          "title": "Khanh Hoi Bridge",
+          "narration_text": "You are near Khanh Hoi bridge over the Ben Nghe canal, linking District 1 and District 4. The old French-era bridge was replaced by a new one to carry growing traffic. From the bridge you can view the canal and the high-rise buildings on the District 1 bank.",
+          "audio_url": "/uploads/tts-1792484052595-fbcc560d36f1.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "fr",
+          "title": "Pont Khanh Hoi",
+          "narration_text": "Vous êtes près du pont Khanh Hoi enjambant le canal Ben Nghe, reliant le district 1 au district 4. L'ancien pont de l'époque française a été remplacé par un nouveau pont pour desservir le nombre croissant de véhicules. Depuis le pont, vous pouvez voir le canal et les immeubles de grande hauteur sur les rives du District 1.",
+          "audio_url": "/uploads/tts-1792484567208-8ff73498bcf3.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ja",
+          "title": "カインホイ橋",
+          "narration_text": "ここはベンゲー運河に架かり、1 区と 4 区を結ぶカインホイ橋の近くです。フランス時代に建設された古い橋は、増加する車両に対応するために新しい橋に架け替えられました。橋からは運河と 1 区のほとりの高層ビルが見えます。",
+          "audio_url": "/uploads/tts-1792484578730-eb6460f1d75e.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ko",
+          "title": "칸 호이 다리",
+          "narration_text": "Ben Nghe 운하를 가로지르는 Khanh Hoi 다리 근처에 있으며 1군과 4군을 연결합니다. 오래된 프랑스 시대 다리는 점점 늘어나는 차량 수를 감당하기 위해 새로운 다리로 교체되었습니다. 다리 위에서는 운하와 1군 제방의 고층 건물을 볼 수 있습니다.",
+          "audio_url": "/uploads/tts-1792484590577-85b2d0414dc7.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "vi",
+          "title": "Cầu Khánh Hội",
+          "narration_text": "Bạn đang ở gần cầu Khánh Hội bắc qua kênh Bến Nghé, nối Quận 1 với Quận 4. Cây cầu cũ thời Pháp đã được thay bằng cầu mới để phục vụ lượng xe ngày càng đông. Từ trên cầu, bạn có thể ngắm dòng kênh và các toà nhà cao tầng bên bờ Quận 1.",
+          "audio_url": "/uploads/tts-1792484057838-c7c198895032.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "zh",
+          "title": "庆海大桥",
+          "narration_text": "您位于横跨 Ben Nghe 运河的 Khanh Hoi 大桥附近，连接第 1 区和第 4 区。这座法国时代的旧桥已被一座新桥取代，以服务越来越多的车辆。从桥上可以看到第一区岸边的运河和高楼大厦。",
+          "audio_url": "/uploads/tts-1792484597888-dca0f059018e.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        }
+      ],
+      "locked": false,
+      "created_at": "2026-10-18 02:17:56",
+      "qrcodes": [
+        {
+          "id": 5,
+          "poi_id": 4,
+          "payload": "rgKYmfihPDB4",
+          "label": "Trạm xe buýt Cầu Khánh Hội",
+          "created_at": "2026-10-18 02:17:56",
+          "content": "NARR:rgKYmfihPDB4"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Cảng Sài Gòn – khu Khánh Hội",
+      "address": "Đường Nguyễn Tất Thành, Phường Khánh Hội",
+      "latitude": 10.7645,
+      "longitude": 106.7093,
+      "radius_m": 150,
+      "priority": 4,
+      "image_url": null,
+      "price": 5000,
+      "updated_at": "2026-10-20 08:19:37",
+      "translations": [
+        {
+          "language_code": "en",
+          "title": "Saigon Port",
+          "narration_text": "Along Nguyen Tat Thanh street lies the Khanh Hoi port area, part of the over 150-year-old Saigon port. It was once the most important maritime trade gateway of southern Vietnam. The area is now being redeveloped into a riverside urban and service district.",
+          "audio_url": "/uploads/tts-1792484064609-bbb47e99480c.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "fr",
+          "title": "Port de Saïgon",
+          "narration_text": "Le long de la rue Nguyen Tat Thanh se trouve le port de Khanh Hoi, une partie du port de Saigon avec une histoire de plus de 150 ans. Cet endroit était autrefois la porte d'entrée du commerce maritime la plus importante du Sud. Actuellement, la zone portuaire est en train de se transformer en une zone de services urbaine et fluviale.",
+          "audio_url": "/uploads/tts-1792484353191-96cc8fe35044.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ja",
+          "title": "サイゴン港",
+          "narration_text": "グエン タット タン通り沿いには、150 年以上の歴史を持つサイゴン港の一部であるカインホイ港があります。この場所はかつて南部で最も重要な海上貿易の玄関口でした。現在、港湾エリアは都市部と河川沿いのサービスエリアとして生まれ変わっています。",
+          "audio_url": "/uploads/tts-1792484360927-cbbf9b3f5854.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ko",
+          "title": "사이공항",
+          "narration_text": "Nguyen Tat Thanh 거리를 따라 150년 이상의 역사를 지닌 사이공 항구의 일부인 Khanh Hoi 항구가 있습니다. 이곳은 한때 남부의 가장 중요한 해상 무역 관문이었습니다. 현재 항만지역은 도시 및 강변 서비스지역으로 변화되고 있습니다.",
+          "audio_url": "/uploads/tts-1792484367903-f1c1df88f0c7.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "vi",
+          "title": "Cảng Sài Gòn",
+          "narration_text": "Dọc đường Nguyễn Tất Thành là khu cảng Khánh Hội, một phần của cảng Sài Gòn có lịch sử hơn 150 năm. Nơi đây từng là cửa ngõ giao thương đường biển quan trọng nhất miền Nam. Hiện khu cảng đang được chuyển đổi thành khu đô thị và dịch vụ ven sông.",
+          "audio_url": "/uploads/tts-1792484070399-481b1db29377.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "zh",
+          "title": "西贡港",
+          "narration_text": "沿着 Nguyen Tat Thanh 街就是庆海港 (Khanh Hoi Port)，它是西贡港的一部分，已有 150 多年的历史。这里曾经是南方最重要的海上贸易门户。目前，港口区正在向城市和沿江服务区转型。",
+          "audio_url": "/uploads/tts-1792484377087-6bb66d92e6f8.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        }
+      ],
+      "locked": true,
+      "created_at": "2026-10-18 02:17:56",
+      "qrcodes": []
+    },
+    {
+      "id": 7,
+      "name": "Công viên Khánh Hội",
+      "address": "Đường Hoàng Diệu, Phường Khánh Hội",
+      "latitude": 10.7622,
+      "longitude": 106.7012,
+      "radius_m": 80,
+      "priority": 3,
+      "image_url": null,
+      "price": 5000,
+      "updated_at": "2026-10-20 08:20:09",
+      "translations": [
+        {
+          "language_code": "en",
+          "title": "Khanh Hoi Park",
+          "narration_text": "You are passing Khanh Hoi park, a small green space in the dense residential area of District 4. Early mornings and evenings, locals come here to exercise, stroll and let children play.",
+          "audio_url": "/uploads/tts-1792484074927-cb9ec495d123.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "fr",
+          "title": "Parc Khanh Hội",
+          "narration_text": "Vous passez par le parc Khanh Hoi, un petit espace vert au milieu d'un quartier résidentiel très fréquenté du District 4. Tôt le matin et tard le soir, les gens viennent ici pour faire de l'exercice, se promener et laisser les enfants jouer.",
+          "audio_url": "/uploads/tts-1792484392049-968146143e0d.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ja",
+          "title": "カインホイ公園",
+          "narration_text": "あなたは、第 4 地区の密集した住宅地の真ん中にある小さな緑地、カインホイ公園のそばを通り過ぎています。早朝や夕方遅くまで、人々がここに来て、運動したり、散歩したり、子供たちを遊ばせたりしています。",
+          "audio_url": "/uploads/tts-1792484399145-0caa77e848e5.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ko",
+          "title": "칸 호이 공원",
+          "narration_text": "4군의 혼잡한 주거 지역 한가운데에 있는 작은 녹지인 칸호이 공원(Khanh Hoi Park)을 지나고 있습니다. 이른 아침과 늦은 저녁에 사람들이 이곳에 와서 운동하고 산책하고 아이들을 놀게 합니다.",
+          "audio_url": "/uploads/tts-1792484405504-e86ad8ed635a.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "vi",
+          "title": "Công viên Khánh Hội",
+          "narration_text": "Bạn đang đi ngang công viên Khánh Hội, mảng xanh nhỏ giữa khu dân cư đông đúc của Quận 4. Sáng sớm và chiều tối, người dân đến đây tập thể dục, đi dạo và cho trẻ em vui chơi.",
+          "audio_url": "/uploads/tts-1792484079647-d30e51b4df02.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "zh",
+          "title": "庆海公园",
+          "narration_text": "你正经过庆海公园，这是第四区拥挤的住宅区中间的一个小绿地。清晨和傍晚，人们来这里锻炼、散步、让孩子们玩耍。",
+          "audio_url": "/uploads/tts-1792484409739-8af4e2eac156.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        }
+      ],
+      "locked": true,
+      "created_at": "2026-10-18 02:17:56",
+      "qrcodes": []
+    },
+    {
+      "id": 8,
+      "name": "Trạm xe buýt Vĩnh Hội",
+      "address": "Đường Hoàng Diệu, Phường Vĩnh Hội",
+      "latitude": 10.7593,
+      "longitude": 106.7005,
+      "radius_m": 50,
+      "priority": 2,
+      "image_url": null,
+      "price": 0,
+      "updated_at": "2026-10-20 08:23:46",
+      "translations": [
+        {
+          "language_code": "en",
+          "title": "Vinh Hoi Bus Stop",
+          "narration_text": "This is Vinh Hoi bus stop. From here it is about a five-minute walk to Vinh Khanh food street. Scan the QR code at the stop to hear about nearby attractions.",
+          "audio_url": "/uploads/tts-1792484082785-d8fb3b5290a7.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "fr",
+          "title": "Gare routière de Vinh Hoi",
+          "narration_text": "C'est la gare routière de Vinh Hoi. De là, vous pouvez marcher environ cinq minutes jusqu'à la rue gastronomique de Vinh Khanh. Scannez le code QR à la gare pour entendre les présentations des attractions à proximité.",
+          "audio_url": "/uploads/tts-1792484611522-c2b76b7c2726.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ja",
+          "title": "ヴィンホイバス停留所",
+          "narration_text": "こちらはヴィンホイバスステーションです。ここからビンカン食品街までは徒歩約 5 分です。駅でQRコードをスキャンすると、近くの観光スポットの紹介を聞くことができます。",
+          "audio_url": "/uploads/tts-1792484616221-5ab7ee98fb68.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "ko",
+          "title": "빈호이 버스정류장",
+          "narration_text": "빈호이(Vinh Hoi) 버스 정류장입니다. 여기에서 Vinh Khanh 음식 거리까지 약 5분 정도 걸어갈 수 있습니다. 역에서 QR 코드를 스캔하면 인근 명소에 대한 소개를 들을 수 있습니다.",
+          "audio_url": "/uploads/tts-1792484620598-b43d277a61fe.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        },
+        {
+          "language_code": "vi",
+          "title": "Trạm xe buýt Vĩnh Hội",
+          "narration_text": "Đây là trạm xe buýt Vĩnh Hội. Từ đây bạn có thể đi bộ khoảng năm phút đến phố ẩm thực Vĩnh Khánh. Quét mã QR tại trạm để nghe giới thiệu các điểm tham quan gần đó.",
+          "audio_url": "/uploads/tts-1792484087134-7a78e57a7c28.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "zh",
+          "title": "永海汽车站",
+          "narration_text": "这是永海汽车站。从这里步行约五分钟即可到达Vinh Khanh美食街。扫描车站二维码即可收听附近景点介绍。",
+          "audio_url": "/uploads/tts-1792484626799-47bca46f5d35.mp3",
+          "audio_source": "tts",
+          "is_auto": 1
+        }
+      ],
+      "locked": false,
+      "created_at": "2026-10-18 02:17:56",
+      "qrcodes": [
+        {
+          "id": 4,
+          "poi_id": 8,
+          "payload": "m8lT3ntYxeuu",
+          "label": "Trạm xe buýt Vĩnh Hội",
+          "created_at": "2026-10-18 02:17:56",
+          "content": "NARR:m8lT3ntYxeuu"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Nhà của Duy",
+      "address": null,
+      "latitude": 10.76434,
+      "longitude": 106.704732,
+      "radius_m": 80,
+      "priority": 1,
+      "image_url": null,
+      "price": 0,
+      "updated_at": "2026-10-20 08:14:53",
+      "translations": [
+        {
+          "language_code": "en",
+          "title": "Duy's house",
+          "narration_text": "This is Duy's house",
+          "audio_url": "/uploads/tts-1792484088375-d6e9a4821dc5.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "fr",
+          "title": "La maison de Duy",
+          "narration_text": "C'est la maison de Duy",
+          "audio_url": "/uploads/tts-1792484089797-e2989318a422.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "ja",
+          "title": "デュイの家",
+          "narration_text": "ここはデュイの家です",
+          "audio_url": "/uploads/tts-1792484090817-ac17080c0149.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "ko",
+          "title": "듀이의 집",
+          "narration_text": "여기가 듀이 집이에요",
+          "audio_url": "/uploads/tts-1792484091886-47f4ebb9708c.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "vi",
+          "title": "Nhà của Duy",
+          "narration_text": "Đây là nhà của Duy",
+          "audio_url": "/uploads/tts-1792484092918-ca785514fdc1.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        },
+        {
+          "language_code": "zh",
+          "title": "杜伊的家",
+          "narration_text": "这是杜伊的家",
+          "audio_url": "/uploads/tts-1792484093804-5799df863371.mp3",
+          "audio_source": "tts",
+          "is_auto": 0
+        }
+      ],
+      "locked": false,
+      "created_at": "2026-10-20 07:58:33",
+      "qrcodes": [
+        {
+          "id": 10,
+          "poi_id": 13,
+          "payload": "jOk0py6W2YnK",
+          "label": null,
+          "created_at": "2026-10-20 07:58:48",
+          "content": "NARR:jOk0py6W2YnK"
+        }
+      ]
+    }
+  ],
+  "payment_enabled": true,
+  "tours": [
+    {
+      "id": 1,
+      "name": "Di sản ven sông Quận 4",
+      "description": "Theo dấu lịch sử bến cảng: Cầu Mống, Bến Nhà Rồng, Cảng Sài Gòn, Cầu Khánh Hội.",
+      "updated_at": "2026-10-18 02:17:56",
+      "poi_ids": [
+        5,
+        1,
+        6,
+        4
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Đi về nhà",
+      "description": "Không đâu bằng nhà!!",
+      "updated_at": "2026-10-20 08:00:02",
+      "poi_ids": [
+        1,
+        13
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Ẩm thực đêm Vĩnh Khánh",
+      "description": "Từ trạm xe buýt Vĩnh Hội đi bộ qua công viên, phố ốc và chợ Xóm Chiếu.",
+      "updated_at": "2026-10-18 02:17:56",
+      "poi_ids": [
+        8,
+        7,
+        2,
+        3
+      ]
+    }
+  ],
+  "qrcodes": [
+    {
+      "id": 10,
+      "payload": "jOk0py6W2YnK",
+      "poi_id": 13,
+      "label": null
+    },
+    {
+      "id": 5,
+      "payload": "rgKYmfihPDB4",
+      "poi_id": 4,
+      "label": "Trạm xe buýt Cầu Khánh Hội"
+    },
+    {
+      "id": 4,
+      "payload": "m8lT3ntYxeuu",
+      "poi_id": 8,
+      "label": "Trạm xe buýt Vĩnh Hội"
+    },
+    {
+      "id": 3,
+      "payload": "4lUZ4hiy7lXM",
+      "poi_id": 3,
+      "label": "Trạm xe buýt Chợ Xóm Chiếu"
+    },
+    {
+      "id": 2,
+      "payload": "rm0AFPQ2-TrC",
+      "poi_id": 2,
+      "label": "Trạm xe buýt Vĩnh Khánh (Vĩnh Hội)"
+    },
+    {
+      "id": 1,
+      "payload": "VSdMICEvK7Ln",
+      "poi_id": 1,
+      "label": "Trạm xe buýt Bến Nhà Rồng (Xóm Chiếu)"
+    }
+  ]
+}

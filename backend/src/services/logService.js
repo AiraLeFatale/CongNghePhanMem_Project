@@ -1,8 +1,14 @@
+/**
+ * Tầng nghiệp vụ: nhận và kiểm tra log do app gửi lên (lượt nghe + vị trí).
+ * Chuẩn hoá timestamp, giới hạn kích thước lô, làm tròn toạ độ để bảo vệ quyền riêng tư,
+ * rồi ghi trong một transaction.
+ */
 import { languageCodes } from '../config.js';
 import { transaction } from '../db/database.js';
 import { badRequest } from '../utils/errors.js';
 import { isIsoDate } from '../utils/validate.js';
 
+// Giá trị hợp lệ cho cách kích hoạt và giới hạn số bản ghi mỗi lần gửi.
 const METHODS = ['geofence', 'qr', 'manual'];
 const SESSION_RE = /^[A-Za-z0-9_-]{8,64}$/;
 const MAX_BATCH = 500;
@@ -10,7 +16,9 @@ const MAX_BATCH = 500;
 // Làm tròn toạ độ 4 chữ số (~11 m) trước khi lưu: đủ cho heatmap, không lưu vị trí chính xác (BR UC5).
 const round4 = (x) => Math.round(x * 1e4) / 1e4;
 
+// Tạo service log; cần repos.db để mở transaction và repos.logs để chèn dữ liệu.
 export function createLogService(repos) {
+  // Chuẩn hoá body thành mảng: chấp nhận 1 object, mảng hoặc { items: [...] }.
   function asArray(body) {
     const rows = Array.isArray(body) ? body : Array.isArray(body?.items) ? body.items : [body];
     if (rows.length === 0) throw badRequest('Không có dữ liệu');
@@ -19,12 +27,14 @@ export function createLogService(repos) {
   }
 
   return {
+    // Ghi log lượt nghe: validate từng dòng, bỏ qua POI đã bị xoá, trả số dòng chèn/bỏ qua.
     recordUsage(body) {
       const input = asArray(body);
       // POI bị xoá sau khi app ghi log offline: bỏ qua bản ghi đó, không từ chối cả lô
       const known = input.filter((r) => Number.isInteger(Number(r?.poi_id)) && repos.pois.findById(Number(r.poi_id)));
       if (known.length === 0) throw badRequest('POI không tồn tại');
       const rows = known.map((r, i) => {
+        // Validate từng trường; thời lượng kẹp trong [0, 3600] giây để chặn dữ liệu rác.
         const poiId = Number(r.poi_id);
         if (!SESSION_RE.test(String(r?.session_id ?? ''))) throw badRequest(`Bản ghi ${i}: session_id không hợp lệ`);
         if (!METHODS.includes(r?.trigger_method)) throw badRequest(`Bản ghi ${i}: trigger_method phải là ${METHODS.join('/')}`);
@@ -35,6 +45,7 @@ export function createLogService(repos) {
       });
       return { inserted: transaction(repos.db, () => repos.logs.insertUsage(rows)), skipped: input.length - rows.length };
     },
+    // Ghi log vị trí: kiểm tra toạ độ/session rồi làm tròn 4 chữ số thập phân trước khi lưu.
     recordLocations(body) {
       const rows = asArray(body).map((r, i) => {
         const lat = Number(r?.latitude);

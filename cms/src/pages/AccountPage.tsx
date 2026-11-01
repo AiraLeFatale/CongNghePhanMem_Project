@@ -1,3 +1,7 @@
+/**
+ * Trang tài khoản quản trị viên: xem thông tin đăng nhập và đổi mật khẩu.
+ * Form được kiểm tra phía client trước khi gọi API đổi mật khẩu.
+ */
 import { useState, type FormEvent } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { api, ApiError, errorMessage } from '../lib/api';
@@ -6,6 +10,7 @@ import { validatePasswordChange, type FieldErrors } from '../lib/validation';
 import { Field, PageHeader, Spinner, fieldAria } from '../components/States';
 import { useToast } from '../components/Toast';
 
+// Trang hiển thị thông tin người dùng hiện tại và form đổi mật khẩu.
 export function AccountPage() {
   useDocumentTitle('Tài khoản');
   const { user } = useAuth();
@@ -16,8 +21,10 @@ export function AccountPage() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [busy, setBusy] = useState(false);
 
+  // Xử lý submit: validate dữ liệu, gọi API đổi mật khẩu và reset form khi thành công.
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    // Kiểm tra phía client (độ dài, khớp mật khẩu) trước khi gửi request.
     const errs = validatePasswordChange(current, next, confirm);
     setErrors(errs);
     if (Object.keys(errs).length) return;
@@ -30,6 +37,7 @@ export function AccountPage() {
       setConfirm('');
     } catch (err) {
       const msg = errorMessage(err);
+      // Lỗi 400: gắn thông báo vào đúng ô nhập tương ứng (mật khẩu hiện tại hoặc mật khẩu mới).
       if (err instanceof ApiError && err.status === 400 && /hiện tại/i.test(msg)) setErrors({ current_password: msg });
       else if (err instanceof ApiError && err.status === 400) setErrors({ new_password: msg });
       toast.error(msg);
@@ -42,6 +50,7 @@ export function AccountPage() {
     <>
       <PageHeader title="Tài khoản" subtitle="Thông tin quản trị viên và đổi mật khẩu" />
       <div className="grid-2">
+        {/* Khối thông tin chỉ đọc của quản trị viên đang đăng nhập. */}
         <section className="card">
           <h2 className="card-title">Thông tin</h2>
           <dl className="kv">
@@ -51,6 +60,7 @@ export function AccountPage() {
             <dd>{user?.full_name || '–'}</dd>
           </dl>
         </section>
+        {/* Form đổi mật khẩu; lỗi hiển thị theo từng ô nhập. */}
         <section className="card">
           <h2 className="card-title">Đổi mật khẩu</h2>
           <form onSubmit={onSubmit} noValidate className="form-stack">

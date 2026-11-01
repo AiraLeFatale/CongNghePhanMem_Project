@@ -6,11 +6,12 @@
   "main": "src/server.js",
   "engines": { "node": ">=22.13" },
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
+    "start": "node --env-file-if-exists=.env src/server.js",
+    "dev": "node --watch --env-file-if-exists=.env src/server.js",
     "seed": "node src/db/seed.js",
     "seed:demo": "node src/db/seed.js --demo",
-    "test": "node --import ./tests/setup.js --test tests/"
+    "seed:sample": "node src/db/seed.js --sample",
+    "test": "node --import ./tests/setup.js --test \"tests/*.test.js\""
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

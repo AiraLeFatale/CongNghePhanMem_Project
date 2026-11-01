@@ -1,3 +1,7 @@
+/**
+ * Trang tạo/sửa tour tham quan: nhập tên, mô tả, chọn các điểm thuyết minh và
+ * sắp xếp thứ tự tham quan (kéo thả hoặc nút mũi tên), kèm bản đồ xem trước lộ trình.
+ */
 import { useMemo, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { api, ApiError, errorMessage } from '../lib/api';
@@ -11,6 +15,7 @@ import { TourMap } from '../components/maps';
 import { useConfirm } from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';
 
+// Đọc `id` trên URL, chặn id không hợp lệ và remount loader khi chuyển giữa các tour.
 export function TourEditPage() {
   const { id } = useParams();
   const tourId = id && id !== 'new' ? Number(id) : null;
@@ -18,6 +23,7 @@ export function TourEditPage() {
   return <TourLoader key={tourId ?? 'new'} tourId={tourId} />;
 }
 
+// Tải song song tour hiện tại và danh sách POI; hiển thị loading/lỗi kèm nút thử lại trước khi mở form.
 function TourLoader({ tourId }: { tourId: number | null }) {
   const tour = useAsync<Tour | null>(() => (tourId ? api.getTour(tourId) : Promise.resolve(null)), [tourId]);
   const pois = useAsync(() => api.listPois(), []);
@@ -39,6 +45,8 @@ function TourLoader({ tourId }: { tourId: number | null }) {
   return <TourForm initial={tour.data ?? null} pois={pois.data ?? []} />;
 }
 
+// Form tour: giữ danh sách id điểm theo thứ tự tham quan cùng bản đã lưu để phát hiện thay đổi,
+// xử lý thêm/bớt/kéo thả điểm dừng và gọi API tạo/cập nhật/xoá tour.
 function TourForm({ initial, pois }: { initial: Tour | null; pois: PoiListItem[] }) {
   const navigate = useNavigate();
   const toast = useToast();
@@ -46,6 +54,7 @@ function TourForm({ initial, pois }: { initial: Tour | null; pois: PoiListItem[]
   const isNew = !initial;
   useDocumentTitle(isNew ? 'Tạo tour' : `Tour: ${initial?.name}`);
 
+  // Chuẩn hoá dữ liệu tour ban đầu: sắp các điểm theo visit_order và chỉ giữ lại id.
   const start = useMemo(
     () => ({
       name: initial?.name ?? '',
@@ -65,38 +74,46 @@ function TourForm({ initial, pois }: { initial: Tour | null; pois: PoiListItem[]
   const dragFrom = useRef<number | null>(null);
   const [dragOver, setDragOver] = useState<number | null>(null);
 
+  // So sánh tên, mô tả và thứ tự điểm với bản đã lưu để bật cảnh báo rời trang.
   const dirty = name !== saved.name || description !== saved.description || JSON.stringify(ids) !== JSON.stringify(saved.ids);
   const bypass = useUnsavedWarning(dirty);
 
+  // Tra cứu nhanh POI theo id để lấy tên và toạ độ khi hiển thị danh sách điểm dừng.
   const byId = useMemo(() => new Map(pois.map((p) => [p.id, p])), [pois]);
   // Điểm trong tour có thể không còn trong danh sách (hiếm) → lấy từ dữ liệu tour.
   const tourPoiFallback = useMemo(() => new Map((initial?.pois ?? []).map((p) => [p.id, p])), [initial]);
+  // Dựng danh sách điểm dừng theo đúng thứ tự id, bỏ qua điểm không tìm thấy dữ liệu.
   const stops = ids
     .map((id) => {
       const p = byId.get(id) ?? tourPoiFallback.get(id);
       return p ? { id, name: p.name, latitude: p.latitude, longitude: p.longitude } : null;
     })
     .filter((x): x is { id: number; name: string; latitude: number; longitude: number } => x !== null);
+  // Các điểm chưa có trong tour và khớp từ khoá lọc theo tên hoặc địa chỉ.
   const available = pois.filter(
     (p) => !ids.includes(p.id) && (!filter.trim() || `${p.name} ${p.address ?? ''}`.toLowerCase().includes(filter.trim().toLowerCase())),
   );
 
+  // Thêm một POI vào cuối lộ trình, xoá lỗi "tour rỗng" và thông báo qua vùng aria-live.
   function add(id: number) {
     setIds((xs) => [...xs, id]);
     setErrors(({ poi_ids: _d, ...rest }) => rest);
     setAnnounce(`Đã thêm ${byId.get(id)?.name} vào vị trí ${ids.length + 1}`);
   }
+  // Bỏ điểm ở vị trí i và đọc tên điểm vừa bỏ cho trình đọc màn hình.
   function removeAt(i: number) {
     const n = stops[i]?.name;
     setIds((xs) => xs.filter((_, j) => j !== i));
     setAnnounce(`Đã bỏ ${n} khỏi tour`);
   }
+  // Đổi vị trí một điểm dừng; khi thao tác bằng bàn phím thì chuyển focus theo nút vừa bấm.
   function move(from: number, to: number, focus = true) {
     if (to < 0 || to >= ids.length) return;
     setIds((xs) => moveItem(xs, from, to));
     setAnnounce(`${stops[from]?.name}: chuyển tới vị trí ${to + 1} trên ${ids.length}`);
     if (focus) {
       const dir = to < from ? 'up' : 'down';
+      // Sau khi render lại, đưa focus về nút cùng hướng (hoặc nút còn bật nếu nút kia bị disable).
       setTimeout(() => {
         const btn = document.getElementById(`stop-${to}-${dir}`) as HTMLButtonElement | null;
         (btn && !btn.disabled ? btn : document.getElementById(`stop-${to}-${dir === 'up' ? 'down' : 'up'}`))?.focus();
@@ -104,6 +121,7 @@ function TourForm({ initial, pois }: { initial: Tour | null; pois: PoiListItem[]
     }
   }
 
+  // Validate phía client, gọi API tạo/cập nhật tour rồi đồng bộ lại state `saved` sau khi thành công.
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     const input = { name: name.trim(), description: description.trim() || null, poi_ids: ids };
@@ -136,6 +154,7 @@ function TourForm({ initial, pois }: { initial: Tour | null; pois: PoiListItem[]
     }
   }
 
+  // Xác nhận rồi xoá tour (các điểm thuyết minh vẫn được giữ) và quay về danh sách.
   async function onDelete() {
     if (!initial) return;
     const ok = await confirm({
@@ -181,6 +200,7 @@ function TourForm({ initial, pois }: { initial: Tour | null; pois: PoiListItem[]
         <div className="grid-2 grid-form">
           <div className="stack">
             <section className="card">
+              {/* Tên và mô tả của tour. */}
               <h2 className="card-title">Thông tin tour</h2>
               <div className="form-stack">
                 <Field id="tour-name" label="Tên tour" required error={errors.name}>
@@ -201,6 +221,7 @@ function TourForm({ initial, pois }: { initial: Tour | null; pois: PoiListItem[]
             </section>
 
             <section className="card" aria-labelledby="stops-title">
+              {/* Các điểm dừng theo thứ tự; kéo thả hoặc dùng nút mũi tên để sắp xếp. */}
               <h2 className="card-title" id="stops-title">
                 Lộ trình ({ids.length} điểm)
               </h2>
@@ -284,6 +305,7 @@ function TourForm({ initial, pois }: { initial: Tour | null; pois: PoiListItem[]
             </section>
 
             <section className="card" aria-labelledby="avail-title">
+              {/* Chọn thêm điểm chưa có trong tour, kèm bộ lọc theo tên/địa chỉ. */}
               <h2 className="card-title" id="avail-title">
                 Thêm điểm vào tour
               </h2>
@@ -316,6 +338,7 @@ function TourForm({ initial, pois }: { initial: Tour | null; pois: PoiListItem[]
             </section>
           </div>
 
+          {/* Bản đồ xem trước lộ trình theo đúng thứ tự điểm dừng. */}
           <section className="card card-sticky" aria-labelledby="map-title">
             <h2 className="card-title" id="map-title">
               Bản đồ lộ trình
@@ -325,6 +348,7 @@ function TourForm({ initial, pois }: { initial: Tour | null; pois: PoiListItem[]
           </section>
         </div>
 
+        {/* Thanh lưu: hiển thị trạng thái thay đổi và nút tạo/lưu tour. */}
         <div className={`save-bar${dirty ? ' is-dirty' : ''}`}>
           <span className="save-status" aria-live="polite">
             {dirty ? '● Có thay đổi chưa lưu' : isNew ? 'Tour mới chưa được lưu' : 'Đã lưu mọi thay đổi'}

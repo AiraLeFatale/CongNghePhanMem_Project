@@ -1,3 +1,8 @@
+/**
+ * Trang danh sách điểm thuyết minh.
+ * Hỗ trợ tìm kiếm có debounce và đồng bộ với URL, hiển thị trạng thái
+ * ngôn ngữ/audio của từng điểm và xoá điểm kèm hộp thoại xác nhận.
+ */
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { api, errorMessage } from '../lib/api';
@@ -9,6 +14,8 @@ import { Icon } from '../components/Icon';
 import { useConfirm } from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';
 
+// Hiển thị các chip ngôn ngữ của một điểm: đã có nội dung và/hoặc đã có audio.
+// Props: languages = mã ngôn ngữ có nội dung, audio = mã ngôn ngữ đã có file audio.
 export function LangChips({ languages, audio }: { languages: string[]; audio: string[] }) {
   return (
     <ul className="lang-chips" aria-label="Ngôn ngữ">
@@ -32,6 +39,7 @@ export function LangChips({ languages, audio }: { languages: string[]; audio: st
   );
 }
 
+// Trang danh sách điểm: tìm kiếm theo từ khoá và thao tác sửa/xoá từng điểm.
 export function PoiListPage() {
   useDocumentTitle('Điểm thuyết minh');
   const [params, setParams] = useSearchParams();
@@ -41,6 +49,7 @@ export function PoiListPage() {
   const confirm = useConfirm();
   const { data, error, loading, reload, setData } = useAsync(() => api.listPois(q), [q]);
 
+  // Debounce ô tìm kiếm 300ms rồi đồng bộ từ khoá lên URL để có thể chia sẻ/refresh.
   useEffect(() => {
     const t = setTimeout(() => {
       if (input.trim() !== q) setParams(input.trim() ? { q: input.trim() } : {}, { replace: true });
@@ -48,6 +57,7 @@ export function PoiListPage() {
     return () => clearTimeout(t);
   }, [input, q, setParams]);
 
+  // Xác nhận với người dùng, gọi API xoá điểm rồi cập nhật danh sách tại chỗ.
   async function onDelete(p: PoiListItem) {
     const ok = await confirm({
       title: 'Xoá điểm thuyết minh?',
@@ -66,6 +76,7 @@ export function PoiListPage() {
     if (!ok) return;
     try {
       await api.deletePoi(p.id);
+      // Cập nhật state cục bộ để không phải tải lại toàn bộ danh sách.
       setData((xs) => (xs ?? []).filter((x) => x.id !== p.id));
       toast.success(`Đã xoá "${p.name}"`);
     } catch (err) {
@@ -86,6 +97,7 @@ export function PoiListPage() {
       />
       <div className="card">
         <div className="toolbar">
+          {/* Ô tìm kiếm: từ khoá được đẩy lên URL và dùng làm tham số gọi API. */}
           <div className="search">
             <Icon name="search" />
             <label htmlFor="poi-search" className="sr-only">
@@ -95,6 +107,7 @@ export function PoiListPage() {
           </div>
           {data && <span className="muted">{data.length} điểm</span>}
         </div>
+        {/* Phân biệt "không tìm thấy" khi đang lọc với "chưa có dữ liệu". */}
         {loading && !data ? (
           <LoadingState />
         ) : error ? (
@@ -116,6 +129,7 @@ export function PoiListPage() {
           )
         ) : (
           <div className="table-wrap">
+            {/* Bảng điểm: tên/địa chỉ, toạ độ, bán kính, ưu tiên, ngôn ngữ và số mã QR. */}
             <table className="table">
               <thead>
                 <tr>
