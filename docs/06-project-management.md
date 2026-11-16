@@ -217,24 +217,30 @@ Biểu đồ chỉ thể hiện các ngày có ghi nhận trong lịch sử kho 
 
 | Vai trò | Trách nhiệm | Thành viên |
 |---|---|---|
-| Trưởng nhóm / phân tích | Lịch trình, ca sử dụng, SRS, liên lạc với giảng viên | Cần bổ sung: tên |
-| Lập trình viên backend | API, cơ sở dữ liệu, kiểm thử, triển khai | Cần bổ sung: tên |
-| Lập trình viên CMS | Ứng dụng web quản trị | Cần bổ sung: tên |
-| Lập trình viên mobile | Ứng dụng, bộ máy geofence và bộ máy thuyết minh | Cần bổ sung: tên |
-| Kiểm thử / tài liệu | Thực hiện kế hoạch kiểm thử, kiểm thử thực địa, hướng dẫn sử dụng | Cần bổ sung: tên |
+| Trưởng nhóm / phân tích | Lịch trình, ca sử dụng, SRS, liên lạc với giảng viên | AiraLeFatale |
+| Lập trình viên backend | API, cơ sở dữ liệu, kiểm thử, triển khai | hungphamwp |
+| Lập trình viên CMS | Ứng dụng web quản trị | duyttg144-cyber |
+| Lập trình viên mobile | Ứng dụng, bộ máy geofence và bộ máy thuyết minh | hungphamwp |
+| Kiểm thử / tài liệu | Thực hiện kế hoạch kiểm thử, kiểm thử thực địa, hướng dẫn sử dụng | AiraLeFatale, duyttg144-cyber |
 
-Một người có thể đảm nhận nhiều vai trò.
+Nhóm có 3 thành viên, mỗi người đảm nhận 2 vai trò:
+
+| Thành viên | Vai trò |
+|---|---|
+| AiraLeFatale | Trưởng nhóm / phân tích; kiểm thử / tài liệu |
+| hungphamwp | Lập trình viên backend; lập trình viên mobile |
+| duyttg144-cyber | Lập trình viên CMS; kiểm thử / tài liệu |
 
 ```mermaid
 %%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
 flowchart TB
   GV["👤 Giảng viên"]:::actor
-  L["👤 Trưởng nhóm / phân tích<br/>lịch trình, ca sử dụng, SRS"]:::actor
+  L["👤 Trưởng nhóm / phân tích<br/><b>AiraLeFatale</b><br/>lịch trình, ca sử dụng, SRS"]:::actor
   GV <-- "liên lạc" --> L
-  L --> BE["⚙️ Lập trình viên backend<br/>API, CSDL, kiểm thử, triển khai"]:::backend
-  L --> CM["🖥️ Lập trình viên CMS<br/>ứng dụng web quản trị"]:::cms
-  L --> MO["📱 Lập trình viên mobile<br/>ứng dụng, geofence, thuyết minh"]:::mobile
-  L --> QA["🧪 Kiểm thử / tài liệu<br/>kế hoạch kiểm thử, thực địa<br/>hướng dẫn sử dụng"]:::ok
+  L --> BE["⚙️ Lập trình viên backend<br/><b>hungphamwp</b><br/>API, CSDL, kiểm thử, triển khai"]:::backend
+  L --> CM["🖥️ Lập trình viên CMS<br/><b>duyttg144-cyber</b><br/>ứng dụng web quản trị"]:::cms
+  L --> MO["📱 Lập trình viên mobile<br/><b>hungphamwp</b><br/>ứng dụng, geofence, thuyết minh"]:::mobile
+  L --> QA["🧪 Kiểm thử / tài liệu<br/><b>AiraLeFatale<br/>duyttg144-cyber</b><br/>kế hoạch kiểm thử, thực địa<br/>hướng dẫn sử dụng"]:::ok
   BE -. "hợp đồng API" .- CM
   BE -. "hợp đồng API" .- MO
   classDef actor fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
@@ -243,7 +249,7 @@ flowchart TB
   classDef backend fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
   classDef ok fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
 ```
-*Hình: năm vai trò trong nhóm; tên thành viên còn cần bổ sung, một người có thể giữ nhiều vai trò*
+*Hình: 5 vai trò trong nhóm, chia đều cho 3 thành viên (mỗi người 2 vai trò)*
 
 ## 5. Rủi ro và biện pháp giảm thiểu
 
