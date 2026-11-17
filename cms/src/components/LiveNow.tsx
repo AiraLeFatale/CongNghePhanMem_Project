@@ -17,7 +17,7 @@ export interface LiveSnapshot {
   by_source: Record<string, number>;
 }
 
-export type Status = 'connecting' | 'live' | 'polling' | 'retrying';
+type Status = 'connecting' | 'live' | 'polling' | 'retrying';
 
 const POLL_MS = 3_000;
 const STALE_MS = 20_000;
@@ -28,7 +28,7 @@ const METHOD_LABEL: Record<string, string> = { qr: 'Quét QR', manual: 'Bấm ng
  * Nhận số người đang dùng qua luồng Server-Sent Events. Dùng fetch thay EventSource để gửi được header
  * Authorization. Rớt kết nối thì tự nối lại, chờ lâu dần tới tối đa 15 giây.
  */
-export function useLiveStream() {
+function useLiveStream() {
   const [snap, setSnap] = useState<LiveSnapshot | null>(null);
   const [status, setStatus] = useState<Status>('connecting');
   const retry = useRef(0);

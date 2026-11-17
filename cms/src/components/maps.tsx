@@ -4,18 +4,16 @@ import { Circle, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap, use
 
 /** Trung tâm Quận 4, TP.HCM */
 export const DISTRICT4_CENTER: [number, number] = [10.7605, 106.7045];
-const ACCENT = '#17654c';
-
-// Nền bản đồ mặc định dùng CARTO (dữ liệu OpenStreetMap) vì tile.openstreetmap.org
-// thường bị chặn ở một số mạng. Có thể đổi bằng biến môi trường VITE_MAP_TILE_URL.
-const TILE_URL =
-  import.meta.env.VITE_MAP_TILE_URL || 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
-const TILE_ATTRIBUTION =
-  import.meta.env.VITE_MAP_TILE_ATTRIBUTION ||
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+const ACCENT = '#0f766e';
 
 export function OsmTiles() {
-  return <TileLayer attribution={TILE_ATTRIBUTION} url={TILE_URL} subdomains="abcd" maxZoom={19} />;
+  return (
+    <TileLayer
+      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+      maxZoom={19}
+    />
+  );
 }
 
 export const pinIcon = L.divIcon({
@@ -200,7 +198,7 @@ function HeatLayer({ points }: { points: { lat: number; lng: number; weight: num
   return null;
 }
 
-const ROUTE_COLORS = ['#17654c', '#2563eb', '#9333ea', '#db2777', '#ea580c', '#65a30d', '#0891b2', '#4f46e5'];
+const ROUTE_COLORS = ['#0f766e', '#2563eb', '#9333ea', '#db2777', '#ea580c', '#65a30d', '#0891b2', '#4f46e5'];
 
 export function HeatMap({
   heat,

@@ -82,7 +82,6 @@ export function createRouter(services, { rateLimits = true } = {}) {
   admin.delete('/tours/:id', tour.remove);
 
   admin.get('/analytics', analytics.report);
-  admin.get('/analytics/recent', analytics.recent);
   admin.get('/live', live.snapshot);
   admin.get('/live/stream', live.stream);
 

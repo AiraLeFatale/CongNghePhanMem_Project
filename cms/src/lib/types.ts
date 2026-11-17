@@ -150,14 +150,3 @@ export interface AutoStatus {
   step?: string;
   errors: string[];
 }
-
-/** Một lượt nghe gần đây (GET /admin/analytics/recent). */
-export interface RecentActivity {
-  id: number;
-  played_at: string;
-  method: 'qr' | 'manual' | 'geofence';
-  language: string;
-  listen_seconds: number;
-  poi_id: number | null;
-  poi_name: string | null;
-}

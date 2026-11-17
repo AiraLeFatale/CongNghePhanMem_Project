@@ -223,9 +223,11 @@ export function AnalyticsPage() {
         </div>
       ) : (
         <div className={`analytics${report.loading ? ' is-refreshing' : ''}`} aria-busy={report.loading}>
-          <Kpis r={r} prev={previous.data ? previous.data.summary : null} />
-          <section className="card chart-card">
-            <DailyChart r={r} from={filters.from} to={filters.to} />
+          <section className="card card-flush">
+            <Kpis r={r} prev={previous.data ? previous.data.summary : null} />
+            <div className="card-body">
+              <DailyChart r={r} from={filters.from} to={filters.to} />
+            </div>
           </section>
           <AnalyticsCharts r={r} />
           <section className="card">

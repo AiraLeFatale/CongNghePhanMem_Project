@@ -1,5 +1,5 @@
 import { tokenStore } from './storage';
-import type {AdminUser,   AnalyticsQuery,   AnalyticsReport,   LanguageCode,   Poi,   PoiInput,   PoiListItem,   QrCode,   Tour,   TourInput,   TourListItem, OrderList, PaymentOrder, AutoStatus, RecentActivity } from './types';
+import type {AdminUser,   AnalyticsQuery,   AnalyticsReport,   LanguageCode,   Poi,   PoiInput,   PoiListItem,   QrCode,   Tour,   TourInput,   TourListItem, OrderList, PaymentOrder, AutoStatus } from './types';
 
 /** Lỗi thống nhất từ API: `{ error: { code, message, details } }`. */
 export class ApiError extends Error {
@@ -150,7 +150,6 @@ export function createApiClient(opts: ApiClientOptions = {}) {
     confirmOrder: (id: number) => post<PaymentOrder>(`/admin/orders/${id}/confirm`),
     cancelOrder: (id: number) => post<PaymentOrder>(`/admin/orders/${id}/cancel`),
     // Thống kê
-    recentActivity: (limit = 6) => get<{ items: RecentActivity[] }>(`/admin/analytics/recent?limit=${limit}`).then((r) => r.items),
     analytics: (q: AnalyticsQuery) =>
       get<AnalyticsReport>(`/admin/analytics${buildQuery({ from: q.from, to: q.to, tour_id: q.tour_id ?? undefined })}`),
   };

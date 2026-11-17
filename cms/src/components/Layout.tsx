@@ -3,9 +3,6 @@ import { NavLink, Outlet, useLocation } from 'react-router';
 import { useAuth } from '../auth/AuthContext';
 import { Icon } from './Icon';
 
-const LOGO = `${import.meta.env.BASE_URL}logo.png`;
-const LOGO_LIGHT = `${import.meta.env.BASE_URL}logo-light.png`;
-
 const NAV_GROUPS: { title?: string; items: { to: string; label: string; icon: string; end?: boolean }[] }[] = [
   { items: [{ to: '/', label: 'Tổng quan', icon: 'home', end: true }] },
   {
@@ -56,15 +53,17 @@ export function Layout() {
         >
           <Icon name={open ? 'x' : 'menu'} size={20} />
         </button>
-        <a href="/" target="_blank" rel="noopener" className="brand-home" title="Mở trang chủ website (tab mới)">
-          <img src={LOGO} alt="Thuyết minh Quận 4 – mở trang chủ" className="brand-logo-top" width={381} height={150} />
-        </a>
+        <span className="brand-text">Thuyết minh Quận 4</span>
       </header>
       <aside id="sidebar" className="sidebar">
         <div className="brand">
-          <a href="/" target="_blank" rel="noopener" className="brand-home" title="Mở trang chủ website (tab mới)">
-            <img src={LOGO_LIGHT} alt="Thuyết minh Quận 4 – mở trang chủ" className="brand-logo" width={381} height={150} />
-          </a>
+          <span className="brand-mark" aria-hidden="true">
+            <Icon name="speaker" size={15} weight="fill" />
+          </span>
+          <span className="brand-name">
+            <strong>Thuyết minh Quận 4</strong>
+            <small>Quản trị nội dung</small>
+          </span>
         </div>
         <nav aria-label="Điều hướng chính" className="nav-groups">
           {NAV_GROUPS.map((g, i) => (
@@ -82,20 +81,7 @@ export function Layout() {
               </ul>
             </div>
           ))}
-          <div className="nav-group">
-            <p className="nav-heading">Website</p>
-            <ul className="nav">
-              <li>
-                <a href="/" target="_blank" rel="noopener" className="nav-link">
-                  <Icon name="globe" size={17} />
-                  <span>Xem trang chủ</span>
-                  <Icon name="external" size={13} className="nav-ext" />
-                </a>
-              </li>
-            </ul>
-          </div>
         </nav>
-        <SidebarSkyline />
         <div className="sidebar-footer">
           <NavLink to="/account" className={({ isActive }) => `user-chip${isActive ? ' active' : ''}`}>
             <span className="avatar" aria-hidden="true">
@@ -103,7 +89,7 @@ export function Layout() {
             </span>
             <span className="user-meta">
               <span className="truncate">{displayName}</span>
-              <small className="truncate">{user?.username ? `Quản trị viên · ${user.username}` : 'Quản trị viên'}</small>
+              {user?.username && <small className="truncate">{user.username}</small>}
             </span>
           </NavLink>
           <button type="button" className="icon-btn" onClick={logout} aria-label="Đăng xuất" title="Đăng xuất">
@@ -116,34 +102,5 @@ export function Layout() {
         <Outlet />
       </main>
     </div>
-  );
-}
-
-/** Hình cầu dây văng và nhà cao tầng nét mảnh ở chân thanh bên. */
-function SidebarSkyline() {
-  const cables = [];
-  for (const px of [70, 170]) {
-    for (let i = 1; i <= 6; i++) {
-      cables.push(<line key={`${px}l${i}`} x1={px} y1={22 + i * 3} x2={px - i * 12} y2={78} />);
-      cables.push(<line key={`${px}r${i}`} x1={px} y1={22 + i * 3} x2={px + i * 12} y2={78} />);
-    }
-  }
-  const towers = [[8, 46, 14], [24, 34, 12], [196, 40, 14], [212, 28, 12], [226, 50, 14]];
-  return (
-    <svg className="sidebar-skyline" viewBox="0 0 240 96" fill="none" aria-hidden="true" focusable="false">
-      <g stroke="currentColor" strokeWidth="1" strokeLinecap="round">
-        {towers.map(([x, y, w]) => (
-          <rect key={x} x={x} y={y} width={w} height={96 - y} />
-        ))}
-      </g>
-      <g stroke="currentColor" strokeWidth="0.8" opacity="0.8">
-        {cables}
-      </g>
-      <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <path d="M70 16 L67 84 M70 16 L73 84 M170 16 L167 84 M170 16 L173 84" />
-        <path d="M0 78 Q 120 72 240 78" />
-      </g>
-      <path d="M0 90 Q 120 84 240 92" stroke="currentColor" strokeOpacity="0.5" />
-    </svg>
   );
 }
