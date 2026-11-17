@@ -143,6 +143,7 @@ main {
 }
 .nav a {
   padding: 8px 12px;
+  white-space: nowrap;
   border-radius: var(--radius-sm);
   color: var(--ink-2);
   text-decoration: none;
@@ -230,34 +231,44 @@ main {
 
 .footer {
   position: relative;
-  background: #f8f2e7;
-  margin-top: 64px;
+  margin-top: 40px;
+  color: #d5e6dc;
   font-size: 15px;
-  color: #44534f;
 }
-.footer::before {
-  content: '';
+.footer-wave {
   display: block;
-  height: 4px;
-  background: linear-gradient(90deg, #1d5b3f 0%, #e0a43a 55%, #c2522d 100%);
+  width: 100%;
+  height: 56px;
+  margin-bottom: -1px;
+  color: #0f4a36;
 }
-.site:has(.hs-langs) .footer {
-  margin-top: 0;
+.footer-main {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #0f4a36 0%, #0c3d2c 100%);
+}
+.footer-art {
+  position: absolute;
+  right: -20px;
+  bottom: 0;
+  width: min(520px, 45%);
+  height: auto;
+  opacity: 0.35;
+  pointer-events: none;
 }
 .footer-grid {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr));
   gap: 40px;
-  padding-top: 56px;
-  padding-bottom: 48px;
+  padding-top: 28px;
+  padding-bottom: 56px;
 }
 .footer h2 {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #1d3a34;
-  margin: 8px 0 16px;
+  color: #fff;
+  margin: 10px 0 16px;
 }
 .footer ul {
   list-style: none;
@@ -267,46 +278,56 @@ main {
   gap: 10px;
 }
 .footer a {
-  color: #44534f;
+  color: #d5e6dc;
   text-decoration: none;
   transition: color 0.15s;
 }
 .footer a:hover {
-  color: #c2522d;
+  color: #f0c86a;
 }
 .footer-brand .logo-img {
-  height: 88px;
+  height: 92px;
 }
-.footer-note {
-  max-width: 40ch;
-  margin: 16px 0 0;
-  line-height: 1.6;
+.footer-tagline {
+  margin: 14px 0 0;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #f3ead7;
 }
-.footer ul.footer-badges {
+.footer-langs ul {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 20px;
 }
-.footer-badges li {
-  padding: 5px 12px;
-  border: 1px solid #e3d8c4;
+.footer-langs li {
+  padding: 4px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 999px;
-  background: #fff;
-  color: #1d3a34;
   font-size: 13px;
-  font-weight: 500;
+  color: #eef5f0;
 }
 .footer-bottom {
+  background: #082c20;
+  color: #a9c4b6;
+  font-size: 13px;
+}
+.footer-bottom-inner {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  padding-top: 20px;
-  padding-bottom: 28px;
-  border-top: 1px solid #e3d8c4;
-  color: #74807b;
-  font-size: 13px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+.footer-legal {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+.footer-bottom a {
+  color: #a9c4b6;
 }
 @media (max-width: 1000px) {
   .footer-grid {
@@ -319,16 +340,46 @@ main {
 }
 @media (max-width: 600px) {
   .footer-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 28px;
-    padding-top: 40px;
+  }
+  .footer-langs {
+    grid-column: 1 / -1;
   }
   .footer-brand .logo-img {
-    height: 72px;
+    height: 76px;
   }
   .footer h2 {
     margin: 0 0 12px;
   }
+}
+
+@media (min-width: 761px) and (max-width: 1024px) {
+  .header-inner {
+    gap: 14px;
+  }
+  .nav a {
+    padding: 7px 9px;
+    font-size: 14px;
+  }
+}
+
+/* Thanh menu: nút đang chọn dạng viên thuốc xanh; trang chủ thì menu nổi trên ảnh */
+.nav a.active {
+  background: #0f4a36;
+  color: #fff;
+  border-radius: 999px;
+}
+.nav a.active:hover {
+  background: #0b3a2a;
+  color: #fff;
+}
+.site-home .header {
+  background: rgba(255, 255, 255, 0.55);
+  border-bottom-color: transparent;
+}
+.lang-select {
+  border-radius: 999px;
 }
 
 /* ---------- Common ---------- */

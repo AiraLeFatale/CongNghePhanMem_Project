@@ -10,7 +10,7 @@ export function qrLink(payload: string) {
   return `${window.location.origin}/q/${payload}`;
 }
 
-function QrImage({ text, alt }: { text: string; alt: string }) {
+export function QrImage({ text, alt }: { text: string; alt: string }) {
   const [src, setSrc] = useState<string | null>(null);
   useEffect(() => {
     let alive = true;
