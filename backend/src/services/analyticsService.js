@@ -37,6 +37,11 @@ export function createAnalyticsService(repos) {
   }
 
   return {
+    recent(query) {
+      const n = Number(query.limit ?? 8);
+      const limit = Number.isInteger(n) ? Math.min(Math.max(n, 1), 50) : 8;
+      return { items: repos.analytics.recent(limit) };
+    },
     report(query) {
       const f = parseFilters(query);
       const a = repos.analytics;

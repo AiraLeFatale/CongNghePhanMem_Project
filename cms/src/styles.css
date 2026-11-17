@@ -2370,3 +2370,21 @@ textarea {
   margin-left: auto;
   opacity: 0.6;
 }
+
+/* Hình cầu ở chân thanh bên */
+.sidebar-skyline {
+  display: block;
+  width: calc(100% + 20px);
+  margin: auto -10px 0;
+  color: #d8b45a;
+  opacity: 0.35;
+  pointer-events: none;
+}
+@media (max-height: 700px) {
+  .sidebar-skyline {
+    display: none;
+  }
+}
+.sidebar-skyline + .sidebar-footer {
+  margin-top: 0;
+}

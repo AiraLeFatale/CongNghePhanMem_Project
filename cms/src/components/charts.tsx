@@ -79,12 +79,64 @@ export function VBarChart({ labels, values, label, height = 220 }: { labels: str
   );
 }
 
-export function LineChart({ labels, values, label, height = 260 }: { labels: string[]; values: number[]; label: string; height?: number }) {
+/** Vẽ nhãn dạng viên thuốc phía trên điểm cuối của đường (ví dụ "3 lượt"). */
+function endLabelPlugin(text: string, color: string) {
+  return {
+    id: 'endLabel',
+    afterDatasetsDraw(chart: ChartJS) {
+      chart.ctx.save();
+      try {
+        draw(chart);
+      } catch {
+        /* nhãn chỉ để trang trí, lỗi thì bỏ qua để biểu đồ vẫn hiện */
+      } finally {
+        chart.ctx.restore();
+      }
+    },
+  };
+  function draw(chart: ChartJS) {
+    {
+      const meta = chart.getDatasetMeta(0);
+      const pt = meta?.data?.[meta.data.length - 1];
+      if (!pt || !Number.isFinite(pt.x) || !Number.isFinite(pt.y)) return;
+      const { ctx } = chart;
+      ctx.font = `600 13px ${ChartJS.defaults.font.family}`;
+      const w = ctx.measureText(text).width + 22;
+      const h = 26;
+      const x = Math.min(Math.max(pt.x - w / 2, chart.chartArea.left), chart.chartArea.right - w + 8);
+      const y = Math.max(pt.y - h - 12, 2);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, 13);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, x + 11, y + h / 2 + 0.5);
+    }
+  }
+}
+
+export function LineChart({
+  labels,
+  values,
+  label,
+  height = 260,
+  points = false,
+  endLabel,
+}: {
+  labels: string[];
+  values: number[];
+  label: string;
+  height?: number;
+  points?: boolean;
+  endLabel?: string;
+}) {
   const t = theme();
   const options: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
     interaction: { mode: 'index', intersect: false },
+    layout: { padding: { top: endLabel ? 36 : 0, right: endLabel ? 10 : 0 } },
     plugins: { legend: { display: false }, tooltip: { ...baseTooltip(t), callbacks: { label: (c) => `${label}: ${nf.format(c.parsed.y ?? 0)}` } } },
     scales: {
       y: { beginAtZero: true, grid: { color: t.grid }, border: { display: false }, ticks: { precision: 0, color: t.tick, maxTicksLimit: 6 } },
@@ -104,14 +156,18 @@ export function LineChart({ labels, values, label, height = 260 }: { labels: str
               backgroundColor: t.fill,
               fill: true,
               cubicInterpolationMode: 'monotone',
-              pointRadius: 0,
-              pointHoverRadius: 4,
+              pointRadius: points ? (labels.length > 31 ? 0 : 3.5) : 0,
+              pointBackgroundColor: t.accent,
+              pointBorderColor: '#fff',
+              pointBorderWidth: 1.5,
+              pointHoverRadius: 5,
               pointHoverBackgroundColor: t.accent,
               borderWidth: 2,
             },
           ],
         }}
         options={options}
+        plugins={endLabel ? [endLabelPlugin(endLabel, t.accent)] : []}
         aria-label={label}
         role="img"
       />

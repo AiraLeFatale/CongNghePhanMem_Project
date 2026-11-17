@@ -58,6 +58,17 @@ export function createAnalyticsRepository(db) {
         .prepare(`SELECT CAST(substr(u.played_at, 12, 2) AS INTEGER) AS hour, COUNT(*) AS plays FROM usage_log u ${w.sql} GROUP BY hour ORDER BY hour`)
         .all(...w.params);
     },
+    /** Các lượt nghe mới nhất, kèm tên điểm (tiếng Việt). Không trả session_id. */
+    recent(limit = 8) {
+      return db
+        .prepare(
+          `SELECT u.id, u.played_at, u.trigger_method AS method, u.language_code AS language, u.listen_seconds,
+                  u.poi_id, p.name AS poi_name
+           FROM usage_log u LEFT JOIN poi p ON p.id = u.poi_id
+           ORDER BY u.played_at DESC, u.id DESC LIMIT ?`,
+        )
+        .all(limit);
+    },
     heatmap({ from, to, bbox }) {
       const clauses = [];
       const params = [];

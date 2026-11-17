@@ -82,3 +82,14 @@ test('dữ liệu demo sinh đủ cho biểu đồ', async () => {
   assert.ok(r.body.daily.length > 10);
   await d.close();
 });
+
+test('hoạt động gần đây: mới nhất trước, có tên điểm, không lộ session_id, giới hạn số dòng', async () => {
+  const r = await s.call('GET', '/admin/analytics/recent?limit=2');
+  assert.equal(r.status, 200);
+  assert.equal(r.body.items.length, 2);
+  const [a, b] = r.body.items;
+  assert.ok(a.played_at >= b.played_at);
+  assert.ok(a.poi_name);
+  assert.equal('session_id' in a, false);
+  assert.equal((await s.call('GET', '/admin/analytics/recent', undefined, { auth: false })).status, 401);
+});
