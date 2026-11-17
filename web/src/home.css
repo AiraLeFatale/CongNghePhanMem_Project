@@ -139,22 +139,34 @@
   gap: 16px;
   margin-top: 4px;
 }
+/* Ảnh chụp thật đặt trong khung bo góc viền trắng, nền AI bao quanh để 2 chất liệu không trộn lẫn */
 .hh-photo {
   position: absolute;
   z-index: 1;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 56%;
+  top: calc(var(--header-h) + 44px);
+  right: max(32px, calc((100vw - 1320px) / 2 + 32px));
+  bottom: 104px;
+  width: min(46%, 640px);
   margin: 0;
-  -webkit-mask-image: radial-gradient(ellipse 72% 92% at 72% 42%, #000 78%, transparent 100%);
-  mask-image: radial-gradient(ellipse 72% 92% at 72% 42%, #000 78%, transparent 100%);
+  overflow: hidden;
+  border: 8px solid rgba(255, 255, 255, 0.92);
+  border-radius: 32px;
+  background: #dfe9e4;
+  box-shadow: 0 30px 60px -20px rgba(16, 60, 40, 0.35), 0 10px 24px rgba(16, 60, 40, 0.12);
+}
+.hh-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 55%, rgba(8, 30, 20, 0.55) 100%);
 }
 .hh-photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 70% 40%;
+  object-position: 50% 45%;
+  filter: saturate(0.92) brightness(1.03);
   animation: hh-fade 0.6s ease;
 }
 @keyframes hh-fade {
@@ -164,18 +176,21 @@
 }
 .hh-photo figcaption {
   position: absolute;
-  right: 24px;
-  bottom: 96px;
-  max-width: 50%;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 11px;
-  text-align: right;
+  z-index: 1;
+  left: 22px;
+  bottom: 20px;
+  max-width: 62%;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 .hh-dots {
   position: absolute;
-  right: 40px;
-  bottom: 120px;
+  z-index: 1;
+  right: 22px;
+  bottom: 22px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -633,22 +648,22 @@
   }
   .hh-photo {
     position: relative;
+    inset: auto;
     width: auto;
-    height: clamp(280px, 50vw, 440px);
-    margin: 28px 0 0;
-    -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, #000 70%, transparent 100%);
-    mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, #000 70%, transparent 100%);
+    height: clamp(260px, 52vw, 420px);
+    margin: 28px 20px 70px;
+    border-width: 6px;
+    border-radius: 24px;
   }
   .hh-photo figcaption {
-    top: 14px;
-    bottom: auto;
-    right: 18px;
-    max-width: 80%;
+    left: 14px;
+    bottom: 14px;
+    max-width: 58%;
+    font-size: 11px;
   }
   .hh-dots {
-    right: 50%;
-    transform: translateX(50%);
-    bottom: 30px;
+    right: 14px;
+    bottom: 16px;
   }
   .hs-bento {
     grid-template-columns: 1fr 1fr;
