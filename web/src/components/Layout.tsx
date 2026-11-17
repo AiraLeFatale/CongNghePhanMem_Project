@@ -4,7 +4,7 @@ import { List, X } from '@phosphor-icons/react';
 import { LANGS, useLang, useT } from '../lib/i18n';
 import { useLivePresence } from '../lib/useLive';
 import { LangSelect } from './LangSelect';
-import { FooterWave, SkylineArt } from './HomeArt';
+import { FooterWave } from './HomeArt';
 
 export function Layout() {
   const t = useT();
@@ -55,7 +55,6 @@ export function Layout() {
       <footer className="footer">
         <FooterWave className="footer-wave" />
         <div className="footer-main">
-          <SkylineArt className="footer-art" tone="#7fb79a" />
           <div className="wrap footer-grid">
             <div className="footer-brand">
               <Link to="/" className="logo logo-footer">

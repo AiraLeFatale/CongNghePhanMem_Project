@@ -9,7 +9,6 @@ import type { Poi, SyncData, Tour } from '../lib/types';
 import { LoadError, Loading } from '../components/States';
 import { tourLength, tourStops } from './ToursPage';
 import { QrImage, StopQrList, qrLink } from '../components/StopQrList';
-import { LeavesArt, PhoneArt, SkylineArt } from '../components/HomeArt';
 import '../home.css';
 
 /** Đoạn mở đầu của bài thuyết minh, cắt ở ranh giới câu gần nhất. */
@@ -62,7 +61,6 @@ export function HomePage() {
   return (
     <div className="hs">
       <section className="hh">
-        <LeavesArt className="hh-leaves" />
         <div className="wrap hh-grid">
           <div className="hh-copy">
             <p className="hs-eyebrow">{t({ vi: 'Thuyết minh Quận 4 · 6 ngôn ngữ', en: 'District 4 audio guide · 6 languages' })}</p>
@@ -88,6 +86,45 @@ export function HomePage() {
                 {t({ vi: 'Hướng dẫn sử dụng', en: 'How it works' })}
               </Link>
             </div>
+            {story && tr && (
+              <div className="hh-player" aria-live="polite">
+                {n.mode === 'audio' && <audio ref={n.bindAudio} src={n.audioSrc} preload="metadata" {...n.audioEvents} />}
+                <div className="hh-player-row">
+                  {n.mode !== 'none' && (
+                    <button type="button" className="hh-play" onClick={toggle} aria-label={n.playing ? t({ vi: 'Tạm dừng', en: 'Pause' }) : t({ vi: 'Nghe thử', en: 'Hear the story' })}>
+                      {n.playing ? <Pause size={16} weight="fill" /> : <Play size={16} weight="fill" />}
+                    </button>
+                  )}
+                  <div className="hh-player-info">
+                    <span className="hh-player-label">
+                      {t({ vi: 'Nghe thử', en: 'Hear a story' })} · {minutes(tr.narration_text)} {t({ vi: 'phút', en: 'min' })}
+                    </span>
+                    <Link to={`/diem/${story.id}`} className="hh-player-title" title={t({ vi: 'Nghe trọn câu chuyện', en: 'Hear the full story' })}>
+                      {poiTitle(story, lang)} <ArrowRight size={13} aria-hidden="true" />
+                    </Link>
+                  </div>
+                  <span className="hh-step">
+                    <button type="button" className="hs-round" onClick={() => goTo(cur - 1)} aria-label={t({ vi: 'Câu chuyện trước', en: 'Previous story' })}>
+                      <CaretLeft size={13} />
+                    </button>
+                    <span className="hs-count">
+                      {cur + 1}/{stories.length}
+                    </span>
+                    <button type="button" className="hs-round" onClick={() => goTo(cur + 1)} aria-label={t({ vi: 'Câu chuyện tiếp theo', en: 'Next story' })}>
+                      <CaretRight size={13} />
+                    </button>
+                  </span>
+                </div>
+                <div className="hs-progress" aria-hidden="true">
+                  <span style={{ width: `${pct}%` }} />
+                </div>
+                <p className="sr-only">{excerpt(tr.narration_text)}</p>
+                {n.mode === 'speech' && (
+                  <p className="hs-note">{t({ vi: 'Đọc bằng giọng của trình duyệt. Trong app có file ghi âm và chạy cả khi mất mạng.', en: 'Read by your browser voice. The app has recorded audio and works offline.' })}</p>
+                )}
+                {n.error && <p className="hs-note hs-error">{n.error}</p>}
+              </div>
+            )}
             {error ? <LoadError message={error} onRetry={retry} /> : !data ? <Loading /> : null}
           </div>
         </div>
@@ -116,52 +153,6 @@ export function HomePage() {
           )}
         </figure>
 
-        {story && tr && (
-          <div className="wrap hh-player-wrap">
-            <div className="hh-player" aria-live="polite">
-              {n.mode === 'audio' && <audio ref={n.bindAudio} src={n.audioSrc} preload="metadata" {...n.audioEvents} />}
-              {n.mode !== 'none' && (
-                <button type="button" className="hh-play" onClick={toggle} aria-label={n.playing ? t({ vi: 'Tạm dừng', en: 'Pause' }) : t({ vi: 'Nghe thử', en: 'Hear the story' })}>
-                  {n.playing ? <Pause size={20} weight="fill" /> : <Play size={20} weight="fill" />}
-                </button>
-              )}
-              <div className="hh-player-body">
-                <p className="hh-player-label">
-                  {t({ vi: 'Nghe thử', en: 'Hear a story' })} · {minutes(tr.narration_text)} {t({ vi: 'phút', en: 'min' })}
-                </p>
-                <p className="hh-player-title">{poiTitle(story, lang)}</p>
-                <p className="hh-player-text">{excerpt(tr.narration_text)}</p>
-                <div className="hs-progress" aria-hidden="true">
-                  <span style={{ width: `${pct}%` }} />
-                </div>
-                <div className="hh-player-foot">
-                  <Link to={`/diem/${story.id}`} className="hs-link">
-                    {t({ vi: 'Nghe trọn câu chuyện', en: 'Hear the full story' })} <ArrowRight size={13} aria-hidden="true" />
-                  </Link>
-                  <span className="hh-step">
-                    <button type="button" className="hs-round" onClick={() => goTo(cur - 1)} aria-label={t({ vi: 'Câu chuyện trước', en: 'Previous story' })}>
-                      <CaretLeft size={14} />
-                    </button>
-                    <span className="hs-count">
-                      {cur + 1} / {stories.length}
-                    </span>
-                    <button type="button" className="hs-round" onClick={() => goTo(cur + 1)} aria-label={t({ vi: 'Câu chuyện tiếp theo', en: 'Next story' })}>
-                      <CaretRight size={14} />
-                    </button>
-                  </span>
-                </div>
-                <p className="hs-note">
-                  {n.mode === 'speech'
-                    ? t({ vi: 'Đọc bằng giọng của trình duyệt. Trong app có file ghi âm và chạy cả khi mất mạng.', en: 'Read by your browser voice. The app has recorded audio and works offline.' })
-                    : t({ vi: `Bấm phát để nghe câu chuyện về ${poiTitle(story, lang)}.`, en: `Tap play to hear the story of ${poiTitle(story, lang)}.` })}
-                </p>
-                {n.error && <p className="hs-note hs-error">{n.error}</p>}
-              </div>
-            </div>
-          </div>
-        )}
-
-        <SkylineArt className="hh-skyline" />
         <svg className="hh-wave" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true">
           <path d="M0 60 C 300 20, 560 96, 860 70 C 1100 50, 1280 20, 1440 40 L1440 90 L0 90 Z" fill="#ffffff" />
         </svg>
@@ -192,7 +183,7 @@ export function HomePage() {
         <section className="hs-qrband-wrap" id="ma-qr">
           <div className="wrap">
             <div className="hs-qrband">
-              <PhoneArt className="hs-qr-phone" />
+              <img className="hs-qr-phone" src="/images/ai/phone-qr.png" alt="" width={329} height={420} loading="lazy" />
               <div className="hs-qr-copy">
                 <h2 className="hs-h3">{t({ vi: 'Mã QR ở các trạm xe buýt', en: 'QR codes at bus stops' })}</h2>
                 <p>
