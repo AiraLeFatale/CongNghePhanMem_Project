@@ -138,35 +138,92 @@
   gap: 16px;
   margin-top: 4px;
 }
-/* Ảnh chụp thật đặt trong khung bo góc viền trắng, nền AI bao quanh để 2 chất liệu không trộn lẫn */
-.hh-photo {
+/* Cụm ảnh phần đầu: ảnh chính hình chiếc lá, mảng màu mềm phía sau, thẻ "câu chuyện tiếp theo" chồng góc dưới */
+.hh-visual {
   position: absolute;
   z-index: 1;
-  top: calc(var(--header-h) + 44px);
-  right: max(32px, calc((100vw - 1320px) / 2 + 32px));
-  bottom: 104px;
-  width: min(46%, 640px);
+  top: calc(var(--header-h) + 36px);
+  right: max(40px, calc((100vw - 1320px) / 2 + 40px));
+  bottom: 96px;
+  width: min(44%, 600px);
+}
+.hh-blob {
+  position: absolute;
+  inset: -5% 12% 14% -8%;
+  border-radius: 46% 54% 42% 58% / 52% 40% 60% 48%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 236, 196, 0.85), rgba(186, 222, 190, 0.55) 70%);
+  filter: blur(2px);
+}
+.hh-photo {
+  position: absolute;
+  inset: 0 0 34px 0;
   margin: 0;
   overflow: hidden;
-  border: 8px solid rgba(255, 255, 255, 0.92);
-  border-radius: 32px;
+  border-radius: 28px 160px 28px 160px;
   background: #dfe9e4;
-  box-shadow: 0 30px 60px -20px rgba(16, 60, 40, 0.35), 0 10px 24px rgba(16, 60, 40, 0.12);
+  box-shadow: 0 40px 70px -30px rgba(16, 60, 40, 0.45);
 }
 .hh-photo::after {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 55%, rgba(8, 30, 20, 0.55) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 62%, rgba(8, 30, 20, 0.45) 100%);
 }
 .hh-photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 45%;
-  filter: saturate(0.92) brightness(1.03);
+  object-position: 50% 40%;
+  filter: saturate(0.95) brightness(1.02);
   animation: hh-fade 0.6s ease;
+}
+.hh-next {
+  position: absolute;
+  z-index: 2;
+  left: -44px;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px 8px 8px;
+  border: 0;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
+  color: var(--hs-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 16px 34px -12px rgba(16, 60, 40, 0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.hh-next:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -12px rgba(16, 60, 40, 0.42);
+}
+.hh-next img {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+.hh-next span {
+  display: grid;
+  gap: 2px;
+}
+.hh-next small {
+  color: var(--hs-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.hh-next strong {
+  font-size: 15px;
+}
+.hh-next svg {
+  color: #1f5c43;
 }
 @keyframes hh-fade {
   from {
@@ -176,20 +233,20 @@
 .hh-photo figcaption {
   position: absolute;
   z-index: 1;
-  left: 22px;
-  bottom: 20px;
-  max-width: 62%;
+  right: 28px;
+  bottom: 50px;
+  max-width: 52%;
+  text-align: right;
   color: rgba(255, 255, 255, 0.92);
   font-size: 12px;
   line-height: 1.4;
-  text-align: left;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 .hh-dots {
   position: absolute;
   z-index: 1;
-  right: 22px;
-  bottom: 22px;
+  right: 28px;
+  bottom: 24px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -645,24 +702,36 @@
     gap: 18px;
     max-width: 640px;
   }
-  .hh-photo {
+  .hh-visual {
     position: relative;
     inset: auto;
     width: auto;
-    height: clamp(260px, 52vw, 420px);
-    margin: 28px 20px 70px;
-    border-width: 6px;
-    border-radius: 24px;
+    height: clamp(300px, 58vw, 460px);
+    margin: 28px 20px 76px;
+  }
+  .hh-photo {
+    border-radius: 22px 96px 22px 96px;
+  }
+  .hh-next {
+    left: 12px;
+    bottom: -14px;
+  }
+  .hh-next img {
+    width: 52px;
+    height: 52px;
   }
   .hh-photo figcaption {
-    left: 14px;
-    bottom: 14px;
-    max-width: 58%;
+    top: 16px;
+    left: 20px;
+    right: auto;
+    bottom: auto;
+    max-width: 62%;
     font-size: 11px;
+    text-align: left;
   }
   .hh-dots {
-    right: 14px;
-    bottom: 16px;
+    right: 22px;
+    bottom: 26px;
   }
   .hs-bento {
     grid-template-columns: 1fr 1fr;

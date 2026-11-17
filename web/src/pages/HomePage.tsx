@@ -48,6 +48,8 @@ export function HomePage() {
   const tr = story ? pickTranslation(story, lang) : undefined;
   const n = useNarration(story?.id, tr, 'manual');
   const photo = story ? poiPhoto(story) : null;
+  const nextStory = stories.length > 1 ? stories[(cur + 1) % stories.length] : undefined;
+  const nextPhoto = nextStory ? poiPhoto(nextStory) : null;
   const pct = n.mode === 'audio' && n.duration ? (n.position / n.duration) * 100 : stories.length ? ((cur + 1) / stories.length) * 100 : 0;
 
   const goTo = (i: number) => {
@@ -129,29 +131,42 @@ export function HomePage() {
           </div>
         </div>
 
-        <figure className="hh-photo">
-          {photo && <img key={photo.src} src={photo.src} alt={photo.caption[ui]} fetchPriority="high" />}
-          {photo && (
-            <figcaption>
-              {photo.caption[ui]}
-              {photo.author && ` · ${t({ vi: 'Ảnh', en: 'Photo' })}: ${photo.author}`}
-            </figcaption>
+        <div className="hh-visual">
+          <span className="hh-blob" aria-hidden="true" />
+          <figure className="hh-photo">
+            {photo && <img key={photo.src} src={photo.src} alt={photo.caption[ui]} fetchPriority="high" />}
+            {photo && (
+              <figcaption>
+                {photo.caption[ui]}
+                {photo.author && ` · ${t({ vi: 'Ảnh', en: 'Photo' })}: ${photo.author}`}
+              </figcaption>
+            )}
+            {stories.length > 1 && (
+              <div className="hh-dots" role="group" aria-label={t({ vi: 'Chọn câu chuyện', en: 'Choose a story' })}>
+                {stories.map((s, i) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className={i === cur ? 'on' : ''}
+                    aria-label={poiTitle(s, lang)}
+                    aria-current={i === cur ? 'true' : undefined}
+                    onClick={() => goTo(i)}
+                  />
+                ))}
+              </div>
+            )}
+          </figure>
+          {nextStory && nextPhoto && (
+            <button type="button" className="hh-next" onClick={() => goTo(cur + 1)}>
+              <img src={nextPhoto.src} alt="" />
+              <span>
+                <small>{t({ vi: 'Câu chuyện tiếp theo', en: 'Next story' })}</small>
+                <strong>{poiTitle(nextStory, lang)}</strong>
+              </span>
+              <ArrowRight size={16} aria-hidden="true" />
+            </button>
           )}
-          {stories.length > 1 && (
-            <div className="hh-dots" role="group" aria-label={t({ vi: 'Chọn câu chuyện', en: 'Choose a story' })}>
-              {stories.map((s, i) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  className={i === cur ? 'on' : ''}
-                  aria-label={poiTitle(s, lang)}
-                  aria-current={i === cur ? 'true' : undefined}
-                  onClick={() => goTo(i)}
-                />
-              ))}
-            </div>
-          )}
-        </figure>
+        </div>
 
         <svg className="hh-wave" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true">
           <path d="M0 60 C 300 20, 560 96, 860 70 C 1100 50, 1280 20, 1440 40 L1440 90 L0 90 Z" fill="#ffffff" />
