@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { ArrowRight, BookOpenText, CaretLeft, CaretRight, Clock, MapPin, Pause, Play, Star } from '@phosphor-icons/react';
 import { pickTranslation, poiTitle, useLang, useT } from '../lib/i18n';
 import { useContent, useTitle } from '../lib/useContent';
-import { poiPhoto } from '../lib/photos';
+import { poiPhoto, type Photo } from '../lib/photos';
 import { useNarration } from '../lib/useNarration';
 import type { Poi, SyncData, Tour } from '../lib/types';
 import { LoadError, Loading } from '../components/States';
@@ -234,8 +234,8 @@ export function HomePage() {
               </Link>
             </div>
             <div className="hs-tours">
-              {data.tours.map((tour) => (
-                <TourTile key={tour.id} tour={tour} data={data} />
+              {tourCovers(data.tours.slice(0, 6), data).map(([tour, cover]) => (
+                <TourTile key={tour.id} tour={tour} data={data} cover={cover} />
               ))}
             </div>
           </div>
@@ -271,15 +271,27 @@ function PlaceTile({ poi, big }: { poi: Poi; big: boolean }) {
   );
 }
 
-function TourTile({ tour, data }: { tour: Tour; data: SyncData }) {
+/** Ảnh bìa cho từng tour: lấy ảnh điểm đầu tiên chưa tour nào dùng, để các thẻ không trùng ảnh. */
+function tourCovers(tours: Tour[], data: SyncData): [Tour, Photo | null][] {
+  const used = new Set<string>();
+  return tours.map((tour) => {
+    const photos = tourStops(tour, data)
+      .map((s) => poiPhoto(s))
+      .filter((p): p is Photo => !!p);
+    const cover = photos.find((p) => !used.has(p.src)) ?? photos[0] ?? null;
+    if (cover) used.add(cover.src);
+    return [tour, cover];
+  });
+}
+
+function TourTile({ tour, data, cover }: { tour: Tour; data: SyncData; cover: Photo | null }) {
   const t = useT();
   const stops = tourStops(tour, data);
   const km = tourLength(stops) / 1000;
   const mins = Math.round((km / 4.5) * 60 + stops.length * 4);
-  const cover = stops.map((s) => poiPhoto(s)).find(Boolean);
   return (
     <Link to={`/tour/${tour.id}`} className="hs-tour">
-      <span className="hs-tour-img">{cover && <img src={cover.src} alt="" loading="lazy" />}</span>
+      <span className="hs-tour-img">{cover && <img src={cover.src} alt="" />}</span>
       <span className="hs-tour-body">
         <span className="hs-tour-meta">
           <Clock size={13} weight="bold" aria-hidden="true" /> ~{mins} {t({ vi: 'phút', en: 'min' })} · {stops.length} {t({ vi: 'điểm', en: 'stops' })} · ~{km.toFixed(1)} km

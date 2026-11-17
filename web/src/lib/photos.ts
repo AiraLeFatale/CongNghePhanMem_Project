@@ -11,26 +11,37 @@ export interface Photo {
   author: string;
   license: string;
   source: string;
-  /** Ảnh minh hoạ tạo bằng AI (không phải ảnh chụp thật). */
-  ai?: boolean;
 }
-
-function ai(file: string, vi: string, en: string): Photo {
-  return { src: `/images/ai/${file}.jpg`, caption: { vi, en }, author: '', license: '', source: '', ai: true };
-}
-
-/** Ảnh minh hoạ AI cùng tông sáng với giao diện, dùng cho các điểm thuyết minh. */
-export const AI_PHOTOS = {
-  'nha-rong': ai('hero-nha-rong', 'Bến Nhà Rồng – Bảo tàng Hồ Chí Minh (ảnh minh hoạ AI)', 'Nha Rong Wharf – Ho Chi Minh Museum (AI illustration)'),
-  'cau-mong': ai('cau-mong', 'Cầu Mống bắc qua kênh Bến Nghé (ảnh minh hoạ AI)', 'Mong Bridge over the Ben Nghe canal (AI illustration)'),
-  'cau-khanh-hoi': ai('cau-khanh-hoi', 'Cầu Khánh Hội nối Quận 4 với Quận 1 (ảnh minh hoạ AI)', 'Khanh Hoi Bridge (AI illustration)'),
-  'cang-sai-gon': ai('cang-sai-gon', 'Cảng Sài Gòn khu Khánh Hội (ảnh minh hoạ AI)', 'Saigon Port at Khanh Hoi (AI illustration)'),
-  'xom-chieu': ai('xom-chieu', 'Nhà thờ Xóm Chiếu, cạnh chợ Xóm Chiếu (ảnh minh hoạ AI)', 'Xom Chieu Church by the market (AI illustration)'),
-  'vinh-khanh': ai('pho-am-thuc', 'Phố ẩm thực Vĩnh Khánh lúc lên đèn (ảnh minh hoạ AI)', 'Vinh Khanh food street at dusk (AI illustration)'),
-  'tram-xe-buyt': ai('tram-xe-buyt', 'Trạm xe buýt có mã QR (ảnh minh hoạ AI)', 'Bus stop with a QR code (AI illustration)'),
-} satisfies Record<string, Photo>;
 
 export const PHOTOS: Record<string, Photo> = {
+  'nha-rong-mat-tien': {
+    src: '/images/nha-rong-mat-tien.jpg',
+    caption: { vi: 'Mặt tiền Bến Nhà Rồng, nay là Bảo tàng Hồ Chí Minh', en: 'Front of Nha Rong Wharf, now the Ho Chi Minh Museum' },
+    author: 'Syced',
+    license: 'CC0',
+    source: 'https://commons.wikimedia.org/wiki/File:Ho_Chi_Minh_Museum,_in_Saigon_3.jpg',
+  },
+  'cang-sai-gon': {
+    src: '/images/cang-sai-gon.jpg',
+    caption: { vi: 'Sông Sài Gòn và khu cảng Khánh Hội nhìn từ trên cao', en: 'The Saigon River and Khanh Hoi port area from above' },
+    author: 'Syced',
+    license: 'CC0',
+    source: 'https://commons.wikimedia.org/wiki/File:Container_ships_on_Saigon_River_3.jpg',
+  },
+  'vinh-khanh': {
+    src: '/images/vinh-khanh-hai-san.jpg',
+    caption: { vi: 'Hải sản quán bình dân ở TP.HCM (ảnh minh hoạ)', en: 'Seafood at a local eatery in Ho Chi Minh City (illustrative photo)' },
+    author: 'Bahnfrend',
+    license: 'CC BY-SA 4.0',
+    source: 'https://commons.wikimedia.org/wiki/File:Seafood_with_Bia_Viet,_Ho_Chi_Minh_City,_2023_(02).jpg',
+  },
+  'tram-xe-buyt': {
+    src: '/images/tram-xe-buyt.jpg',
+    caption: { vi: 'Một trạm xe buýt ở TP.HCM (ảnh minh hoạ)', en: 'A bus stop in Ho Chi Minh City (illustrative photo)' },
+    author: 'HappyMidnight',
+    license: 'CC BY-SA 3.0',
+    source: 'https://commons.wikimedia.org/wiki/File:Bus_stop,_Nguy%E1%BB%85n_H%E1%BB%AFu_C%E1%BA%A3nh,_district1,_HCMC.JPG',
+  },
   'nha-rong': {
     src: '/images/nha-rong.jpg',
     caption: { vi: 'Toà nhà Rồng, nay là Bảo tàng Hồ Chí Minh', en: 'The Dragon House, now the Ho Chi Minh Museum' },
@@ -97,13 +108,13 @@ export const PHOTOS: Record<string, Photo> = {
 };
 
 const BY_NAME: [RegExp, Photo][] = [
-  [/nhà rồng/i, AI_PHOTOS['nha-rong']],
-  [/cầu mống/i, AI_PHOTOS['cau-mong']],
-  [/cầu khánh hội/i, AI_PHOTOS['cau-khanh-hoi']],
-  [/cảng/i, AI_PHOTOS['cang-sai-gon']],
-  [/vĩnh khánh/i, AI_PHOTOS['vinh-khanh']],
-  [/xóm chiếu/i, AI_PHOTOS['xom-chieu']],
-  [/trạm xe buýt/i, AI_PHOTOS['tram-xe-buyt']],
+  [/nhà rồng/i, PHOTOS['nha-rong-mat-tien']],
+  [/cầu mống/i, PHOTOS['cau-mong']],
+  [/cầu khánh hội/i, PHOTOS['cau-khanh-hoi']],
+  [/cảng/i, PHOTOS['cang-sai-gon']],
+  [/vĩnh khánh/i, PHOTOS['vinh-khanh']],
+  [/xóm chiếu/i, PHOTOS['xom-chieu']],
+  [/trạm xe buýt/i, PHOTOS['tram-xe-buyt']],
 ];
 
 export function poiPhoto(poi: Pick<Poi, 'name' | 'image_url'>): Photo | null {
