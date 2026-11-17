@@ -39,6 +39,16 @@ flowchart LR
 *Hình: Hai nhóm người dùng, năm ca sử dụng UC1–UC5 và ba thành phần của dự án*
 
 
+## Phân công nhóm
+
+| Thành viên | Phụ trách | Việc còn lại |
+|---|---|---|
+| **AiraLeFatale** ([xem việc](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues?q=is%3Aissue+assignee%3AAiraLeFatale)) | Trưởng nhóm: kế hoạch, ca sử dụng, SRS, kế hoạch kiểm thử, CI | Báo cáo tuần (#11), kiểm thử thực địa (#44), báo cáo cuối kỳ (#47) |
+| **hungphamwp** ([xem việc](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues?q=is%3Aissue+assignee%3Ahungphamwp)) | Backend (API, CSDL, dịch, TTS, VietQR), app di động (GPS, geofence, thuyết minh, QR), triển khai máy chủ | Kiểm thử app trên điện thoại (#43), sao lưu máy chủ (#45), demo app (#47) |
+| **duyttg144-cyber** ([xem việc](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues?q=is%3Aissue+assignee%3Aduyttg144-cyber)) | CMS web (điểm tham quan, bản dịch, QR, tour, thống kê, thanh toán), hướng dẫn sử dụng | Kiểm thử CMS (#42), kiểm thử app (#43), kiểm thử thực địa (#44), demo CMS (#47) |
+
+Tiến độ: 33/39 hạng mục xong. Chi tiết từng hạng mục: [docs/06 – Phân công](docs/06-project-management.md#phân-công-theo-hạng-mục-wbs) · [Milestone](https://github.com/AiraLeFatale/CongNghePhanMem_Project/milestones?state=all)
+
 ## Bắt đầu nhanh
 
 ```bash
