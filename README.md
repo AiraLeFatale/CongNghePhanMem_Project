@@ -47,6 +47,24 @@ flowchart LR
 | **hungphamwp** ([xem việc](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues?q=is%3Aissue+assignee%3Ahungphamwp)) | Backend (API, CSDL, dịch, TTS, VietQR), app di động (GPS, geofence, thuyết minh, QR), triển khai máy chủ | Kiểm thử app trên điện thoại (#43), sao lưu máy chủ (#45), demo app (#47) |
 | **duyttg144-cyber** ([xem việc](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues?q=is%3Aissue+assignee%3Aduyttg144-cyber)) | CMS web (điểm tham quan, bản dịch, QR, tour, thống kê, thanh toán), hướng dẫn sử dụng | Kiểm thử CMS (#42), kiểm thử app (#43), kiểm thử thực địa (#44), demo CMS (#47) |
 
+### Ai làm chức năng nào
+
+| Chức năng | Giao diện (app / CMS / web) | Backend (API, CSDL) | Kiểm thử |
+|---|---|---|---|
+| UC1 Tự phát thuyết minh khi đi vào bán kính điểm (GPS, geofence) | App: hungphamwp | hungphamwp | AiraLeFatale |
+| UC2 Quét mã QR tại trạm xe buýt để nghe thuyết minh | App: hungphamwp | hungphamwp | AiraLeFatale |
+| UC3 Quản lý điểm tham quan, chọn vị trí trên bản đồ | CMS: duyttg144-cyber | hungphamwp | duyttg144-cyber |
+| UC4 Quản lý tour và lộ trình | CMS: duyttg144-cyber<br>App: hungphamwp | hungphamwp | duyttg144-cyber |
+| UC5 Thống kê, bản đồ nhiệt, xuất Excel/PDF | CMS: duyttg144-cyber | hungphamwp | duyttg144-cyber |
+| Bản dịch đa ngôn ngữ, dịch tự động, tạo giọng đọc (TTS) | CMS: duyttg144-cyber | hungphamwp | duyttg144-cyber |
+| Tạo và in mã QR | CMS: duyttg144-cyber | hungphamwp | duyttg144-cyber |
+| Đăng nhập quản trị, phân quyền, bảo mật API | CMS: duyttg144-cyber | hungphamwp | duyttg144-cyber |
+| Nội dung ngoại tuyến, đồng bộ, nhật ký nghe ẩn danh | App: hungphamwp | hungphamwp | AiraLeFatale |
+| Thanh toán VietQR cho điểm có phí, đối chiếu | CMS: duyttg144-cyber | hungphamwp | duyttg144-cyber |
+| Website công khai (QR mở /q/&lt;mã&gt;), tên miền, HTTPS | Web: hungphamwp | hungphamwp | AiraLeFatale |
+
+Phân tích yêu cầu, SRS, kế hoạch kiểm thử, CI: **AiraLeFatale**. Thiết kế kiến trúc, CSDL, API: **hungphamwp**. Hướng dẫn sử dụng: **duyttg144-cyber**.
+
 Tiến độ: 33/39 hạng mục xong. Chi tiết từng hạng mục: [docs/06 – Phân công](docs/06-project-management.md#phân-công-theo-hạng-mục-wbs) · [Milestone](https://github.com/AiraLeFatale/CongNghePhanMem_Project/milestones?state=all)
 
 ## Bắt đầu nhanh
