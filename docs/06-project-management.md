@@ -95,6 +95,7 @@ mindmap
       4.3 Dịch và TTS
       4.4 REST controller<br/>middleware bảo mật
       4.5 Kiểm thử tự động
+      4.6 Thanh toán VietQR
     5 CMS web
       5.1 Đăng nhập, API client
       5.2 POI có chọn vị trí<br/>trên bản đồ
@@ -102,6 +103,7 @@ mindmap
       5.4 Tạo, in mã QR
       5.5 Tour có lộ trình
       5.6 Thống kê, bản đồ nhiệt<br/>xuất Excel/PDF
+      5.7 Đối chiếu thanh toán
 ```
 *Hình: WBS phần 2, nhánh 4 và 5*
 
@@ -120,12 +122,14 @@ mindmap
     7 Kiểm thử
       7.1 Kế hoạch, ca kiểm thử
       7.2 Đơn vị và API
-      7.3 Hệ thống CMS, ứng dụng
-      7.4 Thực địa POI, trạm xe buýt
+      7.3 Hệ thống CMS
+      7.4 Ứng dụng trên thiết bị
+      7.5 Thực địa POI, trạm xe buýt
     8 Triển khai, tài liệu
       8.1 Máy chủ HTTPS, sao lưu
       8.2 Cài đặt, sử dụng
       8.3 Báo cáo cuối kỳ, demo
+      8.4 Website công khai<br/>tên miền riêng
 ```
 *Hình: WBS phần 3, nhánh 6 đến 8*
 
@@ -149,6 +153,7 @@ mindmap
    4.3 Nhà cung cấp dịch và TTS
    4.4 REST controller, middleware bảo mật
    4.5 Kiểm thử tự động
+   4.6 Thanh toán VietQR cho điểm có phí
 5  CMS web
    5.1 Đăng nhập và API client
    5.2 Quản lý POI có chọn vị trí trên bản đồ
@@ -156,6 +161,7 @@ mindmap
    5.4 Tạo và in mã QR
    5.5 Quản lý tour có đường lộ trình trên bản đồ
    5.6 Bảng thống kê, bản đồ nhiệt, xuất Excel/PDF
+   5.7 Trang đối chiếu thanh toán
 6  Ứng dụng di động
    6.1 Lớp nội dung ngoại tuyến và đồng bộ
    6.2 Dịch vụ vị trí (tiền cảnh và nền)
@@ -167,13 +173,69 @@ mindmap
 7  Kiểm thử
    7.1 Kế hoạch kiểm thử và ca kiểm thử
    7.2 Kiểm thử đơn vị và kiểm thử API
-   7.3 Kiểm thử hệ thống (CMS, ứng dụng)
-   7.4 Kiểm thử thực địa tại POI và trạm xe buýt
+   7.3 Kiểm thử hệ thống CMS
+   7.4 Kiểm thử ứng dụng trên thiết bị Android và iOS
+   7.5 Kiểm thử thực địa tại POI và trạm xe buýt
 8  Triển khai và tài liệu
    8.1 Triển khai lên máy chủ (HTTPS, sao lưu)
    8.2 Hướng dẫn cài đặt, hướng dẫn sử dụng
    8.3 Báo cáo cuối kỳ và demo
+   8.4 Website công khai và tên miền riêng (QR mở /q/<mã>)
 ```
+
+### Phân công theo hạng mục WBS
+
+Mỗi hạng mục WBS là 1 issue trên GitHub, gắn người phụ trách (assignee), nhãn theo phần việc và milestone M1–M5. Hạng mục xong thì issue được đóng kèm commit/PR làm bằng chứng. Hiện có 39 hạng mục: 33 hoàn thành, 6 đang làm.
+
+| WBS | Hạng mục | Người phụ trách | Issue | Trạng thái |
+|---|---|---|---|---|
+| 1.1 | Lập kế hoạch, lịch trình, theo dõi rủi ro | AiraLeFatale | [#10](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/10) | Hoàn thành |
+| 1.2 | Họp hằng tuần và báo cáo tiến độ | AiraLeFatale | [#11](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/11) | Đang làm |
+| 2.1 | Phác thảo kiến trúc (README) | AiraLeFatale | [#12](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/12) | Hoàn thành |
+| 2.2 | Các ca sử dụng trọng tâm UC1–UC5 | AiraLeFatale | [#13](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/13) | Hoàn thành |
+| 2.3 | SRS (FR/NFR, quy tắc nghiệp vụ, truy vết) | AiraLeFatale | [#14](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/14) | Hoàn thành |
+| 3.1 | Thiết kế kiến trúc và triển khai | hungphamwp | [#15](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/15) | Hoàn thành |
+| 3.2 | Thiết kế cơ sở dữ liệu (ERD, schema) | hungphamwp | [#16](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/16) | Hoàn thành |
+| 3.3 | Hợp đồng REST API | hungphamwp | [#17](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/17) | Hoàn thành |
+| 3.4 | Thiết kế bộ máy geofence và bộ máy thuyết minh | hungphamwp | [#18](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/18) | Hoàn thành |
+| 3.5 | Thiết kế giao diện (màn hình CMS, màn hình ứng dụng) | duyttg144-cyber, hungphamwp | [#19](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/19) | Hoàn thành |
+| 4.1 | Backend: lớp dữ liệu (schema, repository, dữ liệu mẫu) | hungphamwp | [#20](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/20) | Hoàn thành |
+| 4.2 | Backend: service (POI, tour, QR, đồng bộ, nhật ký, thống kê, xác thực) | hungphamwp | [#21](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/21) | Hoàn thành |
+| 4.3 | Backend: nhà cung cấp dịch và TTS | hungphamwp | [#22](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/22) | Hoàn thành |
+| 4.4 | Backend: REST controller, middleware bảo mật | hungphamwp | [#23](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/23) | Hoàn thành |
+| 4.5 | Backend: kiểm thử tự động | hungphamwp, AiraLeFatale | [#24](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/24) | Hoàn thành |
+| 4.6 | Backend: thanh toán VietQR cho điểm có phí | hungphamwp | [#25](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/25) | Hoàn thành |
+| 5.1 | CMS: đăng nhập và API client | duyttg144-cyber | [#26](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/26) | Hoàn thành |
+| 5.2 | CMS: quản lý POI có chọn vị trí trên bản đồ | duyttg144-cyber | [#27](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/27) | Hoàn thành |
+| 5.3 | CMS: tab bản dịch, dịch tự động, TTS, tải lên audio | duyttg144-cyber | [#28](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/28) | Hoàn thành |
+| 5.4 | CMS: tạo và in mã QR | duyttg144-cyber | [#29](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/29) | Hoàn thành |
+| 5.5 | CMS: quản lý tour có đường lộ trình trên bản đồ | duyttg144-cyber | [#30](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/30) | Hoàn thành |
+| 5.6 | CMS: bảng thống kê, bản đồ nhiệt, xuất Excel/PDF | duyttg144-cyber | [#31](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/31) | Hoàn thành |
+| 5.7 | CMS: trang đối chiếu thanh toán | duyttg144-cyber | [#32](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/32) | Hoàn thành |
+| 6.1 | Mobile: lớp nội dung ngoại tuyến và đồng bộ | hungphamwp | [#33](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/33) | Hoàn thành |
+| 6.2 | Mobile: dịch vụ vị trí (tiền cảnh và nền) | hungphamwp | [#34](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/34) | Hoàn thành |
+| 6.3 | Mobile: bộ máy geofence | hungphamwp | [#35](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/35) | Hoàn thành |
+| 6.4 | Mobile: bộ máy thuyết minh (audio, TTS trên máy, thời gian chờ phát lại) | hungphamwp | [#36](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/36) | Hoàn thành |
+| 6.5 | Mobile: trình quét QR | hungphamwp | [#37](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/37) | Hoàn thành |
+| 6.6 | Mobile: hàng đợi nhật ký và gửi lên máy chủ | hungphamwp | [#38](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/38) | Hoàn thành |
+| 6.7 | Mobile: giao diện bản đồ, danh sách, tour, cài đặt; chế độ mô phỏng vị trí | hungphamwp | [#39](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/39) | Hoàn thành |
+| 7.1 | Kế hoạch kiểm thử và ca kiểm thử | AiraLeFatale | [#40](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/40) | Hoàn thành |
+| 7.2 | Kiểm thử đơn vị và kiểm thử API | AiraLeFatale, hungphamwp | [#41](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/41) | Hoàn thành |
+| 7.3 | Kiểm thử hệ thống CMS | duyttg144-cyber | [#42](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/42) | Đang làm |
+| 7.4 | Kiểm thử ứng dụng trên thiết bị Android và iOS | duyttg144-cyber, hungphamwp | [#43](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/43) | Đang làm |
+| 7.5 | Kiểm thử thực địa tại POI và trạm xe buýt | AiraLeFatale, duyttg144-cyber | [#44](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/44) | Đang làm |
+| 8.1 | Triển khai lên máy chủ (HTTPS, sao lưu) | hungphamwp | [#45](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/45) | Đang làm |
+| 8.2 | Hướng dẫn cài đặt, hướng dẫn sử dụng | duyttg144-cyber | [#46](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/46) | Hoàn thành |
+| 8.3 | Báo cáo cuối kỳ và demo | AiraLeFatale, hungphamwp, duyttg144-cyber | [#47](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/47) | Đang làm |
+| 8.4 | Website công khai và tên miền riêng (QR mở /q/<mã>) | hungphamwp | [#48](https://github.com/AiraLeFatale/CongNghePhanMem_Project/issues/48) | Hoàn thành |
+
+Số hạng mục theo người phụ trách (1 hạng mục có thể nhiều người):
+
+| Thành viên | Số hạng mục | Phần chính |
+|---|---|---|
+| AiraLeFatale | 10 | Quản lý dự án, yêu cầu, kế hoạch kiểm thử, kiểm thử thực địa, báo cáo |
+| hungphamwp | 23 | Thiết kế, backend, ứng dụng di động, triển khai |
+| duyttg144-cyber | 13 | Giao diện và chức năng CMS, kiểm thử hệ thống CMS, kiểm thử thiết bị, hướng dẫn sử dụng |
 
 ## 3. Tiến độ và các mốc
 
@@ -186,12 +248,16 @@ mindmap
 | 18/10/2026 | SRS, thiết kế, kế hoạch kiểm thử (test plan), hướng dẫn cài đặt và hướng dẫn sử dụng (bộ tài liệu này), đã đối chiếu với code | Hoàn thành |
 | đến 18/10/2026 | Bản tăng trưởng CMS: đủ các trang, 36 kiểm thử đơn vị Đạt, chạy E2E trên trình duyệt với backend thật | Hoàn thành (còn phải kiểm tra hộp thoại in, giao diện đổi mật khẩu và bản build production) |
 | đến 18/10/2026 | Bản tăng trưởng mobile: đủ các mô-đun, 62 kiểm thử đơn vị + 5 kiểm thử với backend thật Đạt, kiểm tra kiểu, expo-doctor và xuất bundle không lỗi | Hoàn thành về code; chưa chạy trên thiết bị |
-| Chưa xác định | Kiểm thử ứng dụng trên thiết bị (các ca Chờ thiết bị trong kế hoạch kiểm thử) trên Android và iOS | Chưa bắt đầu |
-| Chưa xác định | Kiểm thử thực địa FT-01 đến FT-09 tại POI và trạm xe buýt thật | Chưa bắt đầu |
-| Chưa xác định | Triển khai lên máy chủ có HTTPS | Chưa bắt đầu |
-| Chưa xác định | Báo cáo cuối kỳ và demo | Chưa bắt đầu |
+| 27/10/2026 | CI GitHub Actions chạy test backend và CMS, bổ sung kiểm thử dịch vụ dịch, QR, lưu trữ CMS (PR #8, #9) | Hoàn thành |
+| 01/11/2026 | Triển khai lên máy chủ có HTTPS (https://thuyetminh.hmarketing.vn), website công khai, thanh toán VietQR | Hoàn thành (còn xác nhận sao lưu hằng ngày, đổi mật khẩu admin: #45) |
+| 16/11/2026 | Phân công vai trò và giao issue theo từng hạng mục WBS (#10–#48) | Hoàn thành |
+| Chưa xác định | Kiểm thử ứng dụng trên thiết bị Android và iOS (các ca Chờ thiết bị trong kế hoạch kiểm thử): #43 | Chưa bắt đầu |
+| Chưa xác định | Kiểm thử thực địa FT-01 đến FT-09 tại POI và trạm xe buýt thật: #44 | Chưa bắt đầu |
+| Chưa xác định | Báo cáo cuối kỳ và demo: #47 | Chưa bắt đầu |
 
 Các ngày "Chưa xác định" sẽ do nhóm ấn định dựa theo hạn nộp đồ án.
+
+Trên GitHub, các mốc được gom thành 5 milestone: M1 Yêu cầu và thiết kế (28/09), M2 Bản tăng trưởng backend, CMS, mobile (18/10), M3 Triển khai và website công khai (01/11), M4 Kiểm thử thiết bị và thực địa, M5 Báo cáo cuối kỳ và demo.
 
 ```mermaid
 %%{init: {"theme":"base","fontFamily":"Helvetica Neue, Arial, sans-serif","themeVariables":{"fontFamily":"Helvetica Neue, Arial, sans-serif","fontSize":"15px","primaryColor":"#EFF6FF","primaryBorderColor":"#3B82F6","primaryTextColor":"#0F172A","lineColor":"#64748B","secondaryColor":"#F0FDF4","tertiaryColor":"#FFFFFF","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","edgeLabelBackground":"#FFFFFF","noteBkgColor":"#FEF9C3","noteBorderColor":"#EAB308","actorBkg":"#DBEAFE","actorBorder":"#2563EB","actorTextColor":"#1E3A8A","signalColor":"#475569","signalTextColor":"#0F172A","labelBoxBkgColor":"#F1F5F9","labelBoxBorderColor":"#94A3B8","activationBkgColor":"#E0F2FE","activationBorderColor":"#0284C7","sequenceNumberColor":"#FFFFFF","pie1":"#16A34A","pie2":"#F59E0B","pie3":"#94A3B8","pie4":"#DC2626","pie5":"#2563EB","pie6":"#7C3AED","pieStrokeColor":"#FFFFFF","pieSectionTextColor":"#FFFFFF","quadrant1Fill":"#FEE2E2","quadrant2Fill":"#FEF3C7","quadrant3Fill":"#DCFCE7","quadrant4Fill":"#FEF3C7","quadrantPointFill":"#1E3A8A","quadrantPointTextFill":"#0F172A","git0":"#1E3A8A","gitBranchLabel0":"#FFFFFF","cScale0":"#DBEAFE","cScale1":"#DCFCE7","cScale2":"#EDE9FE","cScale3":"#FEF3C7","cScale4":"#FFE4E6","cScale5":"#E0F2FE","cScale6":"#F1F5F9"},"flowchart":{"curve":"basis","padding":16,"nodeSpacing":40,"rankSpacing":50},"sequence":{"showSequenceNumbers":true,"mirrorActors":false}}}%%
@@ -207,6 +273,10 @@ gantt
     Hoàn thành code backend, CMS và ứng dụng :milestone, m3, 2026-10-18, 0d
     section Tài liệu
     Bộ tài liệu v1.0               :milestone, m4, 2026-10-18, 0d
+    section Triển khai
+    CI và kiểm thử bổ sung         :milestone, m5, 2026-10-27, 0d
+    HTTPS, website công khai       :milestone, m6, 2026-11-01, 0d
+    Giao issue theo WBS            :milestone, m7, 2026-11-16, 0d
 ```
 
 Biểu đồ chỉ thể hiện các ngày có ghi nhận trong lịch sử kho mã hoặc trong tài liệu. Ngày bắt đầu làm backend không được ghi nhận trong kho mã chung nên không đưa vào.
