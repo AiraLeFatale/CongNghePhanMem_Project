@@ -1,4 +1,4 @@
-import { PHOTOS } from '../lib/photos';
+import { AI_PHOTOS, PHOTOS } from '../lib/photos';
 import { useLang, useT } from '../lib/i18n';
 import { useTitle } from '../lib/useContent';
 
@@ -9,7 +9,25 @@ export function CreditsPage() {
   return (
     <div className="wrap page-narrow section">
       <h1 className="page-title">{t({ vi: 'Nguồn ảnh', en: 'Photo credits' })}</h1>
-      <p className="lead">{t({ vi: 'Ảnh trên trang lấy từ Wikimedia Commons theo giấy phép mở của từng tác giả.', en: 'Photos come from Wikimedia Commons under each author’s open licence.' })}</p>
+      <p className="lead">
+        {t({
+          vi: 'Ảnh các điểm thuyết minh là ảnh minh hoạ tạo bằng AI, không phải ảnh chụp thật. Ảnh tư liệu bên dưới lấy từ Wikimedia Commons theo giấy phép mở của từng tác giả.',
+          en: 'Place images are AI-generated illustrations, not real photographs. The archive photos below come from Wikimedia Commons under each author’s open licence.',
+        })}
+      </p>
+      <h2 className="credits-h">{t({ vi: 'Ảnh minh hoạ AI', en: 'AI illustrations' })}</h2>
+      <ul className="credits">
+        {Object.values(AI_PHOTOS).map((p) => (
+          <li key={p.src}>
+            <img src={p.src} alt="" loading="lazy" />
+            <div>
+              <strong>{p.caption[ui]}</strong>
+              <span>{t({ vi: 'Tạo bằng AI cho đồ án', en: 'AI-generated for this project' })}</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <h2 className="credits-h">{t({ vi: 'Ảnh tư liệu (Wikimedia Commons)', en: 'Archive photos (Wikimedia Commons)' })}</h2>
       <ul className="credits">
         {Object.values(PHOTOS).map((p) => (
           <li key={p.src}>

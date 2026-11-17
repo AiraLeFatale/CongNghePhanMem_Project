@@ -11,7 +11,24 @@ export interface Photo {
   author: string;
   license: string;
   source: string;
+  /** Ảnh minh hoạ tạo bằng AI (không phải ảnh chụp thật). */
+  ai?: boolean;
 }
+
+function ai(file: string, vi: string, en: string): Photo {
+  return { src: `/images/ai/${file}.jpg`, caption: { vi, en }, author: '', license: '', source: '', ai: true };
+}
+
+/** Ảnh minh hoạ AI cùng tông sáng với giao diện, dùng cho các điểm thuyết minh. */
+export const AI_PHOTOS = {
+  'nha-rong': ai('hero-nha-rong', 'Bến Nhà Rồng – Bảo tàng Hồ Chí Minh (ảnh minh hoạ AI)', 'Nha Rong Wharf – Ho Chi Minh Museum (AI illustration)'),
+  'cau-mong': ai('cau-mong', 'Cầu Mống bắc qua kênh Bến Nghé (ảnh minh hoạ AI)', 'Mong Bridge over the Ben Nghe canal (AI illustration)'),
+  'cau-khanh-hoi': ai('cau-khanh-hoi', 'Cầu Khánh Hội nối Quận 4 với Quận 1 (ảnh minh hoạ AI)', 'Khanh Hoi Bridge (AI illustration)'),
+  'cang-sai-gon': ai('cang-sai-gon', 'Cảng Sài Gòn khu Khánh Hội (ảnh minh hoạ AI)', 'Saigon Port at Khanh Hoi (AI illustration)'),
+  'xom-chieu': ai('xom-chieu', 'Nhà thờ Xóm Chiếu, cạnh chợ Xóm Chiếu (ảnh minh hoạ AI)', 'Xom Chieu Church by the market (AI illustration)'),
+  'vinh-khanh': ai('pho-am-thuc', 'Phố ẩm thực Vĩnh Khánh lúc lên đèn (ảnh minh hoạ AI)', 'Vinh Khanh food street at dusk (AI illustration)'),
+  'tram-xe-buyt': ai('tram-xe-buyt', 'Trạm xe buýt có mã QR (ảnh minh hoạ AI)', 'Bus stop with a QR code (AI illustration)'),
+} satisfies Record<string, Photo>;
 
 export const PHOTOS: Record<string, Photo> = {
   'nha-rong': {
@@ -79,16 +96,18 @@ export const PHOTOS: Record<string, Photo> = {
   },
 };
 
-const BY_NAME: [RegExp, keyof typeof PHOTOS][] = [
-  [/nhà rồng/i, 'nha-rong'],
-  [/cầu mống/i, 'cau-mong'],
-  [/cầu khánh hội/i, 'cau-khanh-hoi'],
-  [/cảng/i, 'cang-khanh-hoi'],
-  [/xóm chiếu/i, 'xom-chieu'],
+const BY_NAME: [RegExp, Photo][] = [
+  [/nhà rồng/i, AI_PHOTOS['nha-rong']],
+  [/cầu mống/i, AI_PHOTOS['cau-mong']],
+  [/cầu khánh hội/i, AI_PHOTOS['cau-khanh-hoi']],
+  [/cảng/i, AI_PHOTOS['cang-sai-gon']],
+  [/vĩnh khánh/i, AI_PHOTOS['vinh-khanh']],
+  [/xóm chiếu/i, AI_PHOTOS['xom-chieu']],
+  [/trạm xe buýt/i, AI_PHOTOS['tram-xe-buyt']],
 ];
 
 export function poiPhoto(poi: Pick<Poi, 'name' | 'image_url'>): Photo | null {
   if (poi.image_url) return { src: poi.image_url, caption: { vi: poi.name, en: poi.name }, author: '', license: '', source: '' };
   const hit = BY_NAME.find(([re]) => re.test(poi.name));
-  return hit ? PHOTOS[hit[1]] : null;
+  return hit ? hit[1] : null;
 }
