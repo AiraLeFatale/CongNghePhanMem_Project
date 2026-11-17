@@ -25,7 +25,7 @@ export function GuidePage() {
       <h1 className="page-title">{t({ vi: 'Hướng dẫn sử dụng', en: 'How it works' })}</h1>
       <p className="lead">
         {t({
-          vi: 'Có ba cách nghe thuyết minh: quét mã QR, mở website hoặc dùng ứng dụng. Cả ba đều miễn phí và không cần tài khoản.',
+          vi: 'Có 3 cách nghe thuyết minh: quét mã QR, mở website hoặc dùng ứng dụng. Cả 3 cách đều miễn phí và không cần tài khoản.',
           en: 'There are three ways to listen: scan a QR code, open the website or use the app. All are free and need no account.',
         })}
       </p>
@@ -100,7 +100,7 @@ export function GuidePage() {
             <h2>{t(TOC[2])}</h2>
             <p>
               {t({
-                vi: 'Ứng dụng tải sẵn toàn bộ nội dung khi có mạng, sau đó dùng được cả khi mất sóng. Khi bạn đi vào vòng bán kính của một điểm, thuyết minh tự phát; nếu hai điểm chồng nhau, điểm có mức ưu tiên cao hơn được phát trước.',
+                vi: 'Ứng dụng tải sẵn toàn bộ nội dung khi có mạng, sau đó dùng được cả khi mất sóng. Khi bạn đi vào vòng bán kính của một điểm, thuyết minh tự phát; nếu 2 điểm chồng nhau, điểm có mức ưu tiên cao hơn được phát trước.',
                 en: 'The app downloads all content while online and then works offline. Walk into a place’s radius and narration starts; if two places overlap, the higher-priority one plays first.',
               })}
             </p>

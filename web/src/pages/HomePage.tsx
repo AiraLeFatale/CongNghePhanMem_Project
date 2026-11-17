@@ -175,7 +175,7 @@ export function HomePage() {
 
       <section className="hs-ways">
         <div className="wrap">
-          <h2 className="hs-h2">{t({ vi: 'Ba cách để nghe', en: 'Three ways to listen' })}</h2>
+          <h2 className="hs-h2">{t({ vi: '3 cách để nghe', en: '3 ways to listen' })}</h2>
           <ol className="hs-ways-list">
             <li>
               <QrCode size={26} aria-hidden="true" />

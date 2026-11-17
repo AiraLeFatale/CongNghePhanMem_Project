@@ -52,7 +52,7 @@ export function Layout() {
       </main>
       <footer className="footer">
         <div className="wrap footer-grid">
-          <div>
+          <div className="footer-brand">
             <Link to="/" className="logo logo-footer">
               <img src="/logo.png" alt="Thuyết minh Quận 4" className="logo-img" width={381} height={150} loading="lazy" />
             </Link>
@@ -62,8 +62,13 @@ export function Layout() {
                 en: 'Automatic multilingual narration for visitors and bus passengers in Khanh Hoi, Vinh Hoi and Xom Chieu wards.',
               })}
             </p>
+            <ul className="footer-badges">
+              <li>{t({ vi: 'Miễn phí', en: 'Free' })}</li>
+              <li>{t({ vi: '6 ngôn ngữ', en: '6 languages' })}</li>
+              <li>{t({ vi: 'Không cần tài khoản', en: 'No sign-up' })}</li>
+            </ul>
           </div>
-          <div>
+          <nav aria-label={t({ vi: 'Khám phá', en: 'Explore' })}>
             <h2>{t({ vi: 'Khám phá', en: 'Explore' })}</h2>
             <ul>
               <li>
@@ -72,14 +77,28 @@ export function Layout() {
               <li>
                 <Link to="/tour">{t({ vi: 'Tour gợi ý', en: 'Tours' })}</Link>
               </li>
-            </ul>
-          </div>
-          <div>
-            <h2>{t({ vi: 'Hỗ trợ', en: 'Help' })}</h2>
-            <ul>
               <li>
                 <Link to="/huong-dan">{t({ vi: 'Hướng dẫn sử dụng', en: 'How it works' })}</Link>
               </li>
+            </ul>
+          </nav>
+          <nav aria-label={t({ vi: '3 cách nghe', en: '3 ways to listen' })}>
+            <h2>{t({ vi: '3 cách nghe', en: '3 ways to listen' })}</h2>
+            <ul>
+              <li>
+                <Link to="/huong-dan#quet-qr">{t({ vi: 'Quét mã QR tại trạm xe buýt', en: 'Scan the QR at a bus stop' })}</Link>
+              </li>
+              <li>
+                <Link to="/huong-dan#ung-dung">{t({ vi: 'Tự phát bằng ứng dụng', en: 'Auto-play with the app' })}</Link>
+              </li>
+              <li>
+                <Link to="/huong-dan#nghe-tren-web">{t({ vi: 'Nghe ngay trên web', en: 'Listen on the web' })}</Link>
+              </li>
+            </ul>
+          </nav>
+          <nav aria-label={t({ vi: 'Hỗ trợ', en: 'Help' })}>
+            <h2>{t({ vi: 'Hỗ trợ', en: 'Help' })}</h2>
+            <ul>
               <li>
                 <Link to="/huong-dan#cau-hoi">{t({ vi: 'Câu hỏi thường gặp', en: 'FAQ' })}</Link>
               </li>
@@ -90,10 +109,12 @@ export function Layout() {
                 <Link to="/nguon-anh">{t({ vi: 'Nguồn ảnh', en: 'Photo credits' })}</Link>
               </li>
             </ul>
-          </div>
+          </nav>
         </div>
         <div className="wrap footer-bottom">
-          <span>{t({ vi: 'Đồ án môn Công nghệ phần mềm', en: 'Software Engineering course project' })}</span>
+          <span>
+            © 2026 Thuyết minh Quận 4 · {t({ vi: 'Đồ án môn Công nghệ phần mềm', en: 'Software Engineering course project' })}
+          </span>
           <span>{t({ vi: 'Bản đồ: © OpenStreetMap', en: 'Map data: © OpenStreetMap' })}</span>
         </div>
       </footer>
