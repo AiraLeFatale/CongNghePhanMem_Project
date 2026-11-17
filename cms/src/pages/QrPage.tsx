@@ -75,8 +75,8 @@ export function QrPage() {
     <>
       <div className="no-print">
         <PageHeader
-          title="Mã QR"
-          subtitle="Mã QR dán tại trạm xe buýt: hành khách quét để nghe thuyết minh của điểm gần đó"
+          title="Mã QR trạm xe"
+          subtitle="Dán tại trạm xe buýt, hành khách quét để nghe thuyết minh của điểm gần đó"
           actions={
             <button type="button" className="btn btn-primary" onClick={print} disabled={!data || toPrint.length === 0}>
               <Icon name="print" /> In bảng mã ({toPrint.length})

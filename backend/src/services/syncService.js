@@ -1,4 +1,5 @@
 import { config } from '../config.js';
+import { lockPoi } from './paymentService.js';
 
 export function createSyncService(repos) {
   return {
@@ -10,7 +11,9 @@ export function createSyncService(repos) {
         generated_at: new Date().toISOString(),
         default_language: config.defaultLanguage,
         languages: config.languages,
-        pois: repos.pois.listWithTranslations().map(({ created_at, ...p }) => p),
+        // Điểm có phí chỉ gửi đoạn nghe thử; nội dung đầy đủ lấy qua /api/pois/:id/full sau khi thanh toán
+        pois: repos.pois.listWithTranslations().map(({ created_at, ...p }) => lockPoi(p)),
+        payment_enabled: !!config.payment.account,
         tours: repos.tours.listWithPois(),
         // Cho phép app nhận diện QR khi không có mạng (UC2 E2)
         qrcodes: repos.qrcodes.listAll().map((q) => ({ payload: q.payload, poi_id: q.poi_id, label: q.label })),

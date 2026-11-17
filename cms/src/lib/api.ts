@@ -1,17 +1,5 @@
 import { tokenStore } from './storage';
-import type {
-  AdminUser,
-  AnalyticsQuery,
-  AnalyticsReport,
-  LanguageCode,
-  Poi,
-  PoiInput,
-  PoiListItem,
-  QrCode,
-  Tour,
-  TourInput,
-  TourListItem,
-} from './types';
+import type {AdminUser,   AnalyticsQuery,   AnalyticsReport,   LanguageCode,   Poi,   PoiInput,   PoiListItem,   QrCode,   Tour,   TourInput,   TourListItem, OrderList, PaymentOrder, AutoStatus } from './types';
 
 /** Lỗi thống nhất từ API: `{ error: { code, message, details } }`. */
 export class ApiError extends Error {
@@ -137,6 +125,8 @@ export function createApiClient(opts: ApiClientOptions = {}) {
     },
     removeAudio: (id: number, lang: LanguageCode) => del<Poi>(`/admin/pois/${id}/audio/${lang}`),
     generateTts: (id: number, lang: LanguageCode) => post<Poi>(`/admin/pois/${id}/tts/${lang}`),
+    autoStatus: (id: number) => get<AutoStatus>(`/admin/pois/${id}/auto`),
+    autoRun: (id: number) => post<AutoStatus>(`/admin/pois/${id}/auto`),
     uploadImage: (file: File) => {
       const fd = new FormData();
       fd.append('image', file);
@@ -155,6 +145,10 @@ export function createApiClient(opts: ApiClientOptions = {}) {
     createTour: (input: TourInput) => post<Tour>('/admin/tours', input),
     updateTour: (id: number, input: TourInput) => put<Tour>(`/admin/tours/${id}`, input),
     deleteTour: (id: number) => del<null>(`/admin/tours/${id}`),
+    // Thanh toán điểm có phí
+    listOrders: (status?: string) => get<OrderList>(`/admin/orders${buildQuery({ status })}`),
+    confirmOrder: (id: number) => post<PaymentOrder>(`/admin/orders/${id}/confirm`),
+    cancelOrder: (id: number) => post<PaymentOrder>(`/admin/orders/${id}/cancel`),
     // Thống kê
     analytics: (q: AnalyticsQuery) =>
       get<AnalyticsReport>(`/admin/analytics${buildQuery({ from: q.from, to: q.to, tour_id: q.tour_id ?? undefined })}`),

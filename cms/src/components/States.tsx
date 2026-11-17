@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router';
+import { Icon } from './Icon';
 
 export function Spinner({ small = false }: { small?: boolean }) {
   return <span className={`spinner${small ? ' spinner-sm' : ''}`} aria-hidden="true" />;
@@ -17,7 +19,7 @@ export function EmptyState({ title, children, action }: { title: string; childre
   return (
     <div className="state state-empty">
       <div className="state-icon" aria-hidden="true">
-        ∅
+        <Icon name="file" size={20} />
       </div>
       <h3>{title}</h3>
       {children && <p>{children}</p>}
@@ -30,7 +32,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
   return (
     <div className="state state-error" role="alert">
       <div className="state-icon" aria-hidden="true">
-        !
+        <Icon name="warning" size={20} />
       </div>
       <h3>Không tải được dữ liệu</h3>
       <p>{message}</p>
@@ -43,10 +45,30 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
   );
 }
 
-export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: ReactNode; actions?: ReactNode }) {
+export function PageHeader({
+  title,
+  subtitle,
+  actions,
+  crumbs,
+}: {
+  title: string;
+  subtitle?: ReactNode;
+  actions?: ReactNode;
+  crumbs?: { to: string; label: string }[];
+}) {
   return (
     <div className="page-header">
-      <div>
+      <div className="page-heading">
+        {crumbs && crumbs.length > 0 && (
+          <nav aria-label="Vị trí trang" className="crumbs">
+            {crumbs.map((c) => (
+              <span key={c.to}>
+                <Link to={c.to}>{c.label}</Link>
+                <Icon name="caret" size={12} />
+              </span>
+            ))}
+          </nav>
+        )}
         <h1>{title}</h1>
         {subtitle && <p className="page-subtitle">{subtitle}</p>}
       </div>

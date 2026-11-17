@@ -2,7 +2,7 @@ import { config } from '../config.js';
 
 export function createPublicController(s) {
   return {
-    health: (_req, res) => res.json({ status: 'ok', time: new Date().toISOString() }),
+    health: (_req, res) => res.json({ status: 'ok', version: process.env.APP_VERSION || 'dev', time: new Date().toISOString() }),
     languages: (_req, res) => res.json({ default: config.defaultLanguage, languages: config.languages }),
     syncVersion: (_req, res) => res.json(s.sync.version()),
     sync: (_req, res) => res.json(s.sync.snapshot()),

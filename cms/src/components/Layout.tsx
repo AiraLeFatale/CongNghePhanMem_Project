@@ -3,18 +3,37 @@ import { NavLink, Outlet, useLocation } from 'react-router';
 import { useAuth } from '../auth/AuthContext';
 import { Icon } from './Icon';
 
-const NAV = [
-  { to: '/', label: 'Tổng quan', icon: 'home', end: true },
-  { to: '/pois', label: 'Điểm thuyết minh', icon: 'pin' },
-  { to: '/tours', label: 'Tour tham quan', icon: 'route' },
-  { to: '/qr', label: 'Mã QR', icon: 'qr' },
-  { to: '/analytics', label: 'Thống kê', icon: 'chart' },
+const NAV_GROUPS: { title?: string; items: { to: string; label: string; icon: string; end?: boolean }[] }[] = [
+  { items: [{ to: '/', label: 'Tổng quan', icon: 'home', end: true }] },
+  {
+    title: 'Nội dung',
+    items: [
+      { to: '/pois', label: 'Điểm thuyết minh', icon: 'pin' },
+      { to: '/tours', label: 'Tour tham quan', icon: 'route' },
+      { to: '/qr', label: 'Mã QR trạm xe', icon: 'qr' },
+    ],
+  },
+  {
+    title: 'Báo cáo',
+    items: [
+      { to: '/analytics', label: 'Thống kê sử dụng', icon: 'chart' },
+      { to: '/orders', label: 'Thanh toán', icon: 'wallet' },
+    ],
+  },
 ];
+
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/);
+  const first = parts.length > 1 ? parts[0] : '';
+  const last = parts[parts.length - 1] ?? '';
+  return ((first[0] ?? '') + (last[0] ?? '')).toUpperCase() || '?';
+}
 
 export function Layout() {
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const displayName = user?.full_name || user?.username || 'Tài khoản';
 
   useEffect(() => setOpen(false), [location.pathname]);
 
@@ -32,40 +51,49 @@ export function Layout() {
           aria-controls="sidebar"
           onClick={() => setOpen((v) => !v)}
         >
-          <Icon name={open ? 'x' : 'menu'} size={22} />
+          <Icon name={open ? 'x' : 'menu'} size={20} />
         </button>
         <span className="brand-text">Thuyết minh Quận 4</span>
       </header>
       <aside id="sidebar" className="sidebar">
         <div className="brand">
           <span className="brand-mark" aria-hidden="true">
-            <Icon name="speaker" size={20} />
+            <Icon name="speaker" size={15} weight="fill" />
           </span>
-          <span>
+          <span className="brand-name">
             <strong>Thuyết minh Quận 4</strong>
-            <small>Hệ thống quản trị nội dung</small>
+            <small>Quản trị nội dung</small>
           </span>
         </div>
-        <nav aria-label="Điều hướng chính">
-          <ul className="nav">
-            {NAV.map((n) => (
-              <li key={n.to}>
-                <NavLink to={n.to} end={n.end} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-                  <Icon name={n.icon} />
-                  <span>{n.label}</span>
-                </NavLink>
-              </li>
-            ))}
-          </ul>
+        <nav aria-label="Điều hướng chính" className="nav-groups">
+          {NAV_GROUPS.map((g, i) => (
+            <div key={i} className="nav-group">
+              {g.title && <p className="nav-heading">{g.title}</p>}
+              <ul className="nav">
+                {g.items.map((n) => (
+                  <li key={n.to}>
+                    <NavLink to={n.to} end={n.end} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+                      <Icon name={n.icon} size={17} />
+                      <span>{n.label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </nav>
         <div className="sidebar-footer">
-          <NavLink to="/account" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-            <Icon name="user" />
-            <span className="truncate">{user?.full_name || user?.username || 'Tài khoản'}</span>
+          <NavLink to="/account" className={({ isActive }) => `user-chip${isActive ? ' active' : ''}`}>
+            <span className="avatar" aria-hidden="true">
+              {initials(displayName)}
+            </span>
+            <span className="user-meta">
+              <span className="truncate">{displayName}</span>
+              {user?.username && <small className="truncate">{user.username}</small>}
+            </span>
           </NavLink>
-          <button type="button" className="nav-link nav-button" onClick={logout}>
-            <Icon name="logout" />
-            <span>Đăng xuất</span>
+          <button type="button" className="icon-btn" onClick={logout} aria-label="Đăng xuất" title="Đăng xuất">
+            <Icon name="logout" size={17} />
           </button>
         </div>
       </aside>

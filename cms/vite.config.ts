@@ -8,6 +8,8 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const target = env.DEV_PROXY_TARGET || 'http://localhost:4000';
   return {
+    // Khi deploy chung tên miền với website, CMS nằm ở /admin/ (đặt CMS_BASE=/admin/ lúc build)
+    base: env.CMS_BASE || '/',
     plugins: [react()],
     server: {
       port: 5173,

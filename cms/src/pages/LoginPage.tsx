@@ -47,11 +47,11 @@ export function LoginPage() {
       <form className="login-card" onSubmit={onSubmit} noValidate aria-describedby={error ? 'login-error' : undefined}>
         <div className="login-brand">
           <span className="brand-mark brand-mark-lg" aria-hidden="true">
-            <Icon name="speaker" size={26} />
+            <Icon name="speaker" size={20} weight="fill" />
           </span>
           <div>
-            <h1>Thuyết minh tự động Quận 4</h1>
-            <p>Đăng nhập trang quản trị nội dung</p>
+            <h1>Đăng nhập</h1>
+            <p>Quản trị nội dung thuyết minh Quận 4</p>
           </div>
         </div>
         {error && (
@@ -70,7 +70,7 @@ export function LoginPage() {
         <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
           {busy && <Spinner small />} {busy ? 'Đang đăng nhập…' : 'Đăng nhập'}
         </button>
-        <p className="login-foot">Hệ thống thuyết minh đa ngôn ngữ cho khách du lịch và hành khách xe buýt.</p>
+        <p className="login-foot">Quên mật khẩu? Liên hệ quản trị viên hệ thống.</p>
       </form>
     </div>
   );

@@ -1,0 +1,10 @@
+[Unit]
+Description=Mỗi phút kiểm tra main có bản mới để triển khai
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+AccuracySec=10s
+
+[Install]
+WantedBy=timers.target

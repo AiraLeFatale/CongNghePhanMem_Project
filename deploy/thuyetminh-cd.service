@@ -1,0 +1,9 @@
+[Unit]
+Description=CD hệ thống thuyết minh: kéo bản main mới (CI xanh) về và chạy
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /opt/thuyetminh/cd/tu-trien-khai.sh
+TimeoutStartSec=900

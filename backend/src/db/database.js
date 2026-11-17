@@ -88,7 +88,49 @@ CREATE TABLE IF NOT EXISTS meta (
   value TEXT NOT NULL
 );
 INSERT OR IGNORE INTO meta (key, value) VALUES ('content_version', '1');
+
+-- Đơn mua quyền nghe một điểm có phí. Khách chuyển khoản VietQR với nội dung = code,
+-- quản trị viên đối chiếu sao kê rồi xác nhận. token chỉ trả cho người tạo đơn.
+CREATE TABLE IF NOT EXISTS payment_order (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT NOT NULL UNIQUE,
+  token TEXT NOT NULL UNIQUE,
+  poi_id INTEGER NOT NULL REFERENCES poi(id) ON DELETE CASCADE,
+  amount INTEGER NOT NULL CHECK (amount > 0),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'cancelled')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  paid_at TEXT,
+  confirmed_by INTEGER REFERENCES admin_user(id) ON DELETE SET NULL
+);
+CREATE INDEX IF NOT EXISTS idx_order_status ON payment_order(status, created_at);
+
+-- Giao dịch ngân hàng nhận qua webhook (SePay/Casso). Giữ lại để đối soát và không xử lý trùng.
+CREATE TABLE IF NOT EXISTS payment_txn (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  provider TEXT NOT NULL,
+  txn_id TEXT NOT NULL,
+  amount INTEGER NOT NULL,
+  content TEXT,
+  order_id INTEGER REFERENCES payment_order(id) ON DELETE SET NULL,
+  note TEXT,
+  received_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE (provider, txn_id)
+);
 `;
+
+/** Thêm cột mới cho DB tạo từ phiên bản cũ. */
+function migrate(db) {
+  const cols = db.prepare('PRAGMA table_info(poi)').all().map((c) => c.name);
+  if (!cols.includes('price')) db.exec('ALTER TABLE poi ADD COLUMN price INTEGER NOT NULL DEFAULT 0');
+  // Tự động hoá: bản dịch máy (is_auto) dịch từ bản tiếng Việt nào (source_hash), audio tạo từ chữ nào (audio_hash)
+  const tcols = db.prepare('PRAGMA table_info(poi_translation)').all().map((c) => c.name);
+  if (!tcols.includes('is_auto')) db.exec('ALTER TABLE poi_translation ADD COLUMN is_auto INTEGER NOT NULL DEFAULT 0');
+  if (!tcols.includes('source_hash')) db.exec('ALTER TABLE poi_translation ADD COLUMN source_hash TEXT');
+  // Khách bấm "Tôi đã chuyển khoản": mở khoá ngay, quản trị viên đối chiếu sau
+  const ocols = db.prepare('PRAGMA table_info(payment_order)').all().map((c) => c.name);
+  if (!ocols.includes('claimed_at')) db.exec('ALTER TABLE payment_order ADD COLUMN claimed_at TEXT');
+  if (!tcols.includes('audio_hash')) db.exec('ALTER TABLE poi_translation ADD COLUMN audio_hash TEXT');
+}
 
 export function openDatabase(file = config.dbFile) {
   if (file !== ':memory:') fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -96,6 +138,7 @@ export function openDatabase(file = config.dbFile) {
   db.exec('PRAGMA foreign_keys = ON;');
   if (file !== ':memory:') db.exec('PRAGMA journal_mode = WAL;');
   db.exec(SCHEMA);
+  migrate(db);
   return db;
 }
 

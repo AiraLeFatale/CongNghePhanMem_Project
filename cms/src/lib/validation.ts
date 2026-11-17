@@ -28,6 +28,8 @@ export interface PoiForm {
   longitude: string;
   radius_m: string;
   priority: string;
+  /** Phí nghe (đồng), rỗng hoặc 0 là miễn phí. */
+  price: string;
   image_url: string | null;
   translations: Record<LanguageCode, TranslationDraft>;
 }
@@ -47,6 +49,7 @@ export function emptyPoiForm(): PoiForm {
     longitude: '',
     radius_m: '80',
     priority: '1',
+    price: '0',
     image_url: null,
     translations: emptyTranslations(),
   };
@@ -66,6 +69,7 @@ export function poiToForm(p: Poi): PoiForm {
     longitude: String(p.longitude),
     radius_m: String(p.radius_m),
     priority: String(p.priority),
+    price: String(p.price ?? 0),
     image_url: p.image_url,
     translations,
   };
@@ -126,6 +130,10 @@ export function validatePoiForm(form: PoiForm): FieldErrors {
     errors.priority = 'Mức ưu tiên là số nguyên từ 0 đến 100';
   }
 
+  const price = parsePrice(form.price);
+  if (price === null || price < 0 || price > 500000) errors.price = 'Phí nghe là số nguyên từ 0 đến 500.000 đồng';
+  else if (price > 0 && price < 1000) errors.price = 'Tối thiểu 1.000 đồng, hoặc 0 nếu miễn phí';
+
   for (const code of LANGUAGE_CODES) {
     const t = form.translations[code];
     const text = t?.narration_text.trim() ?? '';
@@ -150,6 +158,7 @@ export function toPoiInput(form: PoiForm): PoiInput {
     longitude: parseNumber(form.longitude) as number,
     radius_m: Math.round(parseNumber(form.radius_m) as number),
     priority,
+    price: parsePrice(form.price) ?? 0,
     image_url: form.image_url || null,
     translations: filledLanguages(form).map((code) => ({
       language_code: code,
@@ -224,4 +233,11 @@ export function validateDateRange(from: string, to: string): string | null {
   if (!re.test(from) || !re.test(to)) return 'Chọn đầy đủ ngày bắt đầu và ngày kết thúc';
   if (from > to) return 'Ngày bắt đầu phải trước hoặc bằng ngày kết thúc';
   return null;
+}
+
+/** Phí nghe nhập kiểu "5.000", "5000" hoặc "5,000" → 5000. Rỗng là 0. */
+export function parsePrice(value: string): number | null {
+  const s = value.trim().replace(/[.,\s]/g, '').replace(/đ$/i, '');
+  if (s === '') return 0;
+  return /^\d+$/.test(s) ? Number(s) : null;
 }
