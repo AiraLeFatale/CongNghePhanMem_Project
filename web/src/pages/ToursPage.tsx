@@ -5,6 +5,9 @@ import { distanceM, useContent, useTitle } from '../lib/useContent';
 import { poiPhoto } from '../lib/photos';
 import type { Poi, SyncData, Tour } from '../lib/types';
 import { LoadError, Loading } from '../components/States';
+import { PageHero } from './PlacesPage';
+import '../home.css';
+import '../pages-mau.css';
 
 export function tourStops(tour: Tour, data: SyncData): Poi[] {
   return tour.poi_ids.map((id) => data.pois.find((p) => p.id === id)).filter((p): p is Poi => !!p);
@@ -55,18 +58,21 @@ export function ToursPage() {
   if (error) return <LoadError message={error} onRetry={retry} />;
   if (!data) return <Loading />;
   return (
-    <div className="wrap section">
-      <h1 className="page-title">{t({ vi: 'Tour gợi ý', en: 'Suggested tours' })}</h1>
-      <p className="lead">
-        {t({
+    <div className="hs pg">
+      <PageHero
+        eyebrow={t({ vi: 'Tour gợi ý', en: 'Suggested tours' })}
+        title={t({ vi: 'Dạo bộ theo lộ trình có sẵn', en: 'Walk a ready-made route' })}
+        lead={t({
           vi: 'Lộ trình đi bộ qua nhiều điểm theo thứ tự hợp lý. Thời gian ước tính gồm cả lúc dừng nghe.',
           en: 'Walking routes through several places in a sensible order. Times include stops to listen.',
         })}
-      </p>
-      <div className="tour-grid">
-        {data.tours.map((tour) => (
-          <TourCard key={tour.id} tour={tour} data={data} />
-        ))}
+      />
+      <div className="wrap">
+        <div className="tour-grid pg-tour-grid">
+          {data.tours.map((tour) => (
+            <TourCard key={tour.id} tour={tour} data={data} />
+          ))}
+        </div>
       </div>
     </div>
   );

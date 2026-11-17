@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router';
 import { ArrowRight, Buildings, DeviceMobile, Globe, Lightbulb, QrCode, Question, ShieldCheck, type Icon } from '@phosphor-icons/react';
 import { useT } from '../lib/i18n';
 import { useContent, useTitle } from '../lib/useContent';
-import { LeavesArt, PhoneArt, SkylineArt } from '../components/HomeArt';
 import { QrImage, qrLink } from '../components/StopQrList';
 import '../home.css';
 import '../pages-mau.css';
@@ -65,10 +64,7 @@ export function GuidePage() {
               ))}
             </ul>
           </nav>
-          <div className="gd-aside-art" aria-hidden="true">
-            <SkylineArt className="gd-aside-skyline" tone="#8fbfa4" />
-            <LeavesArt className="gd-aside-leaves" />
-          </div>
+          <img className="gd-aside-art" src="/images/ai/guide-aside.jpg" alt="" width={640} height={168} loading="lazy" />
         </aside>
 
         <div className="gd-main">
@@ -96,7 +92,7 @@ export function GuidePage() {
                   {t({ vi: 'Dùng điện thoại quét mã QR để bắt đầu nghe thuyết minh.', en: 'Scan the QR code with your phone to start listening.' })}
                   {sample && <small>{t({ vi: 'Mã thật, quét thử được ngay.', en: 'A real code, try it now.' })}</small>}
                 </p>
-                <PhoneArt className="gd-qr-phone" />
+                <img className="gd-qr-phone" src="/images/ai/phone-qr.png" alt="" width={329} height={420} loading="lazy" />
               </div>
               <Link to="/#ma-qr" className="hs-btn hs-btn-primary hs-btn-sm gd-qr-btn">
                 {t({ vi: 'Xem mã QR các trạm', en: 'See all stop QR codes' })} <ArrowRight size={14} weight="bold" aria-hidden="true" />
@@ -141,7 +137,8 @@ export function GuidePage() {
             </p>
           </aside>
 
-          <section id="nghe-tren-web" className="gd-card">
+          <section id="nghe-tren-web" className="gd-card gd-card-has-art">
+            <img className="gd-card-art" src="/images/ai/phone-map.jpg" alt="" width={300} height={404} loading="lazy" />
             <h2>
               <GdIcon i={1} />
               {t(TOC[1])}

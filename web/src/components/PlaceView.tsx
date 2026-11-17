@@ -11,6 +11,8 @@ import { Player } from './Player';
 import { PoiMap } from './PoiMap';
 import { Paywall } from './Paywall';
 import { StopQrList } from './StopQrList';
+import '../home.css';
+import '../pages-mau.css';
 
 function fmtDistance(m: number, ui: 'vi' | 'en') {
   if (m < 1000) return `${Math.round(m / 10) * 10} m`;
@@ -89,7 +91,7 @@ export function PlaceView({
   };
 
   return (
-    <div className={`place${poi.locked ? '' : ' has-player'}`}>
+    <div className={`place pg-place${poi.locked ? '' : ' has-player'}`}>
       {scannedLabel !== undefined && (
         <div className="scan-banner">
           <div className="wrap">

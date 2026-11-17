@@ -28,61 +28,145 @@
   color: var(--hs-ink-2);
 }
 
-/* ---------- Phần đầu trang ---------- */
+/* ---------- Phần đầu trang: nền ảnh AI cùng bộ với trang chủ (bầu trời, cầu dây văng, lá cây) ---------- */
 .pg-hero {
   position: relative;
   overflow: hidden;
-  padding: 44px 0 48px;
-  background:
-    radial-gradient(120% 90% at 85% 10%, #e3f0e8 0%, rgba(227, 240, 232, 0) 60%),
-    linear-gradient(180deg, #eef5f0 0%, var(--pg-bg) 100%);
+  padding: 52px 0 64px;
+  background: #eef4ec url('/images/ai/page-hero.jpg') right bottom / cover no-repeat;
+}
+.pg-hero::after {
+  /* chuyển mềm xuống màu nền trang ở mép dưới */
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 48px;
+  background: linear-gradient(180deg, rgba(247, 248, 245, 0), var(--pg-bg));
+  pointer-events: none;
 }
 .pg-hero-copy {
   position: relative;
   z-index: 1;
 }
 .pg-hero-copy .pg-title {
-  max-width: 560px;
+  max-width: 600px;
 }
 .pg-hero-copy .pg-lead {
-  max-width: 520px;
+  max-width: 540px;
 }
-.pg-hero-art {
-  position: absolute;
-  inset: 0 0 0 auto;
-  width: min(56%, 760px);
-  pointer-events: none;
+.pg-back {
+  margin-bottom: 18px;
+  color: var(--hs-green-2);
+  font-weight: 600;
+  text-decoration: none;
 }
-.pg-hero-skyline {
-  position: absolute;
-  right: 40px;
-  bottom: 6px;
-  width: 100%;
-  height: auto;
-  opacity: 0.85;
+.pg-hero .tour-summary {
+  margin: 14px 0 0;
+  color: var(--hs-green);
+  font-weight: 600;
 }
-.pg-hero-leaves {
-  position: absolute;
-  right: -30px;
-  bottom: -40px;
-  width: 170px;
-  height: auto;
+.pg-hero-btn {
+  margin-top: 20px;
 }
 @media (max-width: 860px) {
   .pg-hero {
-    padding: 28px 0 96px;
+    padding: 28px 0 120px;
+    background-position: 72% bottom;
+    background-size: cover;
   }
-  .pg-hero-art {
-    width: 100%;
+  .pg-hero-copy .pg-title,
+  .pg-hero-copy .pg-lead {
+    max-width: none;
   }
-  .pg-hero-skyline {
-    right: 0;
-    width: 110%;
-    opacity: 0.6;
-  }
-  .pg-hero-leaves {
-    width: 110px;
-    bottom: -30px;
+}
+
+/* Tour gợi ý + chi tiết tour */
+.pg-tour-grid {
+  margin-top: 8px;
+}
+.pg .tour-card {
+  border: 0;
+  border-radius: 20px;
+  box-shadow: var(--pg-shadow);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.pg .tour-card:hover {
+  box-shadow: var(--pg-shadow-hover);
+  transform: translateY(-2px);
+}
+.pg .tour-card .card-body {
+  padding: 18px 20px 20px;
+}
+.pg .tour-card h3 {
+  font-family: var(--hs-serif);
+  font-size: 21px;
+  color: var(--hs-ink);
+}
+.pg .tour-facts dd {
+  color: var(--hs-green);
+}
+.pg .tour-layout {
+  margin-top: 8px;
+}
+.pg .stops li {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: var(--pg-shadow);
+}
+.pg .stop-num {
+  background: var(--hs-green);
+}
+.pg .tour-layout .map,
+.pg-place .map {
+  border-radius: 20px;
+  box-shadow: var(--pg-shadow);
+}
+
+/* Nguồn ảnh, 404 */
+.pg-credits {
+  padding-top: 8px;
+}
+.pg-credits .credits-h {
+  font-family: var(--hs-serif);
+  color: var(--hs-ink);
+}
+.pg-404 {
+  min-height: 60vh;
+  background: var(--pg-bg);
+}
+.pg-404 .pg-hero {
+  padding-bottom: 160px;
+}
+
+/* Trang chi tiết điểm: dải nền ảnh AI phía trên, tiêu đề chữ có chân */
+.pg-place {
+  position: relative;
+  padding-bottom: 72px;
+  background:
+    linear-gradient(180deg, rgba(247, 248, 245, 0) 0, rgba(247, 248, 245, 0.6) 220px, #f7f8f5 340px),
+    #f7f8f5 url('/images/ai/page-hero.jpg') right top / 100% auto no-repeat;
+}
+.pg-place .place-grid {
+  padding-top: 24px;
+}
+.pg-place .place-photo img {
+  border-radius: 22px;
+  box-shadow: 0 2px 4px rgba(18, 41, 31, 0.05), 0 14px 34px rgba(18, 41, 31, 0.1);
+}
+.pg-place .place-title {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-size: clamp(30px, 3.6vw, 44px);
+  color: #10261d;
+  letter-spacing: -0.01em;
+}
+.pg-place .back-link {
+  color: #17614a;
+  font-weight: 600;
+}
+@media (max-width: 860px) {
+  .pg-place {
+    background-size: 100% 100%, auto 340px;
+    background-position: 0 0, 78% top;
   }
 }
 
@@ -236,8 +320,8 @@
 .gd {
   padding-top: 32px;
   background:
-    radial-gradient(70% 40% at 70% 0%, #eaf4ee 0%, rgba(234, 244, 238, 0) 70%),
-    var(--pg-bg);
+    linear-gradient(180deg, rgba(247, 248, 245, 0) 0, rgba(247, 248, 245, 0.55) 260px, var(--pg-bg) 460px),
+    var(--pg-bg) url('/images/ai/page-hero.jpg') right top / 100% auto no-repeat;
 }
 .gd-layout {
   display: grid;
@@ -283,24 +367,13 @@
   font-weight: 700;
 }
 .gd-aside-art {
-  position: relative;
-  height: 150px;
+  display: block;
+  width: 100%;
+  height: auto;
   margin-top: 28px;
-  overflow: hidden;
-}
-.gd-aside-skyline {
-  position: absolute;
-  left: 30px;
-  bottom: 0;
-  width: 360px;
-  height: auto;
-}
-.gd-aside-leaves {
-  position: absolute;
-  left: -14px;
-  bottom: -20px;
-  width: 90px;
-  height: auto;
+  border-radius: 18px;
+  /* ảnh có nền trắng ngà, cho mép hoà vào nền trang */
+  mask-image: radial-gradient(120% 100% at 50% 60%, #000 55%, transparent 100%);
 }
 .gd-main {
   min-width: 0;
@@ -365,7 +438,24 @@
   font-size: 12.5px;
 }
 .gd-qr-phone {
-  width: 108px;
+  width: 120px;
+  height: auto;
+  filter: drop-shadow(0 10px 18px rgba(18, 41, 31, 0.12));
+}
+.gd-qr-card {
+  background:
+    radial-gradient(90% 80% at 100% 100%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(160deg, #e4f1e8 0%, #d6eadd 100%);
+}
+.gd-card.gd-card-has-art {
+  position: relative;
+  padding-right: 210px;
+}
+.gd-card-art {
+  position: absolute;
+  right: 24px;
+  bottom: 18px;
+  width: 150px;
   height: auto;
 }
 .gd-qr-btn {
@@ -554,6 +644,10 @@
   .gd-aside-art {
     display: none;
   }
+  .gd {
+    background-size: 100% 100%, auto 460px;
+    background-position: 0 0, 80% top;
+  }
   .gd-main section {
     scroll-margin-top: calc(var(--header-h) + 64px);
   }
@@ -567,6 +661,15 @@
   }
   .gd-qr-phone {
     display: none;
+  }
+  .gd-card.gd-card-has-art {
+    padding-right: 18px;
+  }
+  .gd-card-art {
+    position: static;
+    display: block;
+    width: 120px;
+    margin: 0 auto 8px;
   }
   .gd-qr-code {
     width: 120px;

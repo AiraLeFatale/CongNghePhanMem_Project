@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { ArrowRight, Headphones, MapPin, SpeakerHigh } from '@phosphor-icons/react';
 import { LANGS, poiTitle, useLang, useT } from '../lib/i18n';
@@ -6,7 +7,6 @@ import { poiPhoto } from '../lib/photos';
 import type { Poi } from '../lib/types';
 import { PoiMap } from '../components/PoiMap';
 import { LoadError, Loading } from '../components/States';
-import { LeavesArt, SkylineArt } from '../components/HomeArt';
 import '../home.css';
 import '../pages-mau.css';
 
@@ -45,18 +45,16 @@ export function PlaceCard({ poi, href }: { poi: Poi; href?: string }) {
   );
 }
 
-/** Phần đầu trang con: nhãn vàng, tiêu đề chữ có chân, mô tả, tranh cầu và nhà cao tầng bên phải. */
-export function PageHero({ eyebrow, title, lead }: { eyebrow: string; title: string; lead: string }) {
+/** Phần đầu trang con: nhãn vàng, tiêu đề chữ có chân, mô tả; nền ảnh AI cầu dây văng + lá cây cùng bộ với trang chủ. */
+export function PageHero({ eyebrow, title, lead, back, children }: { eyebrow: string; title: string; lead?: string; back?: ReactNode; children?: ReactNode }) {
   return (
     <section className="pg-hero">
-      <div className="pg-hero-art" aria-hidden="true">
-        <SkylineArt className="pg-hero-skyline" tone="#3f8f6a" />
-        <LeavesArt className="pg-hero-leaves" />
-      </div>
       <div className="wrap pg-hero-copy">
+        {back}
         <p className="hs-eyebrow">{eyebrow}</p>
         <h1 className="pg-title">{title}</h1>
-        <p className="pg-lead">{lead}</p>
+        {lead && <p className="pg-lead">{lead}</p>}
+        {children}
       </div>
     </section>
   );
