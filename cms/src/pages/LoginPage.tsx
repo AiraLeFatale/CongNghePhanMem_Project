@@ -3,7 +3,6 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '../auth/AuthContext';
 import { errorMessage } from '../lib/api';
 import { useDocumentTitle } from '../lib/useAsync';
-import { Icon } from '../components/Icon';
 import { Spinner } from '../components/States';
 
 function safeNext(next: string | null): string {
@@ -46,9 +45,7 @@ export function LoginPage() {
     <div className="login-page">
       <form className="login-card" onSubmit={onSubmit} noValidate aria-describedby={error ? 'login-error' : undefined}>
         <div className="login-brand">
-          <span className="brand-mark brand-mark-lg" aria-hidden="true">
-            <Icon name="speaker" size={20} weight="fill" />
-          </span>
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Thuyết minh Quận 4" className="login-logo" width={381} height={150} />
           <div>
             <h1>Đăng nhập</h1>
             <p>Quản trị nội dung thuyết minh Quận 4</p>

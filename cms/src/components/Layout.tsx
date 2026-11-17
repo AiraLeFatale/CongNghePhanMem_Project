@@ -3,6 +3,8 @@ import { NavLink, Outlet, useLocation } from 'react-router';
 import { useAuth } from '../auth/AuthContext';
 import { Icon } from './Icon';
 
+const LOGO = `${import.meta.env.BASE_URL}logo.png`;
+
 const NAV_GROUPS: { title?: string; items: { to: string; label: string; icon: string; end?: boolean }[] }[] = [
   { items: [{ to: '/', label: 'Tổng quan', icon: 'home', end: true }] },
   {
@@ -53,17 +55,12 @@ export function Layout() {
         >
           <Icon name={open ? 'x' : 'menu'} size={20} />
         </button>
-        <span className="brand-text">Thuyết minh Quận 4</span>
+        <img src={LOGO} alt="Thuyết minh Quận 4" className="brand-logo-top" width={381} height={150} />
       </header>
       <aside id="sidebar" className="sidebar">
         <div className="brand">
-          <span className="brand-mark" aria-hidden="true">
-            <Icon name="speaker" size={15} weight="fill" />
-          </span>
-          <span className="brand-name">
-            <strong>Thuyết minh Quận 4</strong>
-            <small>Quản trị nội dung</small>
-          </span>
+          <img src={LOGO} alt="Thuyết minh Quận 4" className="brand-logo" width={381} height={150} />
+          <small>Quản trị nội dung</small>
         </div>
         <nav aria-label="Điều hướng chính" className="nav-groups">
           {NAV_GROUPS.map((g, i) => (

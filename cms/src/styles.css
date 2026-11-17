@@ -177,6 +177,28 @@ code {
 .brand-name {
   min-width: 0;
 }
+.brand:has(.brand-logo) {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  padding: 2px 8px 14px;
+}
+.brand-logo {
+  display: block;
+  height: 72px;
+  width: auto;
+  max-width: 100%;
+}
+.brand-logo-top {
+  display: block;
+  height: 36px;
+  width: auto;
+}
+.login-logo {
+  display: block;
+  height: 84px;
+  width: auto;
+}
 .brand strong {
   display: block;
   font-size: 14px;
@@ -331,6 +353,9 @@ code {
   }
   .brand-text {
     font-weight: 600;
+  }
+  .sidebar .brand {
+    display: none;
   }
   .sidebar {
     transform: translateX(-100%);
