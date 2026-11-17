@@ -6,14 +6,16 @@ import { Circle, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap, use
 export const DISTRICT4_CENTER: [number, number] = [10.7605, 106.7045];
 const ACCENT = '#0f766e';
 
+// Nền bản đồ mặc định dùng CARTO (dữ liệu OpenStreetMap) vì tile.openstreetmap.org
+// thường bị chặn ở một số mạng. Có thể đổi bằng biến môi trường VITE_MAP_TILE_URL.
+const TILE_URL =
+  import.meta.env.VITE_MAP_TILE_URL || 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+const TILE_ATTRIBUTION =
+  import.meta.env.VITE_MAP_TILE_ATTRIBUTION ||
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+
 export function OsmTiles() {
-  return (
-    <TileLayer
-      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-      maxZoom={19}
-    />
-  );
+  return <TileLayer attribution={TILE_ATTRIBUTION} url={TILE_URL} subdomains="abcd" maxZoom={19} />;
 }
 
 export const pinIcon = L.divIcon({
