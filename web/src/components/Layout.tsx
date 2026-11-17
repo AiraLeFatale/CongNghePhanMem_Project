@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router';
-import { List, SpeakerHigh, X } from '@phosphor-icons/react';
+import { List, X } from '@phosphor-icons/react';
 import { useLang, useT } from '../lib/i18n';
 import { useLivePresence } from '../lib/useLive';
 import { LangSelect } from './LangSelect';
@@ -30,12 +30,7 @@ export function Layout() {
       <header className="header">
         <div className="wrap header-inner">
           <Link to="/" className="logo">
-            <span className="logo-mark" aria-hidden="true">
-              <SpeakerHigh size={16} weight="fill" />
-            </span>
-            <span>
-              Thuyết minh <b>Quận 4</b>
-            </span>
+            <img src="/logo.png" alt="Thuyết minh Quận 4" className="logo-img" width={381} height={150} />
           </Link>
           <nav className={`nav${open ? ' open' : ''}`} aria-label={t({ vi: 'Điều hướng chính', en: 'Main navigation' })}>
             {nav.map((n) => (
@@ -59,12 +54,7 @@ export function Layout() {
         <div className="wrap footer-grid">
           <div>
             <Link to="/" className="logo logo-footer">
-              <span className="logo-mark" aria-hidden="true">
-                <SpeakerHigh size={16} weight="fill" />
-              </span>
-              <span>
-                Thuyết minh <b>Quận 4</b>
-              </span>
+              <img src="/logo.png" alt="Thuyết minh Quận 4" className="logo-img" width={381} height={150} loading="lazy" />
             </Link>
             <p className="footer-note">
               {t({
