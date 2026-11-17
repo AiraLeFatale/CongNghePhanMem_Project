@@ -1,81 +1,151 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
+import { ArrowRight, Buildings, DeviceMobile, Globe, Lightbulb, QrCode, Question, ShieldCheck, type Icon } from '@phosphor-icons/react';
 import { useT } from '../lib/i18n';
-import { useTitle } from '../lib/useContent';
+import { useContent, useTitle } from '../lib/useContent';
+import { LeavesArt, PhoneArt, SkylineArt } from '../components/HomeArt';
+import { QrImage, qrLink } from '../components/StopQrList';
+import '../home.css';
+import '../pages-mau.css';
 
-const TOC = [
-  { id: 'quet-qr', vi: 'Quét mã QR ở trạm xe buýt', en: 'Scan a QR code at a bus stop' },
-  { id: 'nghe-tren-web', vi: 'Nghe trên website', en: 'Listen on the website' },
-  { id: 'ung-dung', vi: 'Dùng ứng dụng điện thoại', en: 'Use the mobile app' },
-  { id: 'cau-hoi', vi: 'Câu hỏi thường gặp', en: 'FAQ' },
-  { id: 'rieng-tu', vi: 'Quyền riêng tư', en: 'Privacy' },
-  { id: 'quan-tri', vi: 'Dành cho đơn vị quản lý nội dung', en: 'For content managers' },
+const TOC: { id: string; vi: string; en: string; icon: Icon }[] = [
+  { id: 'quet-qr', vi: 'Quét mã QR ở trạm xe buýt', en: 'Scan a QR code at a bus stop', icon: QrCode },
+  { id: 'nghe-tren-web', vi: 'Nghe trên website', en: 'Listen on the website', icon: Globe },
+  { id: 'ung-dung', vi: 'Dùng ứng dụng điện thoại', en: 'Use the mobile app', icon: DeviceMobile },
+  { id: 'cau-hoi', vi: 'Câu hỏi thường gặp', en: 'FAQ', icon: Question },
+  { id: 'rieng-tu', vi: 'Quyền riêng tư', en: 'Privacy', icon: ShieldCheck },
+  { id: 'quan-tri', vi: 'Dành cho đơn vị quản lý nội dung', en: 'For content managers', icon: Buildings },
 ];
+
+/** Mục đang xem trên màn hình, để tô sáng mục tương ứng ở cột trái. */
+function useActiveSection(ids: string[]) {
+  const [active, setActive] = useState(ids[0]);
+  useEffect(() => {
+    const els = ids.map((id) => document.getElementById(id)).filter((e): e is HTMLElement => !!e);
+    if (!els.length || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const seen = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (seen[0]) setActive(seen[0].target.id);
+      },
+      { rootMargin: '-90px 0px -55% 0px' },
+    );
+    els.forEach((e) => io.observe(e));
+    return () => io.disconnect();
+  }, [ids]);
+  return active;
+}
+
+const IDS = TOC.map((s) => s.id);
 
 export function GuidePage() {
   const t = useT();
   const { hash } = useLocation();
+  const { data } = useContent();
+  const active = useActiveSection(IDS);
   useTitle(t({ vi: 'Hướng dẫn sử dụng', en: 'How it works' }));
   useEffect(() => {
     if (hash) document.getElementById(hash.slice(1))?.scrollIntoView();
   }, [hash]);
+  const sample = data?.qrcodes[0];
 
   return (
-    <div className="wrap section guide">
-      <h1 className="page-title">{t({ vi: 'Hướng dẫn sử dụng', en: 'How it works' })}</h1>
-      <p className="lead">
-        {t({
-          vi: 'Có 3 cách nghe thuyết minh: quét mã QR, mở website hoặc dùng ứng dụng. Cả 3 cách đều miễn phí và không cần tài khoản.',
-          en: 'There are three ways to listen: scan a QR code, open the website or use the app. All are free and need no account.',
-        })}
-      </p>
-      <div className="guide-layout">
-        <nav className="toc" aria-label={t({ vi: 'Mục lục', en: 'Contents' })}>
-          <ul>
-            {TOC.map((s) => (
-              <li key={s.id}>
-                <a href={`#${s.id}`}>{t(s)}</a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+    <div className="hs pg gd">
+      <div className="wrap gd-layout">
+        <aside className="gd-aside">
+          <nav className="gd-toc" aria-label={t({ vi: 'Mục lục', en: 'Contents' })}>
+            <ul>
+              {TOC.map(({ icon: I, ...s }) => (
+                <li key={s.id}>
+                  <a href={`#${s.id}`} className={active === s.id ? 'active' : ''} aria-current={active === s.id ? 'true' : undefined}>
+                    <I size={22} weight={active === s.id ? 'fill' : 'regular'} aria-hidden="true" />
+                    <span>{t(s)}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <div className="gd-aside-art" aria-hidden="true">
+            <SkylineArt className="gd-aside-skyline" tone="#8fbfa4" />
+            <LeavesArt className="gd-aside-leaves" />
+          </div>
+        </aside>
 
-        <div className="guide-body">
-          <section id="quet-qr">
-            <h2>{t(TOC[0])}</h2>
-            <ol className="steps">
-              <li>
-                <strong>{t({ vi: 'Mở camera điện thoại', en: 'Open your phone camera' })}</strong>
-                <p>
-                  {t({
-                    vi: 'iPhone và hầu hết điện thoại Android đọc được mã QR ngay trong camera. Một số máy Android cần mở Google Lens hoặc ứng dụng Zalo (mục Quét mã).',
-                    en: 'iPhones and most Android phones read QR codes in the built-in camera. Some Android phones need Google Lens.',
-                  })}
+        <div className="gd-main">
+          <p className="hs-eyebrow">{t({ vi: 'Hướng dẫn sử dụng', en: 'User guide' })}</p>
+          <h1 className="pg-title">{t({ vi: 'Hướng dẫn sử dụng', en: 'How it works' })}</h1>
+          <p className="pg-lead">
+            {t({
+              vi: 'Có 3 cách nghe thuyết minh: quét mã QR, mở website hoặc dùng ứng dụng. Cả 3 cách đều miễn phí và không cần tài khoản.',
+              en: 'There are three ways to listen: scan a QR code, open the website or use the app. All are free and need no account.',
+            })}
+          </p>
+
+          <section id="quet-qr" className="gd-qr">
+            <div className="gd-qr-card">
+              <h2>{t(TOC[0])}</h2>
+              <div className="gd-qr-row">
+                <div className="gd-qr-code">
+                  {sample ? (
+                    <QrImage text={qrLink(sample.payload)} alt={t({ vi: 'Mã QR mẫu, quét thử để mở trang nghe', en: 'Sample QR code, scan to try' })} />
+                  ) : (
+                    <QrCode size={120} weight="duotone" aria-hidden="true" />
+                  )}
+                </div>
+                <p className="gd-qr-text">
+                  {t({ vi: 'Dùng điện thoại quét mã QR để bắt đầu nghe thuyết minh.', en: 'Scan the QR code with your phone to start listening.' })}
+                  {sample && <small>{t({ vi: 'Mã thật, quét thử được ngay.', en: 'A real code, try it now.' })}</small>}
                 </p>
-              </li>
-              <li>
-                <strong>{t({ vi: 'Hướng vào mã dán ở trạm và chạm vào đường link', en: 'Point at the code and tap the link' })}</strong>
-                <p>
-                  {t({
-                    vi: 'Trang của điểm gần trạm sẽ mở trên trình duyệt, có dòng "Bạn vừa quét mã tại…" để bạn biết đã quét đúng chỗ.',
-                    en: 'The page for the nearby place opens in your browser, with a line saying where you scanned.',
-                  })}
-                </p>
-              </li>
-              <li>
-                <strong>{t({ vi: 'Chọn ngôn ngữ và bấm nút phát', en: 'Choose a language and press play' })}</strong>
-                <p>
-                  {t({
-                    vi: 'Trình phát nằm ở cuối màn hình. Có thể lùi, tới 15 giây và đổi tốc độ. Nội dung chữ hiện ngay bên dưới để đọc khi ở nơi ồn.',
-                    en: 'The player sits at the bottom of the screen with 15-second skip and speed control. The full text is on the page for noisy places.',
-                  })}
-                </p>
-              </li>
-            </ol>
+                <PhoneArt className="gd-qr-phone" />
+              </div>
+              <Link to="/#ma-qr" className="hs-btn hs-btn-primary hs-btn-sm gd-qr-btn">
+                {t({ vi: 'Xem mã QR các trạm', en: 'See all stop QR codes' })} <ArrowRight size={14} weight="bold" aria-hidden="true" />
+              </Link>
+            </div>
+              <ol className="gd-steps">
+                <li>
+                  <strong>{t({ vi: 'Mở camera điện thoại', en: 'Open your phone camera' })}</strong>
+                  <p>
+                    {t({
+                      vi: 'iPhone và hầu hết điện thoại Android đọc được mã QR ngay trong camera. Một số máy Android cần mở Google Lens hoặc ứng dụng Zalo (mục Quét mã).',
+                      en: 'iPhones and most Android phones read QR codes in the built-in camera. Some Android phones need Google Lens.',
+                    })}
+                  </p>
+                </li>
+                <li>
+                  <strong>{t({ vi: 'Hướng vào mã dán ở trạm và chạm vào đường link', en: 'Point at the code and tap the link' })}</strong>
+                  <p>
+                    {t({
+                      vi: 'Trang của điểm gần trạm sẽ mở trên trình duyệt, có dòng "Bạn vừa quét mã tại…" để bạn biết đã quét đúng chỗ.',
+                      en: 'The page for the nearby place opens in your browser, with a line saying where you scanned.',
+                    })}
+                  </p>
+                </li>
+                <li>
+                  <strong>{t({ vi: 'Chọn ngôn ngữ và bấm nút phát', en: 'Choose a language and press play' })}</strong>
+                  <p>
+                    {t({
+                      vi: 'Trình phát nằm ở cuối màn hình. Có thể lùi, tới 15 giây và đổi tốc độ. Nội dung chữ hiện ngay bên dưới để đọc khi ở nơi ồn.',
+                      en: 'The player sits at the bottom of the screen with 15-second skip and speed control. The full text is on the page for noisy places.',
+                    })}
+                  </p>
+                </li>
+              </ol>
           </section>
 
-          <section id="nghe-tren-web">
-            <h2>{t(TOC[1])}</h2>
+          <aside className="gd-tip">
+            <Lightbulb size={22} weight="fill" aria-hidden="true" />
+            <p>
+              <strong>{t({ vi: 'Mẹo nhỏ:', en: 'Tip:' })}</strong>{' '}
+              {t({ vi: 'Bạn có thể lưu trang web ra màn hình chính để nghe lại bất cứ lúc nào.', en: 'Add the website to your home screen to listen again any time.' })}
+            </p>
+          </aside>
+
+          <section id="nghe-tren-web" className="gd-card">
+            <h2>
+              <GdIcon i={1} />
+              {t(TOC[1])}
+            </h2>
             <p>
               {t({ vi: 'Vào mục', en: 'Go to' })} <Link to="/diem">{t({ vi: 'Điểm thuyết minh', en: 'Places' })}</Link>{' '}
               {t({
@@ -96,8 +166,11 @@ export function GuidePage() {
             </p>
           </section>
 
-          <section id="ung-dung">
-            <h2>{t(TOC[2])}</h2>
+          <section id="ung-dung" className="gd-card">
+            <h2>
+              <GdIcon i={2} />
+              {t(TOC[2])}
+            </h2>
             <p>
               {t({
                 vi: 'Ứng dụng tải sẵn toàn bộ nội dung khi có mạng, sau đó dùng được cả khi mất sóng. Khi bạn đi vào vòng bán kính của một điểm, thuyết minh tự phát; nếu 2 điểm chồng nhau, điểm có mức ưu tiên cao hơn được phát trước.',
@@ -111,8 +184,11 @@ export function GuidePage() {
             </ul>
           </section>
 
-          <section id="cau-hoi">
-            <h2>{t(TOC[3])}</h2>
+          <section id="cau-hoi" className="gd-card">
+            <h2>
+              <GdIcon i={3} />
+              {t(TOC[3])}
+            </h2>
             <div className="faq">
               {[
                 {
@@ -149,8 +225,11 @@ export function GuidePage() {
             </div>
           </section>
 
-          <section id="rieng-tu">
-            <h2>{t(TOC[4])}</h2>
+          <section id="rieng-tu" className="gd-card">
+            <h2>
+              <GdIcon i={4} />
+              {t(TOC[4])}
+            </h2>
             <p>
               {t({
                 vi: 'Hệ thống không yêu cầu tên, số điện thoại hay tài khoản. Khi bạn nghe, chỉ ghi lại điểm đã nghe, ngôn ngữ, thời lượng nghe và một mã phiên ngẫu nhiên (xoá khi đóng tab). Ứng dụng gửi thêm vị trí đã làm tròn khoảng 11 m để vẽ bản đồ nhiệt, không gắn với danh tính.',
@@ -159,15 +238,18 @@ export function GuidePage() {
             </p>
           </section>
 
-          <section id="quan-tri">
-            <h2>{t(TOC[5])}</h2>
+          <section id="quan-tri" className="gd-card">
+            <h2>
+              <GdIcon i={5} />
+              {t(TOC[5])}
+            </h2>
             <p>
               {t({
                 vi: 'Nội dung trên trang được quản lý trong hệ thống quản trị (CMS) dành cho cán bộ phụ trách. Các việc chính:',
                 en: 'Content is managed in a CMS for staff. The main tasks:',
               })}
             </p>
-            <ol className="steps steps-compact">
+            <ol className="gd-steps gd-steps-sm">
               <li>
                 <strong>{t({ vi: 'Thêm điểm thuyết minh', en: 'Add a place' })}</strong>
                 <p>{t({ vi: 'Bấm lên bản đồ để đặt vị trí, nhập bán kính kích hoạt và mức ưu tiên, viết nội dung tiếng Việt.', en: 'Click the map to place it, set the trigger radius and priority, write the Vietnamese text.' })}</p>
@@ -189,5 +271,14 @@ export function GuidePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function GdIcon({ i }: { i: number }) {
+  const I = TOC[i].icon;
+  return (
+    <span className="gd-h-icon" aria-hidden="true">
+      <I size={20} weight="duotone" />
+    </span>
   );
 }

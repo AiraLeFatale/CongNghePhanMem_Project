@@ -3,18 +3,23 @@
  * Màu khai báo bằng biến ở :root.
  */
 :root {
-  --accent: #0f766e;
-  --accent-hover: #115e59;
-  --accent-soft: #ecf6f4;
-  --accent-text: #0f766e;
+  --accent: #17654c;
+  --accent-hover: #11513d;
+  --accent-soft: #e9f3ee;
+  --accent-text: #135c45;
   --on-accent: #ffffff;
-  --accent-ring: rgba(15, 118, 110, 0.28);
-  --bg: #fafafa;
+  --accent-ring: rgba(23, 101, 76, 0.28);
+  --bg: #f3f4f0;
   --surface: #ffffff;
-  --surface-2: #f4f4f5;
-  --sidebar-bg: #f7f7f8;
-  --hover: #f1f1f3;
-  --border: #e6e6e9;
+  --surface-2: #f4f5f2;
+  --sidebar-bg: #0f3d31;
+  --sidebar-bg-2: #0b3227;
+  --sidebar-text: rgba(255, 255, 255, 0.82);
+  --sidebar-muted: rgba(255, 255, 255, 0.5);
+  --sidebar-active: rgba(255, 255, 255, 0.12);
+  --sidebar-hover: rgba(255, 255, 255, 0.07);
+  --hover: #f1f2ee;
+  --border: #e7e8e3;
   --border-strong: #d4d4d8;
   --text: #18181b;
   --text-2: #3f3f46;
@@ -28,15 +33,16 @@
   --warn-border: #f1dcae;
   --success: #15803d;
   --success-soft: #edf7f0;
-  --chart-fill: rgba(15, 118, 110, 0.09);
+  --chart-fill: rgba(23, 101, 76, 0.12);
   --chart-grid: rgba(24, 24, 27, 0.06);
-  --bar-tint: rgba(15, 118, 110, 0.1);
+  --bar-tint: rgba(23, 101, 76, 0.1);
   --tooltip-bg: #18181b;
-  --radius: 8px;
-  --radius-sm: 6px;
-  --shadow: 0 1px 2px rgba(24, 24, 27, 0.04);
+  --radius: 14px;
+  --radius-md: 10px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgba(20, 40, 30, 0.04), 0 4px 14px rgba(20, 40, 30, 0.04);
   --shadow-pop: 0 12px 32px rgba(24, 24, 27, 0.14), 0 2px 6px rgba(24, 24, 27, 0.06);
-  --sidebar: 232px;
+  --sidebar: 248px;
   --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color-scheme: light;
@@ -2041,7 +2047,7 @@ textarea:focus {
     margin-top: 2mm;
     font-size: 15px;
     font-weight: 600;
-    color: #0f766e;
+    color: #17654c;
   }
   .print-sub {
     font-size: 9.5px;
@@ -2103,7 +2109,7 @@ textarea:focus {
   width: 140px;
   height: 6px;
   border-radius: 999px;
-  background: rgba(15, 118, 110, 0.15);
+  background: rgba(23, 101, 76, 0.15);
   overflow: hidden;
 }
 .auto-meter span {
@@ -2123,4 +2129,230 @@ textarea:focus {
   border-radius: var(--radius-sm);
   background: var(--accent-soft);
   color: var(--text-2);
+}
+
+/* =====================================================================
+ * Giao diện 11/2026 theo mẫu: thanh bên xanh đậm, thẻ trắng bo 14px,
+ * thẻ chỉ số tách rời. Khối này đè lên các quy tắc cũ ở trên.
+ * ===================================================================== */
+.sidebar {
+  background: linear-gradient(180deg, var(--sidebar-bg) 0%, #0d3a2e 100%);
+  border-right: 0;
+  padding: 18px 14px 14px;
+  color: var(--sidebar-text);
+}
+.brand:has(.brand-logo) {
+  justify-items: center;
+  padding: 4px 4px 22px;
+  margin-bottom: 6px;
+}
+.brand-logo {
+  height: 64px;
+}
+.nav-groups {
+  gap: 18px;
+}
+.nav-heading {
+  color: var(--sidebar-muted);
+  font-size: 12px;
+  padding: 0 12px;
+  margin-bottom: 6px;
+}
+.nav {
+  gap: 4px;
+}
+.nav-link {
+  height: 40px;
+  padding: 0 12px;
+  gap: 11px;
+  border-radius: 10px;
+  color: var(--sidebar-text);
+  font-size: 14px;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-link .icon {
+  color: rgba(255, 255, 255, 0.78);
+}
+.nav-link:hover {
+  background: var(--sidebar-hover);
+  color: #fff;
+}
+.nav-link.active {
+  background: var(--sidebar-active);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  font-weight: 600;
+}
+.nav-link.active .icon {
+  color: #fff;
+}
+.sidebar-footer {
+  margin: auto -14px -14px;
+  padding: 14px 14px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--sidebar-bg-2);
+}
+.user-chip {
+  color: #fff;
+  padding: 6px 8px;
+  border-radius: 10px;
+}
+.user-chip:hover,
+.user-chip.active {
+  background: var(--sidebar-hover);
+}
+.avatar {
+  width: 36px;
+  height: 36px;
+  background: #e8f1ec;
+  color: var(--accent-text);
+  font-size: 12.5px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18);
+}
+.user-meta {
+  font-size: 14px;
+  font-weight: 600;
+}
+.user-meta small {
+  color: var(--sidebar-muted);
+  font-size: 12px;
+}
+.sidebar-footer .icon-btn {
+  color: rgba(255, 255, 255, 0.7);
+  background: transparent;
+  border-color: transparent;
+}
+.sidebar-footer .icon-btn:hover:not(:disabled) {
+  background: var(--sidebar-hover);
+  color: #fff;
+}
+.sidebar :focus-visible {
+  outline-color: #9fd8bd;
+}
+
+.main {
+  padding: 28px 36px 64px;
+}
+.page-header {
+  margin-bottom: 22px;
+  align-items: center;
+}
+.page-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.page-subtitle {
+  font-size: 14px;
+}
+
+.card {
+  border-color: var(--border);
+  padding: 20px 22px;
+}
+.card-body {
+  padding: 18px 22px;
+}
+.card-title {
+  font-size: 15px;
+}
+.chart-card {
+  padding: 18px 20px 12px;
+}
+
+.btn {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 13.5px;
+}
+.btn-sm {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+}
+.btn-primary {
+  box-shadow: 0 1px 2px rgba(15, 61, 49, 0.18), 0 4px 12px rgba(23, 101, 76, 0.18);
+}
+input:not([type='checkbox']):not([type='radio']):not([type='file']),
+select,
+textarea {
+  border-radius: 10px;
+}
+
+/* Thẻ chỉ số tách rời */
+.kpi-strip {
+  gap: 14px;
+  border-bottom: 0;
+  margin: 0 0 16px;
+}
+.kpi-cell {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 20px 18px;
+}
+.kpi-cell + .kpi-cell {
+  border-left: 1px solid var(--border);
+}
+.kpi-cell dt {
+  font-size: 13px;
+  color: var(--muted);
+}
+.kpi-cell dd {
+  margin-top: 6px;
+}
+.kpi-num {
+  font-size: 26px;
+  font-weight: 700;
+}
+@media (max-width: 760px) {
+  .kpi-strip {
+    gap: 12px;
+  }
+  .kpi-cell:nth-child(3) {
+    border-left: 1px solid var(--border);
+  }
+  .kpi-cell:nth-child(n + 3) {
+    border-top: 1px solid var(--border);
+  }
+  .kpi-num {
+    font-size: 22px;
+  }
+}
+.report .kpi-strip {
+  gap: 0;
+  border: 1px solid var(--border);
+}
+.report .kpi-cell {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+}
+.report .kpi-cell + .kpi-cell {
+  border-left: 1px solid var(--border);
+}
+
+@media (max-width: 960px) {
+  .topbar {
+    height: 56px;
+    padding: 0 12px;
+  }
+  .sidebar {
+    top: 56px;
+  }
+  .nav-open .backdrop {
+    inset: 56px 0 0 0;
+  }
+  .main {
+    padding: 18px 16px 44px;
+  }
+  .page-header h1 {
+    font-size: 22px;
+  }
+  .card {
+    padding: 16px;
+  }
 }

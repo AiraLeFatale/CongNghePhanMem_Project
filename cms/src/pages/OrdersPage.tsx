@@ -68,34 +68,34 @@ export function OrdersPage() {
       {data && !data.enabled && (
         <div className="alert alert-warn">Máy chủ chưa cấu hình tài khoản nhận tiền (PAYMENT_ACCOUNT), khách chưa mua được điểm có phí.</div>
       )}
+      <dl className="kpi-strip">
+        <div className="kpi-cell">
+          <dt>Doanh thu đã nhận</dt>
+          <dd>
+            <span className="kpi-num">{vnd(totals.paid?.amount)}</span>
+          </dd>
+        </div>
+        <div className="kpi-cell">
+          <dt>Đơn đã thanh toán</dt>
+          <dd>
+            <span className="kpi-num">{formatNumber(totals.paid?.count ?? 0)}</span>
+          </dd>
+        </div>
+        <div className="kpi-cell">
+          <dt>Cần đối chiếu</dt>
+          <dd>
+            <span className="kpi-num">{formatNumber(totals.claimed?.count ?? 0)}</span>
+            <span className="delta delta-flat">{vnd(totals.claimed?.amount)}</span>
+          </dd>
+        </div>
+        <div className="kpi-cell">
+          <dt>Đã huỷ</dt>
+          <dd>
+            <span className="kpi-num">{formatNumber(totals.cancelled?.count ?? 0)}</span>
+          </dd>
+        </div>
+      </dl>
       <section className="card card-flush">
-        <dl className="kpi-strip">
-          <div className="kpi-cell">
-            <dt>Doanh thu đã nhận</dt>
-            <dd>
-              <span className="kpi-num">{vnd(totals.paid?.amount)}</span>
-            </dd>
-          </div>
-          <div className="kpi-cell">
-            <dt>Đơn đã thanh toán</dt>
-            <dd>
-              <span className="kpi-num">{formatNumber(totals.paid?.count ?? 0)}</span>
-            </dd>
-          </div>
-          <div className="kpi-cell">
-            <dt>Cần đối chiếu</dt>
-            <dd>
-              <span className="kpi-num">{formatNumber(totals.claimed?.count ?? 0)}</span>
-              <span className="delta delta-flat">{vnd(totals.claimed?.amount)}</span>
-            </dd>
-          </div>
-          <div className="kpi-cell">
-            <dt>Đã huỷ</dt>
-            <dd>
-              <span className="kpi-num">{formatNumber(totals.cancelled?.count ?? 0)}</span>
-            </dd>
-          </div>
-        </dl>
         <div className="toolbar toolbar-pad">
           <div className="tabs-pill" role="tablist" aria-label="Lọc theo trạng thái">
             {TABS.map((t) => (

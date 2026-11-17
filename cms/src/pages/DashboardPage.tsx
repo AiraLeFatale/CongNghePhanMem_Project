@@ -45,22 +45,24 @@ export function DashboardPage() {
 
       <LiveNow />
 
-      <section className="card card-flush">
-        {stats.loading && !stats.data ? (
-          <LoadingState text="Đang tải số liệu…" />
-        ) : stats.error ? (
-          <ErrorState message={stats.error} onRetry={stats.reload} />
-        ) : !stats.data?.has_data ? (
-          <p className="muted card-body">Không có dữ liệu sử dụng trong 7 ngày qua.</p>
-        ) : (
-          <>
-            <Kpis r={stats.data} prev={prevStats.data ? prevStats.data.summary : null} />
-            <div className="card-body">
-              <DailyChart r={stats.data} from={from} to={to} height={200} />
-            </div>
-          </>
-        )}
-      </section>
+      {stats.data?.has_data && !stats.error ? (
+        <>
+          <Kpis r={stats.data} prev={prevStats.data ? prevStats.data.summary : null} />
+          <section className="card chart-card">
+            <DailyChart r={stats.data} from={from} to={to} height={220} />
+          </section>
+        </>
+      ) : (
+        <section className="card card-flush">
+          {stats.loading && !stats.data ? (
+            <LoadingState text="Đang tải số liệu…" />
+          ) : stats.error ? (
+            <ErrorState message={stats.error} onRetry={stats.reload} />
+          ) : (
+            <p className="muted card-body">Không có dữ liệu sử dụng trong 7 ngày qua.</p>
+          )}
+        </section>
+      )}
 
       <div className="grid-2">
         <section className="card">

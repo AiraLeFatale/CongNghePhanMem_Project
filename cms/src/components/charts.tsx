@@ -22,7 +22,7 @@ function token(name: string, fallback: string) {
 
 function theme() {
   return {
-    accent: token('--accent', '#0f766e'),
+    accent: token('--accent', '#17654c'),
     fill: token('--chart-fill', 'rgba(15,118,110,0.10)'),
     grid: token('--chart-grid', 'rgba(24,24,27,0.06)'),
     tick: token('--muted', '#71717a'),

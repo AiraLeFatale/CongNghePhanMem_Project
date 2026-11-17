@@ -4,6 +4,7 @@ import { useAuth } from '../auth/AuthContext';
 import { Icon } from './Icon';
 
 const LOGO = `${import.meta.env.BASE_URL}logo.png`;
+const LOGO_LIGHT = `${import.meta.env.BASE_URL}logo-light.png`;
 
 const NAV_GROUPS: { title?: string; items: { to: string; label: string; icon: string; end?: boolean }[] }[] = [
   { items: [{ to: '/', label: 'Tổng quan', icon: 'home', end: true }] },
@@ -59,8 +60,7 @@ export function Layout() {
       </header>
       <aside id="sidebar" className="sidebar">
         <div className="brand">
-          <img src={LOGO} alt="Thuyết minh Quận 4" className="brand-logo" width={381} height={150} />
-          <small>Quản trị nội dung</small>
+          <img src={LOGO_LIGHT} alt="Thuyết minh Quận 4 – Quản trị nội dung" className="brand-logo" width={381} height={150} />
         </div>
         <nav aria-label="Điều hướng chính" className="nav-groups">
           {NAV_GROUPS.map((g, i) => (
@@ -86,7 +86,7 @@ export function Layout() {
             </span>
             <span className="user-meta">
               <span className="truncate">{displayName}</span>
-              {user?.username && <small className="truncate">{user.username}</small>}
+              <small className="truncate">{user?.username ? `Quản trị viên · ${user.username}` : 'Quản trị viên'}</small>
             </span>
           </NavLink>
           <button type="button" className="icon-btn" onClick={logout} aria-label="Đăng xuất" title="Đăng xuất">
