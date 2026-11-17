@@ -154,7 +154,7 @@ export function Layout() {
         <div className="ft-bottom">
           <div className="wrap ft-bottom-inner">
             <span>
-              © 2026 Thuyết minh Quận 4 · {t({ vi: 'Đồ án môn Công nghệ phần mềm', en: 'Software Engineering course project' })}
+              © 2026 Thuyết minh Quận 4
             </span>
             <span className="ft-legal">
               <Link to="/huong-dan#rieng-tu">{t({ vi: 'Quyền riêng tư', en: 'Privacy' })}</Link>
