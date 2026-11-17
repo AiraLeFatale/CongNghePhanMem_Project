@@ -10,7 +10,7 @@ after(() => s.close());
 test('UC3 A2: tạo mã QR cho POI và UC2: quét ra đúng nội dung', async () => {
   const qr = await s.call('POST', '/admin/pois/3/qrcodes', { label: 'Trạm thử' });
   assert.equal(qr.status, 201);
-  assert.match(qr.body.content, /^NARR:/);
+  assert.match(qr.body.content, /^https?:\/\/.+\/q\/[A-Za-z0-9_-]+$/);
   const r = await s.call('GET', `/qr/${encodeURIComponent(qr.body.content)}`, undefined, { auth: false });
   assert.equal(r.status, 200);
   assert.equal(r.body.poi.id, 3);

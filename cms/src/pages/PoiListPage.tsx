@@ -32,10 +32,25 @@ export function LangChips({ languages, audio }: { languages: string[]; audio: st
   );
 }
 
+const STATUS_TABS = [
+  { key: '', label: 'Tất cả', test: () => true },
+  { key: 'no-audio', label: 'Thiếu audio', test: (p: PoiListItem) => p.audio_languages.length === 0 },
+  { key: 'missing-lang', label: 'Thiếu bản dịch', test: (p: PoiListItem) => p.languages.length < LANGUAGES.length },
+  { key: 'no-qr', label: 'Chưa có QR', test: (p: PoiListItem) => p.qr_count === 0 },
+];
+
+function PoiStatus({ p }: { p: PoiListItem }) {
+  if (p.languages.length >= LANGUAGES.length && p.audio_languages.length >= LANGUAGES.length) return <span className="badge badge-ok">Đầy đủ</span>;
+  if (p.audio_languages.length === 0) return <span className="badge badge-warn">Thiếu audio</span>;
+  return <span className="badge">Đang bổ sung</span>;
+}
+
 export function PoiListPage() {
   useDocumentTitle('Điểm thuyết minh');
   const [params, setParams] = useSearchParams();
   const q = params.get('q') ?? '';
+  const status = params.get('status') ?? '';
+  const tab = STATUS_TABS.find((t) => t.key === status) ?? STATUS_TABS[0];
   const [input, setInput] = useState(q);
   const toast = useToast();
   const confirm = useConfirm();
@@ -43,10 +58,18 @@ export function PoiListPage() {
 
   useEffect(() => {
     const t = setTimeout(() => {
-      if (input.trim() !== q) setParams(input.trim() ? { q: input.trim() } : {}, { replace: true });
+      if (input.trim() !== q) setParams(paramsFor(input.trim(), status), { replace: true });
     }, 300);
     return () => clearTimeout(t);
-  }, [input, q, setParams]);
+  }, [input, q, status, setParams]);
+
+  function paramsFor(query: string, st: string) {
+    const p: Record<string, string> = {};
+    if (query) p.q = query;
+    if (st) p.status = st;
+    return p;
+  }
+  const rows = (data ?? []).filter(tab.test);
 
   async function onDelete(p: PoiListItem) {
     const ok = await confirm({
@@ -77,23 +100,40 @@ export function PoiListPage() {
     <>
       <PageHeader
         title="Điểm thuyết minh"
-        subtitle="Quản lý vị trí, vùng kích hoạt, nội dung đa ngôn ngữ và audio (UC3)"
+        subtitle="Vị trí, vùng kích hoạt, bản dịch và audio của từng điểm"
         actions={
           <Link to="/pois/new" className="btn btn-primary">
             <Icon name="plus" /> Thêm điểm
           </Link>
         }
       />
-      <div className="card">
-        <div className="toolbar">
+      <div className="card card-flush">
+        <div className="toolbar toolbar-pad">
+          <div className="tabs-pill" role="tablist" aria-label="Lọc theo tình trạng">
+            {STATUS_TABS.map((t) => {
+              const n = (data ?? []).filter(t.test).length;
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab.key === t.key}
+                  className={tab.key === t.key ? 'on' : ''}
+                  onClick={() => setParams(paramsFor(q, t.key), { replace: true })}
+                >
+                  {t.label}
+                  {data && <span className="count">{n}</span>}
+                </button>
+              );
+            })}
+          </div>
           <div className="search">
             <Icon name="search" />
             <label htmlFor="poi-search" className="sr-only">
               Tìm điểm
             </label>
-            <input id="poi-search" type="search" placeholder="Tìm theo tên hoặc địa chỉ…" value={input} onChange={(e) => setInput(e.target.value)} />
+            <input id="poi-search" type="search" placeholder="Tìm theo tên hoặc địa chỉ" value={input} onChange={(e) => setInput(e.target.value)} />
           </div>
-          {data && <span className="muted">{data.length} điểm</span>}
         </div>
         {loading && !data ? (
           <LoadingState />
@@ -114,20 +154,22 @@ export function PoiListPage() {
               Thêm điểm để app tự phát thuyết minh khi khách đến gần.
             </EmptyState>
           )
+        ) : rows.length === 0 ? (
+          <EmptyState title="Không còn điểm nào ở mục này">Các điểm đều đã xử lý xong phần {tab.label.toLowerCase()}.</EmptyState>
         ) : (
           <div className="table-wrap">
             <table className="table">
               <thead>
                 <tr>
                   <th scope="col">Tên điểm</th>
-                  <th scope="col">Toạ độ</th>
+                  <th scope="col">Tình trạng</th>
+                  <th scope="col">Ngôn ngữ</th>
                   <th scope="col" className="num">
                     Bán kính
                   </th>
                   <th scope="col" className="num">
                     Ưu tiên
                   </th>
-                  <th scope="col">Ngôn ngữ / audio</th>
                   <th scope="col" className="num">
                     QR
                   </th>
@@ -137,28 +179,34 @@ export function PoiListPage() {
                 </tr>
               </thead>
               <tbody>
-                {data.map((p) => (
+                {rows.map((p) => (
                   <tr key={p.id}>
                     <td>
                       <Link to={`/pois/${p.id}`} className="row-title">
                         {p.name}
                       </Link>
-                      {p.address && <div className="muted small">{p.address}</div>}
+                      {p.price ? <span className="badge badge-warn price-badge">{p.price.toLocaleString('vi-VN')}đ</span> : null}
+                      <div className="row-sub">
+                        {p.address && <span>{p.address}</span>}
+                        <span className="mono">
+                          {p.latitude.toFixed(5)}, {p.longitude.toFixed(5)}
+                        </span>
+                      </div>
                     </td>
-                    <td className="mono small nowrap">
-                      {p.latitude.toFixed(5)}, {p.longitude.toFixed(5)}
+                    <td>
+                      <PoiStatus p={p} />
                     </td>
-                    <td className="num nowrap">{p.radius_m} m</td>
-                    <td className="num">{p.priority}</td>
                     <td>
                       <LangChips languages={p.languages} audio={p.audio_languages} />
                     </td>
+                    <td className="num nowrap">{p.radius_m} m</td>
+                    <td className="num">{p.priority}</td>
                     <td className="num">{p.qr_count}</td>
                     <td className="actions">
-                      <Link to={`/pois/${p.id}`} className="btn btn-sm" aria-label={`Sửa ${p.name}`}>
-                        <Icon name="edit" /> Sửa
+                      <Link to={`/pois/${p.id}`} className="icon-btn" aria-label={`Sửa ${p.name}`} title="Sửa">
+                        <Icon name="edit" />
                       </Link>
-                      <button type="button" className="btn btn-sm btn-ghost-danger" onClick={() => onDelete(p)} aria-label={`Xoá ${p.name}`}>
+                      <button type="button" className="icon-btn danger" onClick={() => onDelete(p)} aria-label={`Xoá ${p.name}`} title="Xoá">
                         <Icon name="trash" />
                       </button>
                     </td>
@@ -167,6 +215,11 @@ export function PoiListPage() {
               </tbody>
             </table>
           </div>
+        )}
+        {data && rows.length > 0 && (
+          <p className="table-foot">
+            {rows.length} / {data.length} điểm
+          </p>
         )}
       </div>
     </>

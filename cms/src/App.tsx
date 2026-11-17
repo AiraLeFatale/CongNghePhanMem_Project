@@ -13,6 +13,7 @@ import { TourEditPage } from './pages/TourEditPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { AnalyticsReportPage } from './pages/AnalyticsReportPage';
 import { AccountPage } from './pages/AccountPage';
+import { OrdersPage } from './pages/OrdersPage';
 
 function Root() {
   return (
@@ -51,14 +52,15 @@ function RouteError() {
       </div>
       <h3>Đã xảy ra lỗi khi hiển thị trang</h3>
       <p>{err instanceof Error ? err.message : 'Lỗi không xác định'}</p>
-      <a href="/" className="btn btn-primary">
+      <a href={import.meta.env.BASE_URL} className="btn btn-primary">
         Tải lại trang tổng quan
       </a>
     </div>
   );
 }
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
   {
     element: <Root />,
     errorElement: <RouteError />,
@@ -87,13 +89,16 @@ const router = createBrowserRouter([
           { path: 'tours/:id', element: <TourEditPage /> },
           { path: 'qr', element: <QrPage /> },
           { path: 'analytics', element: <AnalyticsPage /> },
+          { path: 'orders', element: <OrdersPage /> },
           { path: 'account', element: <AccountPage /> },
           { path: '*', element: <NotFound /> },
         ],
       },
     ],
   },
-]);
+  ],
+  { basename: import.meta.env.BASE_URL.replace(/\/$/, '') || '/' },
+);
 
 export function App() {
   return <RouterProvider router={router} />;

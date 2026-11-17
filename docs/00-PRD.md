@@ -244,7 +244,7 @@ Hệ thống gồm ba thành phần phía người dùng (app, website, CMS) cù
 
 ## 3. Deployment diagram
 
-Toàn bộ hệ thống chạy trên một VPS. OpenLiteSpeed nhận HTTPS ở cổng 443 rồi chuyển tiếp vào một Docker container duy nhất; container vừa là API vừa phục vụ website (`/`) và CMS (`/admin`). Dữ liệu nằm trên volume gắn ngoài container nên build lại không mất dữ liệu. Triển khai bằng `deploy-vps2.sh` (đóng gói mã đã commit, build image, chạy lại container, cấu hình vhost và SSL).
+Toàn bộ hệ thống chạy trên một VPS. OpenLiteSpeed nhận HTTPS ở cổng 443 rồi chuyển tiếp vào một Docker container duy nhất; container vừa là API vừa phục vụ website (`/`) và CMS (`/admin`). Dữ liệu nằm trên volume gắn ngoài container nên build lại không mất dữ liệu. Triển khai tự động (CI/CD): commit vào `main` có CI xanh thì máy chủ tự kéo đúng commit đó về, build image và thay container; xem `04-installation.md` §4.5.
 
 ![Deployment diagram](diagrams/prd-11-deployment-diagram.png)
 

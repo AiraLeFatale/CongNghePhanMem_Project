@@ -6,6 +6,7 @@ import { createTourRepository } from './tourRepository.js';
 import { createLogRepository } from './logRepository.js';
 import { createMetaRepository } from './metaRepository.js';
 import { createAnalyticsRepository } from './analyticsRepository.js';
+import { createPaymentRepository } from './paymentRepository.js';
 
 export function createRepositories(db) {
   return {
@@ -17,5 +18,6 @@ export function createRepositories(db) {
     logs: createLogRepository(db),
     meta: createMetaRepository(db),
     analytics: createAnalyticsRepository(db),
+    payments: createPaymentRepository(db),
   };
 }

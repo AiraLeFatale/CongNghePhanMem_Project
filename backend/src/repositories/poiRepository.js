@@ -1,8 +1,8 @@
-const POI_COLUMNS = 'id, name, address, latitude, longitude, radius_m, priority, image_url, created_at, updated_at';
+const POI_COLUMNS = 'id, name, address, latitude, longitude, radius_m, priority, image_url, price, created_at, updated_at';
 
 export function createPoiRepository(db) {
   const translationsFor = db.prepare(
-    'SELECT language_code, title, narration_text, audio_url, audio_source FROM poi_translation WHERE poi_id = ? ORDER BY language_code',
+    'SELECT language_code, title, narration_text, audio_url, audio_source, is_auto FROM poi_translation WHERE poi_id = ? ORDER BY language_code',
   );
 
   return {
@@ -33,15 +33,15 @@ export function createPoiRepository(db) {
     create(data, adminId) {
       const r = db
         .prepare(
-          'INSERT INTO poi (name, address, latitude, longitude, radius_m, priority, image_url, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          'INSERT INTO poi (name, address, latitude, longitude, radius_m, priority, image_url, price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
         )
-        .run(data.name, data.address ?? null, data.latitude, data.longitude, data.radius_m, data.priority, data.image_url ?? null, adminId ?? null);
+        .run(data.name, data.address ?? null, data.latitude, data.longitude, data.radius_m, data.priority, data.image_url ?? null, data.price ?? 0, adminId ?? null);
       return Number(r.lastInsertRowid);
     },
     update(id, data) {
       db.prepare(
-        "UPDATE poi SET name = ?, address = ?, latitude = ?, longitude = ?, radius_m = ?, priority = ?, image_url = ?, updated_at = datetime('now') WHERE id = ?",
-      ).run(data.name, data.address ?? null, data.latitude, data.longitude, data.radius_m, data.priority, data.image_url ?? null, id);
+        "UPDATE poi SET name = ?, address = ?, latitude = ?, longitude = ?, radius_m = ?, priority = ?, image_url = ?, price = ?, updated_at = datetime('now') WHERE id = ?",
+      ).run(data.name, data.address ?? null, data.latitude, data.longitude, data.radius_m, data.priority, data.image_url ?? null, data.price ?? 0, id);
     },
     delete(id) {
       return db.prepare('DELETE FROM poi WHERE id = ?').run(id).changes > 0;

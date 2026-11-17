@@ -533,3 +533,40 @@ flowchart TB
 - Kiểm tra tình trạng: `GET /api/health`.
 - Nâng cấp: dừng dịch vụ, sao lưu, triển khai mã mới, `npm ci --omit=dev`, khởi động. Lược đồ dùng `CREATE TABLE IF NOT EXISTS`; thay đổi bảng đã có sẽ cần script migration (hiện chưa có).
 - Nếu các endpoint dịch/TTS miễn phí lỗi hoặc bị chặn, đặt `TRANSLATE_PROVIDER=none` / `TTS_PROVIDER=none`, hoặc chuyển sang LibreTranslate tự lưu trữ. Việc soạn nội dung và ứng dụng vẫn hoạt động bình thường.
+
+### 4.5 Tích hợp và triển khai liên tục (CI/CD)
+
+Bản chạy thật ở https://thuyetminh.hmarketing.vn được cập nhật tự động từ nhánh `main`. Không ai phải đăng nhập máy chủ để triển khai, và GitHub không giữ khoá SSH nào của máy chủ.
+
+![Quy trình CI/CD](diagrams/cai-dat-16-4-5-ci-cd.png)
+
+*Hình: Quy trình CI/CD: CI kiểm tra mọi commit; chỉ commit trên main có CI xanh mới được máy chủ kéo về chạy.*
+
+**CI** (`.github/workflows/ci.yml`) chạy với mọi pull request và mọi commit vào `main`. Workflow gồm 4 job song song:
+
+| Job | Việc kiểm tra |
+|---|---|
+| Backend · test | `npm ci`, `npm test` (kiểm thử API bằng `node:test`, DB trong bộ nhớ) |
+| CMS · typecheck & test | `npm run typecheck`, `npm test` (Vitest) |
+| Website công khai | `npm test`, `npm run build` (gồm kiểm tra kiểu TypeScript) |
+| Docker · build image | Build đúng image dùng trên máy chủ, chạy thử, gọi `/api/health`, `/`, `/admin/` |
+
+**CD** gồm 2 phần:
+
+1. Trên máy chủ, `deploy/tu-trien-khai.sh` chạy mỗi phút bằng systemd timer `thuyetminh-cd.timer`. Script thấy `main` có commit mới và workflow CI của commit đó đã xanh thì tải mã nguồn đúng commit, build image `thuyetminh:<commit>` rồi thay container. Sau đó script chờ `/api/health` báo đúng mã commit, quá 60 giây thì tự quay về image trước. Commit có CI đỏ hoặc build lỗi sẽ bị bỏ qua, bản đang chạy giữ nguyên. Cơ sở dữ liệu và file tải lên nằm ở volume `/data` nên không bị ảnh hưởng.
+2. Trên GitHub, `.github/workflows/cd.yml` chạy sau khi CI của `main` xanh. Workflow ghi một lượt triển khai vào môi trường `production` (mục *Deployments* của repo), chờ tới khi bản chạy thật báo đúng commit, rồi kiểm tra nhanh trang công khai, CMS và API. Nếu sau 15 phút máy chủ chưa lên bản mới, job báo đỏ.
+
+Kiểm tra phiên bản đang chạy: `curl https://thuyetminh.hmarketing.vn/api/health` (trường `version` là mã commit).
+
+Vận hành trên máy chủ:
+
+| Việc | Lệnh |
+|---|---|
+| Cài CD lần đầu | `bash deploy/cai-dat-cd.sh` (quyền root) |
+| Xem lịch sử triển khai | `cat /opt/thuyetminh/cd/lich-su.log` |
+| Xem log của lượt gần nhất | `journalctl -u thuyetminh-cd -n 50` |
+| Triển khai lại ngay | `bash /opt/thuyetminh/cd/tu-trien-khai.sh --ep` |
+| Tạm dừng CD | `systemctl stop thuyetminh-cd.timer` |
+| Quay về bản trước bằng tay | revert commit trên `main` (CD tự triển khai bản revert) |
+
+Quy ước cho nhóm: mọi thay đổi vào `main` đi qua pull request và chỉ gộp khi CI xanh. Gộp xong thì khoảng 3–5 phút sau bản chạy thật được cập nhật.

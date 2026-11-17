@@ -6,8 +6,23 @@ export function createPoiController(s) {
   return {
     list: (req, res) => res.json({ items: s.pois.list(req.query.q) }),
     get: (req, res) => res.json(s.pois.get(idParam(req.params.id))),
-    create: (req, res) => res.status(201).json(s.pois.create(req.body, req.admin.id)),
-    update: (req, res) => res.json(s.pois.update(idParam(req.params.id), req.body)),
+    create: (req, res) => {
+      const poi = s.pois.create(req.body, req.admin.id);
+      s.autopilot.schedule(poi.id);
+      res.status(201).json(poi);
+    },
+    update: (req, res) => {
+      const poi = s.pois.update(idParam(req.params.id), req.body);
+      s.autopilot.schedule(poi.id);
+      res.json(poi);
+    },
+    autoStatus: (req, res) => res.json(s.autopilot.status(idParam(req.params.id))),
+    autoRun: (req, res) => {
+      const id = idParam(req.params.id);
+      s.pois.get(id);
+      s.autopilot.schedule(id);
+      res.status(202).json(s.autopilot.status(id));
+    },
     remove: (req, res) => { s.pois.delete(idParam(req.params.id)); res.status(204).end(); },
     uploadAudio: (req, res) => {
       if (!req.file) throw badRequest('Chưa chọn file âm thanh (trường "audio")');

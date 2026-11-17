@@ -4,6 +4,8 @@
 
 *Multilingual Automatic Narration System*
 
+[![CI](https://github.com/AiraLeFatale/CongNghePhanMem_Project/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AiraLeFatale/CongNghePhanMem_Project/actions/workflows/ci.yml) [![CD](https://github.com/AiraLeFatale/CongNghePhanMem_Project/actions/workflows/cd.yml/badge.svg)](https://github.com/AiraLeFatale/CongNghePhanMem_Project/actions/workflows/cd.yml) · Bản chạy thật: https://thuyetminh.hmarketing.vn (CMS: `/admin`)
+
 Khách du lịch (tourist) và hành khách xe buýt (bus passenger) tại Quận 4, TP. Hồ Chí Minh (các phường Khánh Hội, Vĩnh Hội, Xóm Chiếu) được nghe thuyết minh (narration) tự động bằng ngôn ngữ của mình về các điểm tham quan (POI) ở gần. Thuyết minh bắt đầu khi người dùng đi vào bán kính (radius) GPS của một điểm hoặc quét mã QR tại trạm xe buýt (bus stop). Quản trị viên nội dung (content administrator) quản lý điểm tham quan, bản dịch (translation), audio, tour và mã QR trên CMS web, đồng thời xem thống kê (analytics) sử dụng ẩn danh.
 
 | Thành phần | Thư mục | Công nghệ |
@@ -123,6 +125,8 @@ flowchart LR
 ```
 
 *Hình: Kết quả kiểm thử ngày 18/10/2026: xanh là đạt đủ, vàng là đạt nhưng còn thiếu kiểm thử trên thiết bị*
+
+**CI/CD (17/11/2026):** mọi pull request và commit vào `main` đều chạy CI trên GitHub Actions: backend 68 test, CMS typecheck và 52 test, website 2 test và build, build image Docker và gọi thử `/api/health`. Commit vào `main` có CI xanh được máy chủ tự kéo về và triển khai lên bản chạy thật sau khoảng 3–5 phút; lỗi thì tự quay về bản trước. Chi tiết: [`docs/04-installation.md` §4.5](docs/04-installation.md).
 
 
 ---

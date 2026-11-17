@@ -9,7 +9,7 @@ import { exportReportExcel } from '../lib/exportExcel';
 import type { AnalyticsReport, TourListItem } from '../lib/types';
 import { EmptyState, ErrorState, LoadingState, PageHeader, Spinner } from '../components/States';
 import { Icon } from '../components/Icon';
-import { DonutChart, HBarChart, LineChart, VBarChart } from '../components/charts';
+import { BarList, Delta, LineChart, VBarChart } from '../components/charts';
 import { HeatMap } from '../components/maps';
 import { useToast } from '../components/Toast';
 
@@ -40,31 +40,46 @@ export function filtersQuery(f: AnalyticsFilters) {
   return p.toString();
 }
 
-export function Kpis({ r }: { r: AnalyticsReport }) {
+/** Khoảng liền trước, cùng số ngày, để so sánh. */
+export function previousRange(from: string, to: string) {
+  const a = new Date(`${from}T00:00:00`);
+  const b = new Date(`${to}T00:00:00`);
+  const days = Math.round((b.getTime() - a.getTime()) / 86_400_000) + 1;
+  const prevTo = new Date(a);
+  prevTo.setDate(prevTo.getDate() - 1);
+  const prevFrom = new Date(prevTo);
+  prevFrom.setDate(prevFrom.getDate() - (days - 1));
+  return { from: toLocalISODate(prevFrom), to: toLocalISODate(prevTo), days };
+}
+
+export function Kpis({ r, prev }: { r: AnalyticsReport; prev?: AnalyticsReport['summary'] | null }) {
   const s = r.summary;
+  const items = [
+    { label: 'Lượt nghe', value: formatNumber(s.plays), cur: s.plays, prev: prev?.plays },
+    { label: 'Phiên sử dụng', value: formatNumber(s.sessions), cur: s.sessions, prev: prev?.sessions },
+    { label: 'Nghe trung bình', value: `${formatDecimal(s.avg_listen_seconds)} giây`, cur: s.avg_listen_seconds, prev: prev?.avg_listen_seconds },
+    { label: 'Tổng thời gian nghe', value: formatDuration(s.total_listen_seconds), cur: s.total_listen_seconds, prev: prev?.total_listen_seconds },
+  ];
   return (
-    <div className="kpis">
-      <div className="kpi">
-        <span className="kpi-label">Lượt nghe</span>
-        <span className="kpi-value">{formatNumber(s.plays)}</span>
-      </div>
-      <div className="kpi">
-        <span className="kpi-label">Phiên sử dụng</span>
-        <span className="kpi-value">{formatNumber(s.sessions)}</span>
-        <span className="kpi-sub">ẩn danh, mỗi lần mở app</span>
-      </div>
-      <div className="kpi">
-        <span className="kpi-label">Nghe trung bình</span>
-        <span className="kpi-value">{formatDecimal(s.avg_listen_seconds)} giây</span>
-        <span className="kpi-sub">mỗi lượt</span>
-      </div>
-      <div className="kpi">
-        <span className="kpi-label">Tổng thời gian nghe</span>
-        <span className="kpi-value">{formatDuration(s.total_listen_seconds)}</span>
-      </div>
-    </div>
+    <dl className="kpi-strip">
+      {items.map((k) => (
+        <div key={k.label} className="kpi-cell">
+          <dt>{k.label}</dt>
+          <dd>
+            <span className="kpi-num">{k.value}</span>
+            {prev !== undefined && <Delta current={k.cur} previous={k.prev} />}
+          </dd>
+        </div>
+      ))}
+    </dl>
   );
 }
+
+const PRESETS = [
+  { days: 7, label: '7 ngày' },
+  { days: 30, label: '30 ngày' },
+  { days: 90, label: '90 ngày' },
+];
 
 export function AnalyticsPage() {
   useDocumentTitle('Thống kê');
@@ -79,7 +94,14 @@ export function AnalyticsPage() {
     () => api.analytics({ from: filters.from, to: filters.to, tour_id: filters.tourId }),
     [filters.from, filters.to, filters.tourId],
   );
+  const prevRange = previousRange(filters.from, filters.to);
+  const previous = useAsync(
+    () => api.analytics({ from: prevRange.from, to: prevRange.to, tour_id: filters.tourId }),
+    [prevRange.from, prevRange.to, filters.tourId],
+  );
   const tourName = filters.tourId ? (tours.data?.find((t) => t.id === filters.tourId)?.name ?? `Tour #${filters.tourId}`) : null;
+  const today = toLocalISODate(new Date());
+  const activePreset = filters.to === today ? PRESETS.find((p) => daysAgo(p.days - 1) === filters.from)?.days : undefined;
 
   function apply(e: FormEvent) {
     e.preventDefault();
@@ -90,7 +112,7 @@ export function AnalyticsPage() {
   }
 
   function preset(days: number) {
-    const f = { ...draft, from: daysAgo(days - 1), to: toLocalISODate(new Date()) };
+    const f = { ...draft, from: daysAgo(days - 1), to: today };
     setDraft(f);
     setRangeError(null);
     setFilters(f);
@@ -116,66 +138,71 @@ export function AnalyticsPage() {
     <>
       <PageHeader
         title="Thống kê sử dụng"
-        subtitle="Lượt nghe, thời lượng, điểm phổ biến và bản đồ nhiệt vị trí ẩn danh (UC5)"
+        subtitle={
+          <>
+            {formatDate(filters.from)} đến {formatDate(filters.to)}
+            {tourName ? <> · tour {tourName}</> : ' · tất cả điểm'}
+          </>
+        }
         actions={
           <>
             <button type="button" className="btn" onClick={onExcel} disabled={!canExport || exporting}>
-              {exporting ? <Spinner small /> : <Icon name="download" />} Xuất Excel
+              {exporting ? <Spinner small /> : <Icon name="download" />} Excel
             </button>
             {canExport ? (
               <Link to={`/analytics/report?${filtersQuery(filters)}&print=1`} className="btn">
-                <Icon name="file" /> Xuất PDF
+                <Icon name="file" /> Báo cáo PDF
               </Link>
             ) : (
               <button type="button" className="btn" disabled>
-                <Icon name="file" /> Xuất PDF
+                <Icon name="file" /> Báo cáo PDF
               </button>
             )}
           </>
         }
       />
 
-      <form className="card filters" onSubmit={apply} noValidate>
-        <div className="field">
-          <label htmlFor="f-from">Từ ngày</label>
-          <input id="f-from" type="date" value={draft.from} max={draft.to} onChange={(e) => setDraft({ ...draft, from: e.target.value })} />
+      <form className="filterbar" onSubmit={apply} noValidate>
+        <div className="segmented" role="group" aria-label="Khoảng thời gian nhanh">
+          {PRESETS.map((p) => (
+            <button key={p.days} type="button" className={activePreset === p.days ? 'on' : ''} aria-pressed={activePreset === p.days} onClick={() => preset(p.days)}>
+              {p.label}
+            </button>
+          ))}
         </div>
-        <div className="field">
-          <label htmlFor="f-to">Đến ngày</label>
+        <div className="date-range">
+          <label htmlFor="f-from" className="sr-only">
+            Từ ngày
+          </label>
+          <input id="f-from" type="date" value={draft.from} max={draft.to} onChange={(e) => setDraft({ ...draft, from: e.target.value })} />
+          <span className="muted" aria-hidden="true">
+            đến
+          </span>
+          <label htmlFor="f-to" className="sr-only">
+            Đến ngày
+          </label>
           <input id="f-to" type="date" value={draft.to} min={draft.from} onChange={(e) => setDraft({ ...draft, to: e.target.value })} />
         </div>
-        <div className="field">
-          <label htmlFor="f-tour">Tour</label>
-          <select
-            id="f-tour"
-            value={draft.tourId ?? ''}
-            onChange={(e) => setDraft({ ...draft, tourId: e.target.value ? Number(e.target.value) : null })}
-            disabled={tours.loading}
-          >
-            <option value="">Tất cả tour</option>
-            {(tours.data ?? []).map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="filter-actions">
-          <button type="submit" className="btn btn-primary">
-            Xem báo cáo
-          </button>
-          <div className="presets" role="group" aria-label="Khoảng thời gian nhanh">
-            <button type="button" className="btn btn-sm" onClick={() => preset(7)}>
-              7 ngày
-            </button>
-            <button type="button" className="btn btn-sm" onClick={() => preset(30)}>
-              30 ngày
-            </button>
-            <button type="button" className="btn btn-sm" onClick={() => preset(90)}>
-              90 ngày
-            </button>
-          </div>
-        </div>
+        <label htmlFor="f-tour" className="sr-only">
+          Tour
+        </label>
+        <select
+          id="f-tour"
+          className="filter-select"
+          value={draft.tourId ?? ''}
+          onChange={(e) => setDraft({ ...draft, tourId: e.target.value ? Number(e.target.value) : null })}
+          disabled={tours.loading}
+        >
+          <option value="">Tất cả tour</option>
+          {(tours.data ?? []).map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
+          ))}
+        </select>
+        <button type="submit" className="btn btn-primary">
+          Áp dụng
+        </button>
         {rangeError && (
           <p className="field-error filters-error" role="alert">
             {rangeError}
@@ -183,11 +210,6 @@ export function AnalyticsPage() {
         )}
         {tours.error && <p className="field-error filters-error">Không tải được danh sách tour: {tours.error}</p>}
       </form>
-
-      <p className="muted small range-note" aria-live="polite">
-        Đang xem: {formatDate(filters.from)} – {formatDate(filters.to)}
-        {tourName ? ` · Tour: ${tourName} (lượt nghe tại các điểm thuộc tour)` : ' · Tất cả điểm'}
-      </p>
 
       {report.loading && !r ? (
         <LoadingState text="Đang tổng hợp số liệu…" />
@@ -201,20 +223,34 @@ export function AnalyticsPage() {
         </div>
       ) : (
         <div className={`analytics${report.loading ? ' is-refreshing' : ''}`} aria-busy={report.loading}>
-          <Kpis r={r} />
-          <AnalyticsCharts r={r} from={filters.from} to={filters.to} />
+          <section className="card card-flush">
+            <Kpis r={r} prev={previous.data ? previous.data.summary : null} />
+            <div className="card-body">
+              <DailyChart r={r} from={filters.from} to={filters.to} />
+            </div>
+          </section>
+          <AnalyticsCharts r={r} />
           <section className="card">
             <div className="card-head">
-              <h2 className="card-title">Bản đồ nhiệt vị trí người dùng</h2>
+              <div>
+                <h2 className="card-title">Bản đồ nhiệt vị trí</h2>
+                <p className="card-desc">
+                  Vị trí làm tròn khoảng 11 m, không gắn với danh tính. Chấm trắng là các điểm thuyết minh.
+                  {r.heatmap.length === 0 && ' Không có dữ liệu vị trí trong khoảng này.'}
+                </p>
+              </div>
               <label className="switch">
                 <input type="checkbox" checked={showRoutes} onChange={(e) => setShowRoutes(e.target.checked)} />
-                <span>Hiện lộ trình ẩn danh ({r.routes.length})</span>
+                <span>Lộ trình ẩn danh ({r.routes.length})</span>
               </label>
             </div>
-            <p className="muted small">
-              Vị trí được làm tròn ~11 m và không gắn với danh tính. Chấm trắng là các điểm thuyết minh. {r.heatmap.length === 0 && 'Không có dữ liệu vị trí trong khoảng này.'}
-            </p>
             <HeatMap heat={r.heatmap} routes={r.routes} showRoutes={showRoutes} pois={r.per_poi} />
+          </section>
+          <section className="card card-flush">
+            <div className="card-head card-head-pad">
+              <h2 className="card-title">Chi tiết theo điểm</h2>
+            </div>
+            <PerPoiTable r={r} />
           </section>
         </div>
       )}
@@ -222,62 +258,57 @@ export function AnalyticsPage() {
   );
 }
 
-export function AnalyticsCharts({ r, from, to }: { r: AnalyticsReport; from: string; to: string }) {
-  const top = [...r.per_poi].sort((a, b) => b.plays - a.plays).slice(0, 10);
-  const byListen = [...r.per_poi].filter((p) => p.plays > 0).sort((a, b) => b.avg_listen_seconds - a.avg_listen_seconds).slice(0, 10);
+export function DailyChart({ r, from, to, height = 240 }: { r: AnalyticsReport; from: string; to: string; height?: number }) {
   const daily = fillDaily(r.daily, from, to);
+  return <LineChart labels={daily.map((d) => formatDate(d.date).slice(0, 5))} values={daily.map((d) => d.plays)} label="Lượt nghe" height={height} />;
+}
+
+export function AnalyticsCharts({ r }: { r: AnalyticsReport }) {
+  const top = [...r.per_poi].filter((p) => p.plays > 0).sort((a, b) => b.plays - a.plays).slice(0, 8);
+  const byListen = [...r.per_poi].filter((p) => p.plays > 0).sort((a, b) => b.avg_listen_seconds - a.avg_listen_seconds).slice(0, 8);
   const hourly = hourlyToLocal(r.hourly);
+  const poiLink = (id: number, name: string) => (
+    <Link to={`/pois/${id}`} className="barlist-link">
+      {name}
+    </Link>
+  );
   return (
     <>
       <div className="grid-2">
         <section className="card">
-          <h2 className="card-title">Điểm được nghe nhiều nhất</h2>
-          {top.length ? <HBarChart labels={top.map((p) => p.name)} values={top.map((p) => p.plays)} label="Lượt nghe" /> : <p className="muted">Chưa có lượt nghe.</p>}
+          <h2 className="card-title">Điểm được nghe nhiều</h2>
+          <BarList valueLabel="Lượt nghe" items={top.map((p) => ({ key: p.poi_id, label: poiLink(p.poi_id, p.name), value: p.plays }))} empty="Chưa có lượt nghe." />
         </section>
         <section className="card">
-          <h2 className="card-title">Thời gian nghe trung bình theo điểm</h2>
-          {byListen.length ? (
-            <HBarChart labels={byListen.map((p) => p.name)} values={byListen.map((p) => p.avg_listen_seconds)} label="Nghe TB" unit=" giây" color="#2563eb" />
-          ) : (
-            <p className="muted">Chưa có lượt nghe.</p>
-          )}
+          <h2 className="card-title">Thời gian nghe trung bình</h2>
+          <BarList
+            valueLabel="Giây / lượt"
+            format={(n) => formatDecimal(n)}
+            items={byListen.map((p) => ({ key: p.poi_id, label: poiLink(p.poi_id, p.name), value: p.avg_listen_seconds }))}
+            empty="Chưa có lượt nghe."
+          />
         </section>
       </div>
-      <section className="card">
-        <h2 className="card-title">Lượt nghe theo ngày</h2>
-        <LineChart labels={daily.map((d) => formatDate(d.date).slice(0, 5))} values={daily.map((d) => d.plays)} label="Lượt nghe" />
-      </section>
       <div className="grid-3">
         <section className="card">
+          <h2 className="card-title">Ngôn ngữ</h2>
+          <BarList valueLabel="Lượt nghe" items={[...r.by_language].sort((a, b) => b.plays - a.plays).map((l) => ({ key: l.language, label: languageLabel(l.language), value: l.plays }))} />
+        </section>
+        <section className="card">
           <h2 className="card-title">Cách kích hoạt</h2>
-          {r.by_method.length ? (
-            <DonutChart labels={r.by_method.map((m) => triggerLabel(m.method))} values={r.by_method.map((m) => m.plays)} label="Cách kích hoạt" />
-          ) : (
-            <p className="muted">Không có dữ liệu.</p>
-          )}
+          <BarList valueLabel="Lượt nghe" items={[...r.by_method].sort((a, b) => b.plays - a.plays).map((m) => ({ key: m.method, label: triggerLabel(m.method), value: m.plays }))} />
         </section>
         <section className="card">
-          <h2 className="card-title">Ngôn ngữ nghe</h2>
-          {r.by_language.length ? (
-            <DonutChart labels={r.by_language.map((l) => languageLabel(l.language))} values={r.by_language.map((l) => l.plays)} label="Ngôn ngữ" />
-          ) : (
-            <p className="muted">Không có dữ liệu.</p>
-          )}
-        </section>
-        <section className="card">
-          <h2 className="card-title">Theo giờ trong ngày</h2>
-          <VBarChart labels={hourly.map((h) => `${h.hour}h`)} values={hourly.map((h) => h.plays)} label="Lượt nghe" height={260} />
-          <p className="muted small">Giờ Việt Nam (UTC+7)</p>
+          <div className="card-head">
+            <h2 className="card-title">Theo giờ trong ngày</h2>
+            <span className="muted small">Giờ Việt Nam</span>
+          </div>
+          <VBarChart labels={hourly.map((h) => `${h.hour}h`)} values={hourly.map((h) => h.plays)} label="Lượt nghe" height={200} />
         </section>
       </div>
-      <section className="card">
-        <h2 className="card-title">Chi tiết theo điểm</h2>
-        <PerPoiTable r={r} />
-      </section>
     </>
   );
 }
-
 export function PerPoiTable({ r }: { r: AnalyticsReport }) {
   const rows = [...r.per_poi].sort((a, b) => b.plays - a.plays);
   return (
@@ -302,7 +333,11 @@ export function PerPoiTable({ r }: { r: AnalyticsReport }) {
           {rows.map((p, i) => (
             <tr key={p.poi_id}>
               <td>{i + 1}</td>
-              <td>{p.name}</td>
+              <td>
+                <Link to={`/pois/${p.poi_id}`} className="row-title">
+                  {p.name}
+                </Link>
+              </td>
               <td className="num">{formatNumber(p.plays)}</td>
               <td className="num">{formatNumber(p.sessions)}</td>
               <td className="num nowrap">{formatDecimal(p.avg_listen_seconds)} giây</td>

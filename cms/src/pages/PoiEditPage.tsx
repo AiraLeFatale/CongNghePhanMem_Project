@@ -1,10 +1,10 @@
-import { useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { api, ApiError, errorMessage, qrContent } from '../lib/api';
 import { DEFAULT_LANGUAGE, LANGUAGES, languageLabel } from '../lib/languages';
 import { useAsync, useDocumentTitle } from '../lib/useAsync';
 import { useUnsavedWarning } from '../lib/useUnsavedWarning';
-import type { LanguageCode, Poi, PoiListItem, QrCode } from '../lib/types';
+import type { AutoStatus, LanguageCode, Poi, PoiListItem, QrCode } from '../lib/types';
 import {
   emptyPoiForm,
   filledLanguages,
@@ -27,7 +27,7 @@ import { QrImage } from '../components/QrImage';
 import { useConfirm } from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';
 
-const FIELD_ORDER = ['name', 'latitude', 'longitude', 'radius_m', 'priority', ...LANGUAGES.map((l) => translationKey(l.code))];
+const FIELD_ORDER = ['name', 'latitude', 'longitude', 'radius_m', 'priority', 'price', ...LANGUAGES.map((l) => translationKey(l.code))];
 
 export function PoiEditPage() {
   const { id } = useParams();
@@ -47,7 +47,7 @@ function PoiEditor({ poiId }: { poiId: number | null }) {
   if (loaded.error) {
     return (
       <>
-        <PageHeader title="Sửa điểm thuyết minh" actions={<Link to="/pois" className="btn">← Danh sách</Link>} />
+        <PageHeader title="Sửa điểm thuyết minh" crumbs={[{ to: '/pois', label: 'Điểm thuyết minh' }]} />
         <ErrorState message={loaded.error} onRetry={loaded.reload} />
       </>
     );
@@ -102,6 +102,67 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
     if (!keepEdits) setForm(fresh);
   }
 
+  // ---- Tự dịch + tạo giọng đọc chạy nền trên máy chủ sau mỗi lần lưu ----
+  const [auto, setAuto] = useState<AutoStatus | null>(null);
+  const [autoTick, setAutoTick] = useState(0);
+  const [autoSeen, setAutoSeen] = useState(false);
+  const formRef = useRef(form);
+  formRef.current = form;
+  const savedRef = useRef(saved);
+  savedRef.current = saved;
+  useEffect(() => {
+    if (!poi) return;
+    let alive = true;
+    let timer: ReturnType<typeof setTimeout>;
+    let wasActive = false;
+    const poll = async () => {
+      try {
+        const st = await api.autoStatus(poi.id);
+        if (!alive) return;
+        setAuto(st);
+        const active = st.state === 'queued' || st.state === 'running';
+        if (active) {
+          wasActive = true;
+          setAutoSeen(true);
+          timer = setTimeout(poll, 1500);
+        } else if (wasActive) {
+          // Xong: nạp bản dịch + audio mới, giữ nguyên những ô người dùng đang sửa dở.
+          const fresh = await api.getPoi(poi.id);
+          if (!alive) return;
+          const freshForm = poiToForm(fresh);
+          const cur = formRef.current;
+          const old = savedRef.current;
+          const merged = { ...cur, translations: { ...cur.translations } };
+          for (const code of Object.keys(freshForm.translations) as LanguageCode[]) {
+            const untouched = JSON.stringify(cur.translations[code]) === JSON.stringify(old.translations[code]);
+            if (untouched) merged.translations[code] = freshForm.translations[code];
+          }
+          setPoi(fresh);
+          setSaved(freshForm);
+          setForm(merged);
+        }
+      } catch {
+        if (alive) timer = setTimeout(poll, 4000);
+      }
+    };
+    poll();
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [poi?.id, autoTick]);
+
+  async function rerunAuto() {
+    if (!poi) return;
+    try {
+      setAuto(await api.autoRun(poi.id));
+      setAutoTick((n) => n + 1);
+    } catch (err) {
+      toast.error(errorMessage(err));
+    }
+  }
+
   function focusFirstError(errs: FieldErrors) {
     const first = FIELD_ORDER.find((k) => errs[k]) ?? Object.keys(errs)[0];
     if (!first) return;
@@ -134,6 +195,7 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
         navigate(`/pois/${result.id}`, { replace: true });
       } else {
         applyPoi(result, false);
+        setAutoTick((n) => n + 1);
       }
       return result;
     } catch (err) {
@@ -342,17 +404,13 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
             <>Cập nhật lần cuối: {formatDateTime(poi?.updated_at)}</>
           )
         }
+        crumbs={[{ to: '/pois', label: 'Điểm thuyết minh' }]}
         actions={
-          <>
-            <Link to="/pois" className="btn">
-              ← Danh sách
-            </Link>
-            {!isNew && (
-              <button type="button" className="btn btn-ghost-danger" onClick={onDelete} disabled={deleting}>
-                <Icon name="trash" /> Xoá điểm
-              </button>
-            )}
-          </>
+          !isNew && (
+            <button type="button" className="btn btn-ghost-danger" onClick={onDelete} disabled={deleting}>
+              <Icon name="trash" /> Xoá điểm
+            </button>
+          )
         }
       />
 
@@ -396,6 +454,14 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
                   <input type="number" min={0} max={100} step={1} value={form.priority} onChange={(e) => set('priority', e.target.value)} {...fieldAria('poi-priority', errors.priority, true)} />
                 </Field>
               </div>
+              <Field
+                id="poi-price"
+                label="Phí nghe (đồng)"
+                error={errors.price}
+                hint="0 là miễn phí. Có phí thì khách chỉ nghe được câu đầu, thanh toán VietQR xong tự mở khoá. Điểm gắn với mã QR trạm xe nên để miễn phí."
+              >
+                <input inputMode="numeric" placeholder="0" value={form.price} onChange={(e) => set('price', e.target.value)} {...fieldAria('poi-price', errors.price, true)} />
+              </Field>
               <div className="field">
                 <span className="label">Ảnh minh hoạ (không bắt buộc)</span>
                 <div className="image-row">
@@ -497,6 +563,10 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
           </section>
         )}
 
+        {auto?.enabled && auto.state !== 'idle' && (autoSeen || auto.state === 'error') && (
+          <AutoBanner status={auto} onRetry={rerunAuto} />
+        )}
+
         <div className={`save-bar${dirty ? ' is-dirty' : ''}`}>
           <span className="save-status" aria-live="polite">
             {dirty ? '● Có thay đổi chưa lưu' : isNew ? 'Điểm mới chưa được lưu' : 'Đã lưu mọi thay đổi'}
@@ -514,6 +584,46 @@ function PoiFormView({ initial, isNew, others }: { initial: Poi | null; isNew: b
         </div>
       </form>
     </>
+  );
+}
+
+function AutoBanner({ status, onRetry }: { status: AutoStatus; onRetry: () => void }) {
+  const active = status.state === 'queued' || status.state === 'running';
+  const pct = status.total ? Math.round((status.done / status.total) * 100) : 0;
+  return (
+    <div className={`auto-banner auto-${status.state}`} role="status" aria-live="polite">
+      {active ? <Spinner small /> : <Icon name={status.state === 'error' ? 'warning' : 'check'} size={16} />}
+      <div className="auto-text">
+        <strong>
+          {active
+            ? 'Đang tự dịch và tạo giọng đọc'
+            : status.state === 'error'
+              ? 'Tự động hoá xong nhưng có bước bị lỗi'
+              : 'Đã tự dịch và tạo giọng đọc cho mọi ngôn ngữ'}
+        </strong>
+        <span>
+          {active ? `${status.step ?? ''} · ${status.done}/${status.total || '…'}` : 'Bản dịch máy được làm lại mỗi khi bạn sửa nội dung tiếng Việt; bản bạn tự sửa sẽ được giữ nguyên.'}
+        </span>
+        {status.errors.length > 0 && (
+          <ul>
+            {status.errors.map((e) => (
+              <li key={e}>{e}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {active ? (
+        <div className="auto-meter" aria-hidden="true">
+          <span style={{ width: `${pct}%` }} />
+        </div>
+      ) : (
+        status.state === 'error' && (
+          <button type="button" className="btn btn-sm" onClick={onRetry}>
+            Chạy lại
+          </button>
+        )
+      )}
+    </div>
   );
 }
 
@@ -625,6 +735,7 @@ function TranslationPanel({
         <div className="tr-head">
           <h3 className="sub-title">
             {languageLabel(code)} {isDefault && <span className="muted small">(ngôn ngữ mặc định, bắt buộc)</span>}
+            {!isDefault && saved?.is_auto ? <span className="badge auto-tag">Dịch máy</span> : null}
           </h3>
           {!isDefault && (
             <button type="button" className="btn btn-sm" onClick={onTranslate} disabled={!!translating || !!busy.all}>
@@ -645,6 +756,11 @@ function TranslationPanel({
             {...fieldAria(textId, error, true)}
           />
         </Field>
+        {isDefault && (
+          <p className="field-hint auto-hint">
+            Chỉ cần nhập tiếng Việt rồi bấm Lưu. Hệ thống tự dịch sang 5 ngôn ngữ còn lại và tạo giọng đọc cho cả 6, không cần bấm thêm nút nào.
+          </p>
+        )}
         {willDelete && (
           <p className="alert alert-warn small">Đã xoá hết nội dung: khi lưu, bản {languageLabel(code)} và audio kèm theo sẽ bị gỡ.</p>
         )}
@@ -666,7 +782,7 @@ function TranslationPanel({
                 <p className="muted small">Nguồn: {saved?.audio_source === 'tts' ? 'Giọng đọc tự động (TTS)' : 'File tải lên'}</p>
               </>
             ) : (
-              <p className="muted small">Chưa có audio — app sẽ đọc bằng giọng máy của điện thoại.</p>
+              <p className="muted small">Chưa có audio. App sẽ đọc bằng giọng máy của điện thoại.</p>
             )}
             {audioSrc && textChanged && savedHasText && (
               <p className="alert alert-warn small">Nội dung đã thay đổi so với lúc tạo audio. Cân nhắc tạo lại giọng đọc.</p>
@@ -701,7 +817,7 @@ function TranslationPanel({
               </p>
             )}
             {!savedHasText && <p className="muted small">Cần lưu nội dung {languageLabel(code)} trước khi gắn audio.</p>}
-            {savedHasText && dirty && <p className="muted small">TTS dùng nội dung đã lưu — hệ thống sẽ hỏi lưu trước.</p>}
+            {savedHasText && dirty && <p className="muted small">TTS dùng nội dung đã lưu, hệ thống sẽ hỏi lưu trước.</p>}
             <p className="muted small">MP3, M4A, AAC, WAV, OGG, WebM · tối đa 15 MB</p>
           </>
         )}

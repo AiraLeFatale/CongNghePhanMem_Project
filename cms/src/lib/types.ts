@@ -14,6 +14,7 @@ export interface PoiListItem {
   longitude: number;
   radius_m: number;
   priority: number;
+  price?: number;
   image_url: string | null;
   created_at?: string;
   updated_at?: string;
@@ -28,6 +29,8 @@ export interface Translation {
   narration_text: string;
   audio_url: string | null;
   audio_source: 'tts' | 'upload' | null;
+  /** 1: bản dịch máy, sẽ được dịch lại khi bản tiếng Việt đổi. */
+  is_auto?: number;
 }
 
 export interface QrCode {
@@ -48,6 +51,7 @@ export interface Poi {
   longitude: number;
   radius_m: number;
   priority: number;
+  price?: number;
   image_url: string | null;
   created_at?: string;
   updated_at?: string;
@@ -62,6 +66,7 @@ export interface PoiInput {
   longitude: number;
   radius_m: number;
   priority: number;
+  price?: number;
   image_url: string | null;
   translations: { language_code: LanguageCode; title: string | null; narration_text: string }[];
 }
@@ -115,4 +120,33 @@ export interface AnalyticsQuery {
   from?: string;
   to?: string;
   tour_id?: number | null;
+}
+
+export interface PaymentOrder {
+  id: number;
+  code: string;
+  poi_id: number;
+  poi_name: string;
+  amount: number;
+  status: 'pending' | 'paid' | 'cancelled';
+  created_at: string;
+  paid_at: string | null;
+  claimed_at: string | null;
+  confirmed_by: string | null;
+}
+
+export interface OrderList {
+  items: PaymentOrder[];
+  totals: Partial<Record<PaymentOrder['status'] | 'claimed', { count: number; amount: number }>>;
+  enabled: boolean;
+}
+
+/** Tiến độ tự dịch + tạo giọng đọc chạy nền sau khi lưu điểm. */
+export interface AutoStatus {
+  enabled: boolean;
+  state: 'idle' | 'queued' | 'running' | 'done' | 'error';
+  done: number;
+  total: number;
+  step?: string;
+  errors: string[];
 }

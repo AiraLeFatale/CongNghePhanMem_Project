@@ -26,7 +26,7 @@ function TourLoader({ tourId }: { tourId: number | null }) {
   if (err)
     return (
       <>
-        <PageHeader title="Tour tham quan" actions={<Link to="/tours" className="btn">← Danh sách</Link>} />
+        <PageHeader title="Tour tham quan" crumbs={[{ to: '/tours', label: 'Tour tham quan' }]} />
         <ErrorState
           message={err}
           onRetry={() => {
@@ -164,17 +164,13 @@ function TourForm({ initial, pois }: { initial: Tour | null; pois: PoiListItem[]
       <PageHeader
         title={isNew ? 'Tạo tour tham quan' : initial.name}
         subtitle="Chọn điểm thuyết minh và sắp xếp theo thứ tự tham quan"
+        crumbs={[{ to: '/tours', label: 'Tour tham quan' }]}
         actions={
-          <>
-            <Link to="/tours" className="btn">
-              ← Danh sách
-            </Link>
-            {!isNew && (
-              <button type="button" className="btn btn-ghost-danger" onClick={onDelete}>
-                <Icon name="trash" /> Xoá tour
-              </button>
-            )}
-          </>
+          !isNew && (
+            <button type="button" className="btn btn-ghost-danger" onClick={onDelete}>
+              <Icon name="trash" /> Xoá tour
+            </button>
+          )
         }
       />
       <form onSubmit={onSubmit} noValidate>

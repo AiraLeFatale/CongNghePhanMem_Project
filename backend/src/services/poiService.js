@@ -27,6 +27,10 @@ export function validatePoiInput(body) {
   const priority = body?.priority === undefined || body?.priority === '' ? 1 : Number(body.priority);
   if (!Number.isInteger(priority) || priority < 0 || priority > 100) errors.priority = 'Mức ưu tiên là số nguyên từ 0 đến 100';
 
+  const price = body?.price === undefined || body?.price === '' || body?.price === null ? 0 : Number(body.price);
+  if (!Number.isInteger(price) || price < 0 || price > 500000) errors.price = 'Phí nghe là số nguyên từ 0 đến 500.000 đồng';
+  else if (price > 0 && price < 1000) errors.price = 'Phí nghe tối thiểu 1.000 đồng (hoặc 0 nếu miễn phí)';
+
   const translations = Array.isArray(body?.translations) ? body.translations : [];
   const seen = new Set();
   const cleaned = [];
@@ -60,6 +64,7 @@ export function validatePoiInput(body) {
     radius_m: Math.round(radius),
     priority,
     image_url: trimOrNull(body.image_url, 1000),
+    price,
     translations: cleaned,
   };
 }
@@ -97,7 +102,12 @@ export function createPoiService(repos) {
       const data = validatePoiInput(body);
       const removed = transaction(repos.db, () => {
         pois.update(id, data);
-        for (const t of data.translations) translations.upsertText(id, t);
+        for (const t of data.translations) {
+          const old = before.translations.find((x) => x.language_code === t.language_code);
+          translations.upsertText(id, t);
+          const edited = !old || old.narration_text !== t.narration_text || (old.title ?? null) !== (t.title ?? null);
+          if (edited && t.language_code !== config.defaultLanguage) translations.markManual(id, t.language_code);
+        }
         const gone = translations.deleteExcept(id, data.translations.map((t) => t.language_code));
         meta.bumpContentVersion();
         return gone;

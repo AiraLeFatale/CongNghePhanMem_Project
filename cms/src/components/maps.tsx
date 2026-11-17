@@ -10,7 +10,7 @@ export function OsmTiles() {
   return (
     <TileLayer
       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
       maxZoom={19}
     />
   );
@@ -42,11 +42,13 @@ function ClickToPick({ onPick }: { onPick: (lat: number, lng: number) => void })
 }
 
 /** Khi toạ độ đổi từ ô nhập tay, đưa điểm vào giữa nếu đang nằm ngoài khung nhìn. */
+// Các lệnh đổi khung nhìn tự động đều tắt hiệu ứng (animate: false): nếu trang bị dựng lại giữa lúc
+// đang zoom (vd. vừa lưu xong chuyển sang /pois/:id), Leaflet sẽ báo lỗi _leaflet_pos và làm sập trang.
 function KeepInView({ pos }: { pos: [number, number] | null }) {
   const map = useMap();
   useEffect(() => {
     if (!pos) return;
-    if (!map.getBounds().pad(-0.1).contains(pos)) map.setView(pos, Math.max(map.getZoom(), 15));
+    if (!map.getBounds().pad(-0.1).contains(pos)) map.setView(pos, Math.max(map.getZoom(), 15), { animate: false });
   }, [map, pos]);
   return null;
 }
@@ -128,8 +130,8 @@ function FitBounds({ points, padding = 40 }: { points: [number, number][]; paddi
   const key = JSON.stringify(points);
   useEffect(() => {
     if (points.length === 0) return;
-    if (points.length === 1) map.setView(points[0], 16);
-    else map.fitBounds(L.latLngBounds(points), { padding: [padding, padding], maxZoom: 17 });
+    if (points.length === 1) map.setView(points[0], 16, { animate: false });
+    else map.fitBounds(L.latLngBounds(points), { padding: [padding, padding], maxZoom: 17, animate: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, key]);
   return null;
@@ -143,7 +145,7 @@ export function TourMap({ stops }: { stops: { id: number; name: string; latitude
       <FitBounds points={points} />
       {points.length > 1 && <Polyline positions={points} pathOptions={{ color: ACCENT, weight: 4, opacity: 0.85, dashArray: '8 6' }} />}
       {stops.map((s, i) => (
-        <Marker key={s.id} position={[s.latitude, s.longitude]} icon={numberIcon(i + 1)} title={`${i + 1}. ${s.name}`}>
+        <Marker key={s.id} position={[s.latitude, s.longitude]} icon={numberIcon(i + 1)}>
           <Tooltip direction="top" offset={[0, -12]}>
             {i + 1}. {s.name}
           </Tooltip>

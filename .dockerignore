@@ -1,0 +1,10 @@
+**/node_modules
+**/dist
+backend/data
+backend/uploads
+mobile
+docs
+.git
+*.docx
+.github
+deploy

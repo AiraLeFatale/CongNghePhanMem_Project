@@ -29,6 +29,31 @@ export function splitText(text, max = CHUNK) {
   return merged;
 }
 
+/** Giọng đọc tự nhiên của ElevenLabs. Mỗi lần gọi tối đa vài nghìn ký tự nên cắt theo câu. */
+async function elevenLabs(text, lang, { fetchImpl, settings = config.elevenLabs }) {
+  const voice = settings.voices[lang];
+  const buffers = [];
+  for (const chunk of splitText(text, 2500)) {
+    const res = await fetchImpl(`https://api.elevenlabs.io/v1/text-to-speech/${voice}?output_format=mp3_44100_128`, {
+      method: 'POST',
+      headers: { 'xi-api-key': settings.apiKey, 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
+      body: JSON.stringify({
+        text: chunk,
+        model_id: settings.model,
+        language_code: lang,
+        voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.2, use_speaker_boost: true },
+      }),
+      signal: AbortSignal.timeout(90000),
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '');
+      throw upstream(`ElevenLabs trả lỗi ${res.status}${detail ? `: ${detail.slice(0, 160)}` : ''}`);
+    }
+    buffers.push(Buffer.from(await res.arrayBuffer()));
+  }
+  return Buffer.concat(buffers);
+}
+
 /** Sinh file MP3 từ văn bản. Trả về Buffer. */
 export function createTts({ provider = config.ttsProvider, fetchImpl = fetch } = {}) {
   return {
@@ -38,6 +63,15 @@ export function createTts({ provider = config.ttsProvider, fetchImpl = fetch } =
       const t = String(text ?? '').trim();
       if (!t) throw badRequest('Chưa có nội dung thuyết minh để chuyển thành giọng đọc');
       if (provider === 'none') throw badRequest('Máy chủ chưa bật TTS (TTS_PROVIDER=none). App vẫn đọc bằng giọng của máy.');
+      if (provider === 'elevenlabs') {
+        if (!config.elevenLabs.apiKey) throw badRequest('Thiếu ELEVENLABS_API_KEY trên máy chủ');
+        try {
+          return await elevenLabs(t, lang, { fetchImpl });
+        } catch (err) {
+          if (err.status) throw err;
+          throw upstream('Không kết nối được ElevenLabs, thử lại sau');
+        }
+      }
       const chunks = splitText(t);
       if (chunks.length > 60) throw badRequest('Nội dung quá dài để tạo giọng đọc (tối đa ~10.000 ký tự)');
       const buffers = [];
