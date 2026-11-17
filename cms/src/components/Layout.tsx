@@ -56,11 +56,15 @@ export function Layout() {
         >
           <Icon name={open ? 'x' : 'menu'} size={20} />
         </button>
-        <img src={LOGO} alt="Thuyết minh Quận 4" className="brand-logo-top" width={381} height={150} />
+        <a href="/" target="_blank" rel="noopener" className="brand-home" title="Mở trang chủ website (tab mới)">
+          <img src={LOGO} alt="Thuyết minh Quận 4 – mở trang chủ" className="brand-logo-top" width={381} height={150} />
+        </a>
       </header>
       <aside id="sidebar" className="sidebar">
         <div className="brand">
-          <img src={LOGO_LIGHT} alt="Thuyết minh Quận 4 – Quản trị nội dung" className="brand-logo" width={381} height={150} />
+          <a href="/" target="_blank" rel="noopener" className="brand-home" title="Mở trang chủ website (tab mới)">
+            <img src={LOGO_LIGHT} alt="Thuyết minh Quận 4 – mở trang chủ" className="brand-logo" width={381} height={150} />
+          </a>
         </div>
         <nav aria-label="Điều hướng chính" className="nav-groups">
           {NAV_GROUPS.map((g, i) => (
@@ -78,6 +82,18 @@ export function Layout() {
               </ul>
             </div>
           ))}
+          <div className="nav-group">
+            <p className="nav-heading">Website</p>
+            <ul className="nav">
+              <li>
+                <a href="/" target="_blank" rel="noopener" className="nav-link">
+                  <Icon name="globe" size={17} />
+                  <span>Xem trang chủ</span>
+                  <Icon name="external" size={13} className="nav-ext" />
+                </a>
+              </li>
+            </ul>
+          </div>
         </nav>
         <div className="sidebar-footer">
           <NavLink to="/account" className={({ isActive }) => `user-chip${isActive ? ' active' : ''}`}>

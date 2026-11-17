@@ -2356,3 +2356,17 @@ textarea {
     padding: 16px;
   }
 }
+
+/* Đường dẫn ra website công khai */
+.brand-home {
+  display: inline-block;
+  border-radius: 10px;
+}
+.brand-home:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.nav-link .nav-ext {
+  margin-left: auto;
+  opacity: 0.6;
+}

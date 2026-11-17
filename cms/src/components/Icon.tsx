@@ -1,4 +1,5 @@
 import {
+  ArrowSquareOut,
   ArrowDown,
   ArrowRight,
   ArrowUp,
@@ -57,6 +58,7 @@ const ICONS: Record<string, PhosphorIcon> = {
   warning: Warning,
   wallet: Wallet,
   check: CheckCircle,
+  external: ArrowSquareOut,
 };
 
 export function Icon({ name, size = 16, className, weight = 'regular' }: { name: string; size?: number; className?: string; weight?: 'regular' | 'bold' | 'fill' }) {
