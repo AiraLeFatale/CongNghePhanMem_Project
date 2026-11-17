@@ -1611,3 +1611,119 @@ main {
   font-weight: 700;
   color: var(--ink);
 }
+
+/* ---------- Chọn ngôn ngữ có cờ ---------- */
+.lang-pick {
+  position: relative;
+}
+.lang-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 42px;
+  padding: 0 14px 0 8px;
+  border: 1px solid rgba(15, 74, 54, 0.12);
+  border-radius: 999px;
+  background: #fff;
+  color: #12291f;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(18, 41, 31, 0.06), 0 8px 22px rgba(18, 41, 31, 0.1);
+  transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+}
+.lang-btn:hover {
+  border-color: rgba(15, 74, 54, 0.3);
+  box-shadow: 0 2px 4px rgba(18, 41, 31, 0.08), 0 10px 26px rgba(18, 41, 31, 0.14);
+}
+.lang-btn:focus-visible {
+  outline: 3px solid rgba(23, 101, 76, 0.35);
+  outline-offset: 2px;
+}
+.flag {
+  display: block;
+  flex: none;
+  width: 24px;
+  height: 16px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+.lang-btn .flag {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(0, 0, 0, 0.08);
+}
+.lang-short {
+  display: none;
+}
+.lang-caret {
+  color: #17614a;
+  transition: transform 0.2s;
+}
+.lang-pick.open .lang-caret {
+  transform: rotate(180deg);
+}
+.lang-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 1200;
+  min-width: 210px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid rgba(15, 74, 54, 0.1);
+  box-shadow: 0 18px 44px rgba(18, 41, 31, 0.18), 0 2px 6px rgba(18, 41, 31, 0.06);
+  outline: none;
+  animation: lang-in 0.14s ease-out;
+}
+@keyframes lang-in {
+  from { opacity: 0; transform: translateY(-4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lang-menu { animation: none; }
+}
+.lang-menu li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #12291f;
+  cursor: pointer;
+}
+.lang-menu li.active {
+  background: #eef6f1;
+}
+.lang-menu li.current {
+  font-weight: 700;
+  color: #0f4a36;
+}
+.lang-check {
+  margin-left: auto;
+  color: #17614a;
+}
+@media (max-width: 760px) {
+  .lang-btn {
+    height: 38px;
+    gap: 7px;
+    padding: 0 10px 0 6px;
+    font-size: 13.5px;
+  }
+  .lang-name {
+    display: none;
+  }
+  .lang-short {
+    display: inline;
+  }
+  .lang-btn .flag {
+    width: 24px;
+    height: 24px;
+  }
+}
