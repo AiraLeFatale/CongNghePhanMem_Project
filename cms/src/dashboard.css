@@ -1,6 +1,5 @@
 /* Trang Tổng quan theo mẫu 11/2026: lời chào trên nền ảnh Nhà Rồng, 4 thẻ màu số trực tiếp,
    biểu đồ có chọn khoảng ngày, hàng 3 khối (điểm nổi bật, hoạt động gần đây, ra website). Lớp .dash- */
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap');
 
 .dash {
   --dash-green: #1f8a4c;
@@ -478,10 +477,11 @@
   padding: 22px 22px;
 }
 .dash-promo-script {
-  font-family: 'Dancing Script', 'Brush Script MT', cursive;
-  font-size: 40px;
-  font-weight: 700;
-  line-height: 1;
+  font-family: var(--font);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
   color: #0f4a36;
 }
 .dash-promo-sub {

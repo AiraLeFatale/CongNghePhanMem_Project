@@ -1,6 +1,5 @@
 /* Trang chủ theo mẫu "Khám phá di sản Sài Gòn": nền trời và cầu do AI vẽ, tiêu đề chữ có chân Playfair,
    lưới ảnh bento, dải mã QR, tour. Mọi lớp có tiền tố .hs- / .hh- */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500&display=swap');
 
 .hs {
   --hs-green: #0f4a36;
@@ -10,7 +9,7 @@
   --hs-ink-2: #34443d;
   --hs-muted: #6b7a73;
   --hs-line: #e4ebe6;
-  --hs-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --hs-serif: var(--font);
   color: var(--hs-ink-2);
 }
 .hs .wrap {

@@ -154,7 +154,7 @@
   box-shadow: 0 2px 4px rgba(18, 41, 31, 0.05), 0 14px 34px rgba(18, 41, 31, 0.1);
 }
 .pg-place .place-title {
-  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-family: var(--font);
   font-size: clamp(30px, 3.6vw, 44px);
   color: #10261d;
   letter-spacing: -0.01em;

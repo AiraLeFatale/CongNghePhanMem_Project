@@ -11,7 +11,7 @@
   --bg-alt: #f5f7f8;
   --radius: 12px;
   --radius-sm: 8px;
-  --font: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
   --header-h: 64px;
   --player-h: 84px;
   color-scheme: light;
@@ -281,7 +281,7 @@ main {
 }
 .footer-tagline {
   margin: 14px 0 0;
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: var(--font);
   font-style: italic;
   font-size: 18px;
   color: #f3ead7;
@@ -1903,7 +1903,7 @@ main {
 }
 .ft-cta h2 {
   margin: 0;
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: var(--font);
   font-size: 26px;
   font-weight: 700;
   color: #12291f;
@@ -2142,4 +2142,35 @@ main {
   .ft-langs ul {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* ---------- Font chữ: Inter cho toàn website (giống gotadi.com), tiêu đề đậm, chữ khít ---------- */
+body {
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.hh-title,
+.hs-h2,
+.hs-h3,
+.hs-tile-big .hs-tile-title,
+.hs-tour-title,
+.pg-title,
+.pg .tour-card h3,
+.pg-credits .credits-h,
+.pg-place .place-title,
+.gd-card h2,
+.ft-cta h2,
+.page-title {
+  font-family: var(--font);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+.footer-tagline {
+  font-style: normal;
+}
+.site .hh-title {
+  font-size: clamp(40px, 5vw, 70px);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
 }
